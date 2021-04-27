@@ -1,0 +1,51 @@
+---
+title: "Untitled"
+author: "Denisa Neacsu"
+date: "4/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#Setting the directory with the TRA Data sets
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/TRA Daten")
+#Importing the Tissue restricted antigeng(TRA) into the R environment
+
+TRA_Human_gtex=read.csv(file="tra.2017.human.gtex.5x.table.tsv",sep="\t")
+TRA_Mouse_4301=read.csv(file="tra.2014.mouse.4301.5x.table.tsv", sep = "\t")
+TRA_Human_roth=read.csv(file="tra.2014.human.roth.5x.table.tsv", sep = "\t")
+TRA_Human_Novartis=read.csv(file="tra.2014.human.5x.table.tsv", sep="\t")
+TRA_Mouse_Novartis=read.csv(file="tra.2014.mouse.5x.table.tsv", sep="\t")
+TRA_Human_protein_atlas=read.csv(file="Human_protein_atlas_TRA_5median_genes_annotated.tsv",
+                                 sep="\t")
+
+```
+
+```{r}
+#Just for trial to see how it works
+tiss=TRA_Human_Novartis[,11]
+bliss_chr=TRA_Human_Novartis[,7]
+
+ind=which(tiss=="skin")
+
+chrx=which(bliss_chr=="11")
+
+TRA.symbol=TRA_Human_Novartis$gene.symbol
+TRA.chrr=TRA_Human_Novartis$chrom
+
+TRA.chrx=TRA_Human_Novartis[,11]
+chrom_11=TRA.chrx[chrx]
+chrom_11
+
+skin.TRA1=TRA.symbol[ind]
+skin.TRA1
+skin.TRA2=TRA.chrr[ind]
+skin.TRA2
+
+```
+
+
