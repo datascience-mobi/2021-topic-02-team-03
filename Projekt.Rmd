@@ -24,7 +24,7 @@ TRA_Human_protien_atlas=read.csv(file="Human_protein_atlas_TRA_5median_genes_ann
 
 ```{r}
 tissue1=TRA_Human_Novartis[,11]
-ind1=which(tissue=="skin")
+ind1=which(tissue1=="skin")
 TRA.symbol1=TRA_Human_Novartis$gene.symbol
 TRA.chrx1=TRA_Human_Novartis[,11]
 
@@ -34,7 +34,7 @@ skin.TRA1
 
 ```{r}
 tissue2=TRA_Human_protien_atlas[,11]
-ind2=which(tissue=="skin")
+ind2=which(tissue2=="skin")
 TRA.symbol2=TRA_Human_protien_atlas$Symbol
 TRA.chrx2=TRA_Human_protien_atlas[,11]
 
@@ -46,7 +46,7 @@ skin.TRA2
 
 ```{r}
 tissue3.s=TRA_Human_gtex[,10]
-ind3.s=which(tissue=="Skin - Sun Exposed")
+ind3.s=which(tissue3.s=="Skin - Sun Exposed")
 TRA.symbol3.s=TRA_Human_gtex$ensembl.symbol
 TRA.chr3.sx=TRA_Human_gtex[,10]
 
@@ -58,7 +58,7 @@ skin.TRA3.s
 
 ```{r}
 tissue3.ns=TRA_Human_gtex[,10]
-ind3.ns=which(tissue=="Skin - Not Sun Exposed")
+ind3.ns=which(tissue3.ns=="Skin - Not Sun Exposed")
 TRA.symbol3.ns=TRA_Human_gtex$ensembl.symbol
 TRA.chrx3.ns=TRA_Human_gtex[,10]
 
