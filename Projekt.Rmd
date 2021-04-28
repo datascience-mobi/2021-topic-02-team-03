@@ -62,7 +62,7 @@ skin.TRA1
 
 ```{r}
 tissue=TRA_Mouse_4301[,11]
-ind=which(tissue=="skin")
+ind=which(tissue=="epidermis")
 TRA.symbol=TRA_Mouse_4301$gene.symbol
 TRA.chrx=TRA_Mouse_4301[,11]
 
@@ -72,7 +72,7 @@ skin.TRA1
 
 ```{r}
 tissue=TRA_Mouse_Novartis[,11]
-ind=which(tissue=="skin")
+ind=which(tissue=="epidermis")
 TRA.symbol=TRA_Mouse_Novartis$gene.symbol
 TRA.chrx=TRA_Mouse_Novartis[,11]
 
