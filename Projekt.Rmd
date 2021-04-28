@@ -1,6 +1,6 @@
 ---
 title: "Projekt"
-author: "Denisa Neacsu"
+author: "Denisa Neacsu, Binnur Özay, Christofer Richard, Pinar Cavus"
 date: "4/28/2021"
 output: html_document
 ---
