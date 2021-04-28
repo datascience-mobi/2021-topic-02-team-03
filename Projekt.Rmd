@@ -23,47 +23,47 @@ TRA_Human_protien_atlas=read.csv(file="Human_protein_atlas_TRA_5median_genes_ann
 ```
 
 ```{r}
-tissue=TRA_Human_Novartis[,11]
-ind=which(tissue=="skin")
-TRA.symbol=TRA_Human_Novartis$gene.symbol
-TRA.chrx=TRA_Human_Novartis[,11]
+tissue1=TRA_Human_Novartis[,11]
+ind1=which(tissue=="skin")
+TRA.symbol1=TRA_Human_Novartis$gene.symbol
+TRA.chrx1=TRA_Human_Novartis[,11]
 
-skin.TRA1=TRA.symbol[ind]
+skin.TRA1=TRA.symbol[ind1]
 skin.TRA1
 ```
 
 ```{r}
-tissue=TRA_Human_protien_atlas[,11]
-ind=which(tissue=="skin")
-TRA.symbol=TRA_Human_protien_atlas$Symbol
-TRA.chrx=TRA_Human_protien_atlas[,11]
+tissue2=TRA_Human_protien_atlas[,11]
+ind2=which(tissue=="skin")
+TRA.symbol2=TRA_Human_protien_atlas$Symbol
+TRA.chrx2=TRA_Human_protien_atlas[,11]
 
-skin.TRA1=TRA.symbol[ind]
-skin.TRA1
+skin.TRA2=TRA.symbol[ind2]
+skin.TRA2
 ```
 
 #TRA_Human_gtex for skin sun exposed
 
 ```{r}
-tissue=TRA_Human_gtex[,10]
-ind=which(tissue=="Skin - Sun Exposed")
-TRA.symbol=TRA_Human_gtex$ensembl.symbol
-TRA.chrx=TRA_Human_gtex[,10]
+tissue3.s=TRA_Human_gtex[,10]
+ind3.s=which(tissue=="Skin - Sun Exposed")
+TRA.symbol3.s=TRA_Human_gtex$ensembl.symbol
+TRA.chr3.sx=TRA_Human_gtex[,10]
 
-skin.TRA1=TRA.symbol[ind]
-skin.TRA1
+skin.TRA3.s=TRA.symbol[ind3.s]
+skin.TRA3.s
 ```
 
 #TRA_Human_gtex for skin not sun exposed
 
 ```{r}
-tissue=TRA_Human_gtex[,10]
-ind1=which(tissue=="Skin - Not Sun Exposed")
-TRA.symbol=TRA_Human_gtex$ensembl.symbol
-TRA.chrx=TRA_Human_gtex[,10]
+tissue3.ns=TRA_Human_gtex[,10]
+ind3.ns=which(tissue=="Skin - Not Sun Exposed")
+TRA.symbol3.ns=TRA_Human_gtex$ensembl.symbol
+TRA.chrx3.ns=TRA_Human_gtex[,10]
 
-skin.TRA11=TRA.symbol[ind1]
-skin.TRA11
+skin.TRA3.ns=TRA.symbol[ind3.ns]
+skin.TRA3.ns
 ```
 
 #We got the output "character(0)" here, but that is because this table actually doesn't have any skin data in it, so I guess it's fine.
