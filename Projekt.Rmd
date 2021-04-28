@@ -9,3 +9,34 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+setwd("/Users/hp/Desktop/Skin Cancer/TRA Daten")
+
+TRA_Human_gtex=read.csv(file="tra.2017.human.gtex.5x.table.tsv",sep="\t")
+TRA_Mouse_4301=read.csv(file="tra.2014.mouse.4301.5x.table.tsv", sep="\t")
+TRA_Human_roth=read.csv(file="tra.2014.human.roth.5x.table.tsv", sep="\t")
+TRA_Human_Novartis=read.csv(file="tra.2014.human.5x.table.tsv", sep="\t")
+TRA_Mouse_Novartis=read.csv(file="tra.2014.mouse.5x.table.tsv", sep="\t")
+TRA_Human_protien_atlas=read.csv(file="Human_protein_atlas_TRA_5median_genes_annotated.tsv", sep=",")
+```
+
+```{r}
+tissue=TRA_Human_Novartis[,11]
+ind=which(tissue=="skin")
+TRA.symbol=TRA_Human_Novartis$gene.symbol
+TRA.chrx=TRA_Human_Novartis[,11]
+
+skin.TRA1=TRA.symbol[ind]
+skin.TRA1
+```
+
+```{r}
+tissue=TRA_Human_protien_atlas[,11]
+ind=which(tissue=="skin")
+TRA.symbol=TRA_Human_protien_atlas$Symbol
+TRA.chrx=TRA_Human_protien_atlas[,11]
+
+skin.TRA1=TRA.symbol[ind]
+skin.TRA1
+```
+
