@@ -41,7 +41,9 @@ TRA.chrx=TRA_Human_protien_atlas[,11]
 skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
+
 #TRA_Human_gtex for skin sun exposed
+
 ```{r}
 tissue=TRA_Human_gtex[,10]
 ind=which(tissue=="Skin - Sun Exposed")
@@ -51,11 +53,12 @@ TRA.chrx=TRA_Human_gtex[,10]
 skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
+
 #TRA_Human_gtex for skin not sun exposed
+
 ```{r}
 tissue=TRA_Human_gtex[,10]
 ind1=which(tissue=="Skin - Not Sun Exposed")
-
 TRA.symbol=TRA_Human_gtex$ensembl.symbol
 TRA.chrx=TRA_Human_gtex[,10]
 
