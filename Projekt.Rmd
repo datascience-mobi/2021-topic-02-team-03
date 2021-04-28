@@ -40,6 +40,8 @@ skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
 
+#There is something wrong here that we couldn't figure out; even though there is skin data named "skin" in this table, we still get the output "character(0)" :/
+
 ```{r}
 tissue=TRA_Human_gtex[,10]
 ind=which(tissue=="skin")
@@ -50,6 +52,8 @@ skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
 
+#We also get the output "character(0)" here, but that is because this table actually doesn't have any skin data in it, so I guess it's fine.
+
 ```{r}
 tissue=TRA_Human_roth[,11]
 ind=which(tissue=="skin")
@@ -59,6 +63,8 @@ TRA.chrx=TRA_Human_roth[,11]
 skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
+
+#For the two mouse datasets we couldn't find any tissue named "skin", but we did find tissue named "epidermis". I'm guessing that is because the tables show results of mice and not humans, so the researchers decided to name the sublayer itself?
 
 ```{r}
 tissue=TRA_Mouse_4301[,11]
