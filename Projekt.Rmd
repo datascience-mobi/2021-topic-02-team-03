@@ -42,11 +42,9 @@ skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
 
-#There is something wrong here that we couldn't figure out; even though there is skin data named "skin" in this table, we still get the output "character(0)" :/
-
 ```{r}
 tissue=TRA_Human_gtex[,10]
-ind=which(tissue=="skin")
+ind=which(tissue=="Skin - Sun Exposed")
 TRA.symbol=TRA_Human_gtex$ensembl.symbol
 TRA.chrx=TRA_Human_gtex[,10]
 
@@ -54,7 +52,7 @@ skin.TRA1=TRA.symbol[ind]
 skin.TRA1
 ```
 
-#We also get the output "character(0)" here, but that is because this table actually doesn't have any skin data in it, so I guess it's fine.
+#We got the output "character(0)" here, but that is because this table actually doesn't have any skin data in it, so I guess it's fine.
 
 ```{r}
 tissue=TRA_Human_roth[,11]
