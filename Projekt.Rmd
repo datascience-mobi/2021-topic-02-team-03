@@ -9,6 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#The first line below is from my computer personally, your home user name and file names are probably different in your computer!
+
 ```{r}
 setwd("/Users/hp/Desktop/Skin Cancer/TRA Daten")
 
