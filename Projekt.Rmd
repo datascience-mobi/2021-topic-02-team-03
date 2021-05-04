@@ -117,7 +117,7 @@ skin.genes.mouse
 #Creating .csv files for both human skin genes and mouse skin genes
 
 #Putting the tables in a tables folder
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables")
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Please change the directory according to your PC
 #Using write.csv to create the files
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
