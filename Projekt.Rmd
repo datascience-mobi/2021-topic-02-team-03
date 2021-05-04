@@ -101,3 +101,25 @@ skin.TRA6=TRA.symbol6[ind6]
 skin.TRA6
 ```
 
+```{r}
+#Creating vector with all the human skin genes
+skin.genes.human = c(skin.TRA1, skin.TRA2, skin.TRA3.ns, skin.TRA3.s)
+skin.genes.human
+
+#Creating vector with all the mouse skin (epidermis) genes
+skin.genes.mouse = c(skin.TRA5, skin.TRA6)
+skin.genes.mouse
+
+
+```
+
+```{r}
+#Creating .csv files for both human skin genes and mouse skin genes
+
+#Putting the tables in a tables folder
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables")
+#Using write.csv to create the files
+write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
+write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
+
+```
