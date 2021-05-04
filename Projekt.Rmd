@@ -1,5 +1,5 @@
 ---
-title: "Projekt"
+title: "The role of skin-specific genes in skin cancer"
 author: "Denisa Neacsu, Binnur Özay, Christofer Richard, Pinar Cavus"
 date: "4/28/2021"
 output: html_document
@@ -8,13 +8,20 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-1. TRA Analysis
 
-#The first line below is from my computer personally, your home user name and file names are probably different in your computer!
+## 0. Introduction
+
+The goal of this project is to find the expression of skin specific genes in skin cancer datasets. As datasets, we used microarray data (Affymetrix chips).
+
+
+## 1. TRA Analysis
+
+The first line below is from my computer personally, your home user name and file names are probably different in your computer!
 
 ```{r}
 setwd("/Users/hp/Desktop/Skin Cancer/TRA Daten")
 
+#Import TRA Data
 TRA_Human_gtex=read.csv(file="tra.2017.human.gtex.5x.table.tsv",sep="\t")
 TRA_Mouse_4301=read.csv(file="tra.2014.mouse.4301.5x.table.tsv", sep="\t")
 TRA_Human_roth=read.csv(file="tra.2014.human.roth.5x.table.tsv", sep="\t")
@@ -24,20 +31,20 @@ TRA_Human_protien_atlas=read.csv(file="Human_protein_atlas_TRA_5median_genes_ann
 ```
 
 ```{r}
+#Skin-specific genes from TRA_Human_Novartis
 tissue1=TRA_Human_Novartis[,11]
 ind1=which(tissue1=="skin")
 TRA.symbol1=TRA_Human_Novartis$gene.symbol
-TRA.chrx1=TRA_Human_Novartis[,11]
 
 skin.TRA1=TRA.symbol[ind1]
 skin.TRA1
 ```
 
 ```{r}
+#Skin-specific genes from TRA_Human_protein_atlas
 tissue2=TRA_Human_protien_atlas[,11]
 ind2=which(tissue2=="skin")
 TRA.symbol2=TRA_Human_protien_atlas$Symbol
-TRA.chrx2=TRA_Human_protien_atlas[,11]
 
 skin.TRA2=TRA.symbol[ind2]
 skin.TRA2
@@ -46,10 +53,10 @@ skin.TRA2
 #TRA_Human_gtex for skin sun exposed
 
 ```{r}
+#Skin-specific genes from TRA_Human_gtex (sun exposed)
 tissue3.s=TRA_Human_gtex[,10]
 ind3.s=which(tissue3.s=="Skin - Sun Exposed")
 TRA.symbol3.s=TRA_Human_gtex$ensembl.symbol
-TRA.chr3.sx=TRA_Human_gtex[,10]
 
 skin.TRA3.s=TRA.symbol[ind3.s]
 skin.TRA3.s
@@ -58,49 +65,50 @@ skin.TRA3.s
 #TRA_Human_gtex for skin not sun exposed
 
 ```{r}
+#Skin-specific genes from TRA_Human_gtex (not sun exposed)
 tissue3.ns=TRA_Human_gtex[,10]
 ind3.ns=which(tissue3.ns=="Skin - Not Sun Exposed")
 TRA.symbol3.ns=TRA_Human_gtex$ensembl.symbol
-TRA.chrx3.ns=TRA_Human_gtex[,10]
 
 skin.TRA3.ns=TRA.symbol[ind3.ns]
 skin.TRA3.ns
 ```
 
-#We got the output "character(0)" here, but that is because this table actually doesn't have any skin data in it, so I guess it's fine.
+#We got the output "character(0)" here, but that is because this table actually doesn't have any data for skin tissue in it.
 
 ```{r}
+#Skin-specific genes from TRA_Human_roth (no skin-specific genes)
 tissue4=TRA_Human_roth[,11]
 ind4=which(tissue4=="skin")
 TRA.symbol4=TRA_Human_roth$gene.symbol
-TRA.chrx4=TRA_Human_roth[,11]
 
 skin.TRA4=TRA.symbol[ind4]
 skin.TRA4
 ```
 
-#For the two mouse datasets we couldn't find any tissue named "skin", but we did find tissue named "epidermis".
-#I'm guessing that is because the tables show results of mice and not humans, so the researchers decided to name the sublayer of the skin itself?
+#For the two mouse datasets we couldn't find any tissue named "skin", but we did find tissue named "epidermis". I'm guessing that is because the tables show results of mice and not humans, so the researchers decided to name the sublayer of the skin itself.
 
 ```{r}
+#Skin-specific genes from TRA_Mouse_4301 (epidermis-specific genes)
 tissue5=TRA_Mouse_4301[,11]
 ind5=which(tissue5=="epidermis")
 TRA.symbol5=TRA_Mouse_4301$gene.symbol
-TRA.chrx5=TRA_Mouse_4301[,11]
 
 skin.TRA5=TRA.symbol5[ind5]
 skin.TRA5
 ```
 
 ```{r}
+#Skin-specific genes from TRA_Mouse_Novartis (epidermis-specific genes)
 tissue6=TRA_Mouse_Novartis[,11]
 ind6=which(tissue6=="epidermis")
 TRA.symbol6=TRA_Mouse_Novartis$gene.symbol
-TRA.chrx6=TRA_Mouse_Novartis[,11]
 
 skin.TRA6=TRA.symbol6[ind6]
 skin.TRA6
 ```
+
+#Vectors for all human skin- and mouse epidermis-specific genes
 
 ```{r}
 #Creating vector with all the human skin genes
@@ -110,13 +118,11 @@ skin.genes.human
 #Creating vector with all the mouse skin (epidermis) genes
 skin.genes.mouse = c(skin.TRA5, skin.TRA6)
 skin.genes.mouse
-
-
 ```
 
-```{r}
 #Creating .csv files for both human skin genes and mouse skin genes
 
+```{r}
 #The data is unfiltered, meaning no imputation of missing values was applied. We observed numerous NA in both human and mouse skin genes
 
 #Putting the tables in a tables folder
@@ -127,9 +133,9 @@ write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.
 
 ```
 
-2. Quality control of microarray data
-  2.1 Analysis of breast cancer data set
+##2. Quality control of microarray data
 
+#2.1 Analysis of breast cancer data set
 
 ```{r}
 #Loading the necessary libraries
@@ -146,20 +152,24 @@ data.skin.cancer
 
 orig = colnames(exprs(data.skin.cancer))
 new.name = substr(orig, 1, nchar(orig)-4)
-new.name = colnames(exprs(data.skin.cancer))
+colnames(exprs(data.skin.cancer)) = new.name
 
 setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
 save.image(file = "data.skin.cancer.rda")
 
 ```
 
+#2.1.1. Single chip control
+
 ```{r}
 #Visualizing raw microarray data
 image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
 ```
 
+#2.1.3. Normalization of microarray data
+
 ```{r}
-#Normalization of microarray data. Normalization is used to remove systematic variation that can affect the analysis of the chips
+#Normalization is used to remove systematic variation that can affect the analysis of the chips
 #Still in work
 
 data.skin.cancer.norm = vsnrma(data.skin.cancer)
