@@ -116,6 +116,8 @@ skin.genes.mouse
 ```{r}
 #Creating .csv files for both human skin genes and mouse skin genes
 
+#The data is unfiltered, meaning no imputation of missing values was applied. We observed numerous NA in both human and mouse skin genes
+
 #Putting the tables in a tables folder
 setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Please change the directory according to your PC
 #Using write.csv to create the files
