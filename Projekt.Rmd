@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+1. TRA Analysis
 
 #The first line below is from my computer personally, your home user name and file names are probably different in your computer!
 
@@ -123,5 +124,46 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 #Using write.csv to create the files
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
+
+```
+
+2. Quality control of microarray data
+  2.1 Analysis of breast cancer data set
+
+
+```{r}
+#Loading the necessary libraries
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+
+#Setting directory for microarray data
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma")
+
+#Read all 15 microarray chips
+data.skin.cancer = ReadAffy()
+data.skin.cancer
+
+orig = colnames(exprs(data.skin.cancer))
+new.name = substr(orig, 1, nchar(orig)-4)
+new.name = colnames(exprs(data.skin.cancer))
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+save.image(file = "data.skin.cancer.rda")
+
+```
+
+```{r}
+#Visualizing raw microarray data
+image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
+```
+
+```{r}
+#Normalization of microarray data. Normalization is used to remove systematic variation that can affect the analysis of the chips
+#Still in work
+
+data.skin.cancer.norm = vsnrma(data.skin.cancer)
+data.skin.cancer.norm
+
 
 ```
