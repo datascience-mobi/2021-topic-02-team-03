@@ -19,7 +19,7 @@ The goal of this project is to find the expression of skin specific genes in ski
 The first line below is from my computer personally, your home user name and file names are probably different in your computer!
 
 ```{r}
-setwd("/Users/hp/Desktop/Skin Cancer/TRA Daten")
+setwd("/Users/christofer.richard/Desktop/DA 2.3/TRA Daten/")
 
 #Import TRA Data
 TRA_Human_gtex=read.csv(file="tra.2017.human.gtex.5x.table.tsv",sep="\t")
@@ -126,7 +126,7 @@ skin.genes.mouse
 #The data is unfiltered, meaning no imputation of missing values was applied. We observed numerous NA in both human and mouse skin genes
 
 #Putting the tables in a tables folder
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Please change the directory according to your PC
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables/") #Please change the directory according to your PC
 #Using write.csv to create the files
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
@@ -144,17 +144,18 @@ library(vsn)
 library(AnnotationDbi)
 
 #Setting directory for microarray data
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma")
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma/")
 
 #Read all 15 microarray chips
 data.skin.cancer = ReadAffy()
+data.skin.cancer@cdfName <- "HGU133Plus2_Hs_ENST"
 data.skin.cancer
 
 orig = colnames(exprs(data.skin.cancer))
 new.name = substr(orig, 1, nchar(orig)-4)
 colnames(exprs(data.skin.cancer)) = new.name
 
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
 save.image(file = "data.skin.cancer.rda")
 
 ```
@@ -164,9 +165,20 @@ save.image(file = "data.skin.cancer.rda")
 ```{r}
 #Visualizing raw microarray data
 image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
+
+##All of the chips seem to have a very good quality, so we can use all of them
 ```
 
-#2.1.3. Normalization of microarray data
+#2.1.2. Pheno data
+
+```{r}
+#Removal of file-endings from sample names
+filenames = rownames(pData(data.skin.cancer))
+samples = substr(filenames, 1, 10)
+rownames(pData(data.skin.cancer)) = samples
+```
+
+#3. Normalization of microarray data
 
 ```{r}
 #Normalization is used to remove systematic variation that can affect the analysis of the chips
@@ -175,5 +187,48 @@ image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
 data.skin.cancer.norm = vsnrma(data.skin.cancer)
 data.skin.cancer.norm
 
-
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+save.image(file = "normalized_data.rda")
 ```
+
+#4.1. meanSdPlot
+
+```{r}
+#Plotting meanSdPlot
+meanSdPlot(data.skin.cancer.norm)
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
+```
+
+
+#4.2. Boxplot
+
+```{r}
+#Before normalization
+#Error : X11 module cannot be loaded??
+x11(w=10, h=7)
+
+par(las=2)
+
+mmi = c(1, 0.7, 1.0477939, 0.5366749)
+par(mai=mmi)
+boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "boxplot_skin_cancer_rawdata.eps")
+
+
+#After normalization
+x11(w=10, h=7)
+
+par(las=2)
+
+mmi = c(1, 0.7, 1.0477939, 0.5366749)
+par(mai=mmi)
+boxplot(data.skin.cancer.norm, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization")
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
+```
+
