@@ -135,7 +135,7 @@ write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.
 
 ##2. Quality control of microarray data
 
-#2.1 Analysis of breast cancer data set
+#2.1 Analysis of skin cancer data set
 
 ```{r}
 #Loading the necessary libraries
