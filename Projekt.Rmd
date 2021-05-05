@@ -228,7 +228,7 @@ par(las=2)
 
 mmi = c(1, 0.7, 1.0477939, 0.5366749)
 par(mai=mmi)
-boxplot(data.skin.cancer.norm, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization")
+boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
 
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
 dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
