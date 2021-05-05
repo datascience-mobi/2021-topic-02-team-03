@@ -201,12 +201,58 @@ setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The ro
 dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 ```
 
+#4.2 Creating the gene expression data frame
+```{r}
+## extract expression values
+Expression <- exprs(data.skin.cancer.norm)
+head(Expression)
+dim(Expression)
+# 95721    15
 
-#4.2. Boxplot
+## only ensemble IDs
+Expression <- Expression[grepl("ENST", rownames(Expression)), ]
+head(Expression)
+dim(Expression)
+# 95659    15
+
+## remove .x_at suffix
+rownames(Expression) <- unlist(lapply(strsplit(rownames(Expression), split = "\\."), "[", 1))
+head(Expression)
+
+## load ensemble IDs and gene symbols from https://www.ensembl.org/biomart/martview/74741c6cba3dea58c83e6520f12fa790
+## Create the ensembl.103.txt file using BioMart
+## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Directory please
+ensembl_df <- read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
+head(ensembl_df)
+
+transcriptIDs <- as.character(ensembl_df[, "Transcript.stable.ID"])
+geneSymbol <- as.character(ensembl_df[, "HGNC.symbol"])
+names(geneSymbol) <- transcriptIDs
+head(geneSymbol)
+
+## replace ensemble IDs with HGNC symbol
+chipIDs <- rownames(Expression)
+noMatchIDs <- chipIDs[!chipIDs %in% transcriptIDs] # transcript IDs that are not in ensemble.103.txt
+length(noMatchIDs)
+# 112 
+newChipIDs <- chipIDs[chipIDs %in% transcriptIDs] # only transcript IDs that are in ensemble.103.txt (95659 - 112 = 95547)
+Expression <- Expression[newChipIDs, ]
+dim(Expression)
+# 95547    15
+
+symbol <- geneSymbol[newChipIDs]
+rownames(Expression) <- as.character(symbol)
+head(Expression)
+
+
+```
+
+#4.3. Boxplots of pre-normalized and normalized data
 
 ```{r}
 #Before normalization
-#Error : X11 module cannot be loaded??
   ## Install the newest version of XQuartz from https://www.xquartz.org/ in your computer
     ### We would recommend to have the XQuartz application open while running the code
 x11(w=10, h=7)
@@ -215,6 +261,7 @@ par(las=2)
 
 mmi = c(1, 0.7, 1.0477939, 0.5366749)
 par(mai=mmi)
+
 boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
 
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
@@ -228,6 +275,7 @@ par(las=2)
 
 mmi = c(1, 0.7, 1.0477939, 0.5366749)
 par(mai=mmi)
+
 boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
 
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
