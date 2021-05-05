@@ -208,6 +208,7 @@ dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 #Before normalization
 #Error : X11 module cannot be loaded??
   ## Install the newest version of XQuartz from https://www.xquartz.org/ in your computer
+    ### We would recommend to have the XQuartz application open while running the code
 x11(w=10, h=7)
 
 par(las=2)
