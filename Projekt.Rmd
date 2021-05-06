@@ -46,7 +46,7 @@ tissue2=TRA_Human_protien_atlas[,11]
 ind2=which(tissue2=="skin")
 TRA.symbol2=TRA_Human_protien_atlas$Symbol
 
-skin.TRA2=TRA.symbol[ind2]
+skin.TRA2=TRA.symbol2[ind2]
 skin.TRA2
 ```
 
@@ -58,7 +58,7 @@ tissue3.s=TRA_Human_gtex[,10]
 ind3.s=which(tissue3.s=="Skin - Sun Exposed")
 TRA.symbol3.s=TRA_Human_gtex$ensembl.symbol
 
-skin.TRA3.s=TRA.symbol[ind3.s]
+skin.TRA3.s=TRA.symbol3.s[ind3.s]
 skin.TRA3.s
 ```
 
@@ -70,7 +70,7 @@ tissue3.ns=TRA_Human_gtex[,10]
 ind3.ns=which(tissue3.ns=="Skin - Not Sun Exposed")
 TRA.symbol3.ns=TRA_Human_gtex$ensembl.symbol
 
-skin.TRA3.ns=TRA.symbol[ind3.ns]
+skin.TRA3.ns=TRA.symbol3.ns[ind3.ns]
 skin.TRA3.ns
 ```
 
@@ -82,7 +82,7 @@ tissue4=TRA_Human_roth[,11]
 ind4=which(tissue4=="skin")
 TRA.symbol4=TRA_Human_roth$gene.symbol
 
-skin.TRA4=TRA.symbol[ind4]
+skin.TRA4=TRA.symbol4[ind4]
 skin.TRA4
 ```
 
