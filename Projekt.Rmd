@@ -36,7 +36,7 @@ tissue1=TRA_Human_Novartis[,11]
 ind1=which(tissue1=="skin")
 TRA.symbol1=TRA_Human_Novartis$gene.symbol
 
-skin.TRA1=TRA.symbol[ind1]
+skin.TRA1=TRA.symbol1[ind1]
 skin.TRA1
 ```
 
