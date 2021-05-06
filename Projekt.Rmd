@@ -131,6 +131,7 @@ setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The ro
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
 
+#If write.cvs doesn't work for you you can try to use write.table. 
 ```
 
 ##2. Quality control of microarray data
