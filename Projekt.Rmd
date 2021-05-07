@@ -143,6 +143,13 @@ write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.
 library(affy)
 library(vsn)
 library(AnnotationDbi)
+library(hgu133plus2hsenstcdf)
+library(hgu133plus2hsenstprobe)
+library(hexbin)
+
+standardPath <- .libPaths()
+standardPath
+```
 
 #Setting directory for microarray data
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma/")
