@@ -114,10 +114,12 @@ skin.TRA6
 #Creating vector with all the human skin genes
 skin.genes.human = c(skin.TRA1, skin.TRA2, skin.TRA3.ns, skin.TRA3.s)
 skin.genes.human
+length(skin.genes.human)
 
 #Creating vector with all the mouse skin (epidermis) genes
 skin.genes.mouse = c(skin.TRA5, skin.TRA6)
 skin.genes.mouse
+length(skin.genes.mouse)
 ```
 
 #Creating .csv files for both human skin genes and mouse skin genes
@@ -301,3 +303,14 @@ setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The ro
 dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
 ```
 
+#4.3 Selecting skin specific TRA in the expression matrix
+```{r}
+## Selecting skin specific TRA in the expression matrix for HUMANS
+
+skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
+data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
+dim(data_human_skin_specific_TRA_affy)
+#3995  15
+head(data_human_skin_specific_TRA_affy)
+
+```
