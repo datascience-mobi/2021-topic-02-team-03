@@ -146,6 +146,7 @@ library(AnnotationDbi)
 library(hgu133plus2hsenstcdf)
 library(hgu133plus2hsenstprobe)
 library(hexbin)
+library(stringr)
 
 standardPath <- .libPaths()
 standardPath
@@ -212,20 +213,27 @@ dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 #4.2 Creating the gene expression data frame
 ```{r}
 ## extract expression values
-Expression <- exprs(data.skin.cancer.norm)
-head(Expression)
+Expression=exprs(data.skin.cancer.norm)
+Expression
 dim(Expression)
 # 95721    15
 
-## only ensemble IDs
-Expression <- Expression[grepl("ENST", rownames(Expression)), ]
-head(Expression)
+## Select only ENST IDs, which represent the transcript IDs
+enst_id = str_detect(rownames(Expression),"ENST")
+Expression=Expression[enst_id,]
+Expression
 dim(Expression)
 # 95659    15
 
-## remove .x_at suffix
-rownames(Expression) <- unlist(lapply(strsplit(rownames(Expression), split = "\\."), "[", 1))
-head(Expression)
+
+## remove .x_at suffix by using \\..*, which basically means removing every character after the dot "."
+rownames(Expression) = sub("\\..*","",rownames(Expression)) 
+dim(Expression)
+Expression
+
+## Remove .CEL suffix from each column name
+colnames(Expression) = sub("\\..*","", colnames(Expression))
+Expression
 
 ## load ensemble IDs and gene symbols from https://www.ensembl.org/biomart/martview/74741c6cba3dea58c83e6520f12fa790
 ## Create the ensembl.103.txt file using BioMart
@@ -235,10 +243,13 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 ensembl_df <- read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
 head(ensembl_df)
 
-transcriptIDs <- as.character(ensembl_df[, "Transcript.stable.ID"])
-geneSymbol <- as.character(ensembl_df[, "HGNC.symbol"])
-names(geneSymbol) <- transcriptIDs
-head(geneSymbol)
+## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
+transcriptIDs = Ensembl$Transcript.stable.ID
+HGNC_symbol = Ensembl$HGNC.symbol
+
+## Assigning every gene symbol to a transcript ID
+names(HGNC_symbol) = transcriptIDs
+HGNC_symbol
 
 ## replace ensemble IDs with HGNC symbol
 chipIDs <- rownames(Expression)
@@ -250,7 +261,7 @@ Expression <- Expression[newChipIDs, ]
 dim(Expression)
 # 95547    15
 
-symbol <- geneSymbol[newChipIDs]
+symbol <- HGNC_symbol[newChipIDs]
 rownames(Expression) <- as.character(symbol)
 head(Expression)
 
