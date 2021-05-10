@@ -1,0 +1,134 @@
+---
+title: "Breast cancer data set"
+author: "Denisa Neacsu", "Binnur Özay", "Pinar Cavus", "Christofer Richard"
+date: "5/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+#Loading the necessary libraries
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(hgu133plus2hsenstcdf)
+library(hgu133plus2hsenstprobe)
+library(hexbin)
+library(stringr)
+
+standardPath = .libPaths()
+standardPath
+```
+
+```{r}
+#Setting directory for microarray data
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/rawdata breast GSE27830")
+
+#Read all 15 microarray chips
+data.breast.cancer = ReadAffy()
+data.breast.cancer@cdfName = "HGU133Plus2_Hs_ENST"
+data.breast.cancer
+
+orig1 = colnames(exprs(data.breast.cancer))
+new.name1 = substr(orig1, 1, nchar(orig1)-4)
+new.name1 = colnames(exprs(data.breast.cancer))
+rownames(data.breast.cancer@phenoData) = new.name1
+rownames(data.breast.cancer@protocolData) = new.name1
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+save.image(file = "data.breast.cancer.rda")
+
+```
+
+```{r}
+
+#Normalization of microarray data. Normalization is used to remove systematic variation that can affect the analysis of the chips
+#Still in work
+
+data.breast.cancer.norm = vsnrma(data.breast.cancer)
+data.breast.cancer.norm
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+save.image(file = "normalized_data_breast.rda")
+```
+
+```{r}
+## Creating gene expression matrix for breast cancer chips
+
+## extract expression values
+breast_df=exprs(data.breast.cancer.norm)
+breast_df
+dim(breast_df)
+# 95721    15
+
+## Select only ENST IDs, which represent the transcript IDs
+enst_id1  = str_detect(rownames(breast_df),"ENST")
+breast_df=breast_df[enst_id1,]
+breast_df
+dim(breast_df)
+# 95659    15
+
+
+## Remove .x_at suffix by using \\..*, which basically means removing every character after the dot "."
+rownames(breast_df) = sub("\\..*","",rownames(breast_df)) 
+dim(breast_df)
+breast_df
+
+## Remove .CEL suffix from each column name
+colnames(breast_df) = sub("\\..*","", colnames(breast_df))
+breast_df
+
+## load ensemble IDs and gene symbols from https://www.ensembl.org/biomart/martview/74741c6cba3dea58c83e6520f12fa790
+## Create the ensembl.103.txt file using BioMart
+## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables")
+Ensembl1=read.csv("ensembl.103.txt", sep = ",")
+head(Ensembl1)
+
+## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
+transcriptIDs1 = Ensembl1$Transcript.stable.ID
+HGNC_symbol1 = Ensembl1$HGNC.symbol
+## Assigning every gene symbol to a transcript ID
+names(HGNC_symbol1) = transcriptIDs1
+HGNC_symbol1
+
+## replace ensemble IDs with HGNC symbol
+chipIDs1 = rownames(breast_df)
+noMatchIDs1 = chipIDs1[!chipIDs1 %in% transcriptIDs1] # transcript IDs that are not in ensemble.103.txt
+length(noMatchIDs1)
+
+# 112 
+newChipIDs1 = chipIDs1[chipIDs1 %in% transcriptIDs1] # only transcript IDs that are in ensemble.103.txt (95659 - 112 = 95547)
+breast_df = breast_df[newChipIDs1,]
+dim(breast_df)
+# 95547    15
+
+symbol1 = HGNC_symbol1[newChipIDs1]
+rownames(breast_df) = as.character(symbol1)
+head(breast_df)
+
+
+```
+
+
+```{r}
+#Checking for skin specific antigens in breast cancer data set
+skin.genes.human
+skin.genes.human_in_breast = which(rownames(breast_df)%in%skin.genes.human)
+data_human_skin_genes_in_breast = breast_df[skin.genes.human_in_breast,]
+dim(data_human_skin_genes_in_breast)
+#3995  10
+head(data_human_skin_genes_in_breast)
+
+
+#Plotting only 2 chips against each other  to make comparisons between skin specific genes expresed in melanoma data set, and skin specific genes expressed in breast cancer data set
+plot(data_human_skin_genes_in_breast, col=rainbow(100,start = 0, end = 0.75) [100:1])
+plot(data_human_skin_specific_TRA_affy, col=rainbow(100,start = 0, end = 0.75) [100:1])
+```
+
+
+
