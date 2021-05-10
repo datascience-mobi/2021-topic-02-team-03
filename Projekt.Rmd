@@ -314,3 +314,57 @@ dim(data_human_skin_specific_TRA_affy)
 head(data_human_skin_specific_TRA_affy)
 
 ```
+
+
+#4.4. RNA degradation 
+```{r}
+rna_degradation = AffyRNAdeg(data.skin.cancer)
+
+# RNA degradation plot shifted and scaled
+plotAffyRNAdeg(rna_degradation, col = rainbow(150))
+title(sub="Human skin cancer raw")
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "RNA_degradation_data_skin_cancer_raw.eps")
+
+#RNA degradation plot only shifted
+plotAffyRNAdeg(rna_degradation, col = rainbow(150), transform = "shift.only")
+title(sub = "Human skin cancer raw")
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
+
+summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, which have similar values, it seems that all the chips should be considered in our analysis
+
+## According to the plots, there is no obvious deviation, no line stands out; all of the chips have high expression intensity
+## The chips are qualitative
+```
+
+#4.5 Histogram
+```{r}
+## Histogram before data normalization
+x11(w=10, h=7)
+hist(data.skin.cancer, col = rainbow(150), main = "Histogram data pre-normalized")
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "Histogram data pre-normalized")
+
+## Histogram after data normalization
+plot(density(exprs(data.skin.cancer.norm)[,1]), type = "n", xlab = "log intensity", ylim = c(0,1), main = "Histogram data normalized")
+for (i in 1:ncol(exprs(data.skin.cancer.norm))) if (i == 1) plot(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "blue") else lines(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red")
+
+
+
+     
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "Histogram data normalized.eps")
+```
+
+#4.6. Skin-specific antigens extraction from gene expression df
+## Checking to see how much skin specific TRAs are expressed in the melanoma data set
+```{r}
+skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
+data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
+dim(data_human_skin_specific_TRA_affy)
+#3995  15
+head(data_human_skin_specific_TRA_affy)
+
+```
