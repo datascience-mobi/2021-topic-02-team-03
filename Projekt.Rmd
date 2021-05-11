@@ -180,14 +180,6 @@ image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
 ##All of the chips seem to have a very good quality, so we can use all of them
 ```
 
-#2.1.2. Pheno data
-
-```{r}
-#Removal of file-endings from sample names
-filenames = rownames(pData(data.skin.cancer))
-samples = substr(filenames, 1, 10)
-rownames(pData(data.skin.cancer)) = samples
-```
 
 #3. Normalization of microarray data
 
