@@ -303,20 +303,22 @@ setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The ro
 dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
 ```
 
-#4.3 Selecting skin specific TRA in the expression matrix
+#4.4. Skin-specific antigens extraction from gene expression df
+##Checking to see how much skin specific TRAs are expressed in the melanoma data set
 ```{r}
-## Selecting skin specific TRA in the expression matrix for HUMANS
-
 skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
 data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
+y = sort(rownames(data_human_skin_specific_TRA_affy))
+unique(y[y !=""])
+data_human_skin_specific_TRA_affy = data_human_skin_specific_TRA_affy[unique(y[y !=""]),]
 dim(data_human_skin_specific_TRA_affy)
-#3995  15
+#512  15
 head(data_human_skin_specific_TRA_affy)
 
 ```
 
 
-#4.4. RNA degradation 
+#4.5. RNA degradation 
 ```{r}
 rna_degradation = AffyRNAdeg(data.skin.cancer)
 
@@ -339,7 +341,7 @@ summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, whic
 ## The chips are qualitative
 ```
 
-#4.5 Histogram
+#4.6. Histogram
 ```{r}
 ## Histogram before data normalization
 x11(w=10, h=7)
@@ -358,7 +360,7 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 dev.copy2eps(file = "Histogram data normalized.eps")
 ```
 
-#4.6 Heatmap for the purpose of correlation visualization
+#4.7 Heatmap for the purpose of correlation visualization
 ```{r}
 ## Correlation matrix of the normalized data
 cor.mat = cor(exprs(data.skin.cancer.norm), method="spearman")
@@ -371,7 +373,7 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 dev.copy2eps(file =  "Heatmap correlation chips.eps")
 ```
 
-#4.7. Skin-specific antigens extraction from gene expression df
+#4.8. Skin-specific antigens extraction from gene expression df
 ##Checking to see how much skin specific TRAs are expressed in the melanoma data set
 ```{r}
 skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
