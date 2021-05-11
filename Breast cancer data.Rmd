@@ -117,12 +117,15 @@ head(breast_df)
 
 ```{r}
 #Checking for skin specific antigens in breast cancer data set
+x = sort(rownames(data_human_skin_genes_in_breast))
+unique(x[x !=""])
+head(breast_df)
 skin.genes.human
 skin.genes.human_in_breast = which(rownames(breast_df)%in%skin.genes.human)
 data_human_skin_genes_in_breast = breast_df[skin.genes.human_in_breast,]
-dim(data_human_skin_genes_in_breast)
-#3995  10
+data_human_skin_genes_in_breast = data_human_skin_genes_in_breast[unique(x[x !=""]),]
 head(data_human_skin_genes_in_breast)
+dim(data_human_skin_genes_in_breast)
 
 
 #Plotting only 2 chips against each other  to make comparisons between skin specific genes expresed in melanoma data set, and skin specific genes expressed in breast cancer data set
