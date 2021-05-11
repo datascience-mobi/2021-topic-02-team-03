@@ -358,8 +358,21 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 dev.copy2eps(file = "Histogram data normalized.eps")
 ```
 
-#4.6. Skin-specific antigens extraction from gene expression df
-## Checking to see how much skin specific TRAs are expressed in the melanoma data set
+#4.6 Heatmap for the purpose of correlation visualization
+```{r}
+## Correlation matrix of the normalized data
+cor.mat = cor(exprs(data.skin.cancer.norm), method="spearman")
+
+## Heatmap 
+library(pheatmap)
+pheatmap(cor.mat)
+
+setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file =  "Heatmap correlation chips.eps")
+```
+
+#4.7. Skin-specific antigens extraction from gene expression df
+##Checking to see how much skin specific TRAs are expressed in the melanoma data set
 ```{r}
 skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
 data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
