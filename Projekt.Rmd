@@ -373,16 +373,4 @@ setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The 
 dev.copy2eps(file =  "Heatmap correlation chips.eps")
 ```
 
-#4.8. Skin-specific antigens extraction from gene expression df
-##Checking to see how much skin specific TRAs are expressed in the melanoma data set
-```{r}
-skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
-data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
-y = sort(rownames(data_human_skin_specific_TRA_affy))
-unique(y[y !=""])
-data_human_skin_specific_TRA_affy = data_human_skin_specific_TRA_affy[unique(y[y !=""]),]
-dim(data_human_skin_specific_TRA_affy)
-#512  15
-head(data_human_skin_specific_TRA_affy)
 
-```
