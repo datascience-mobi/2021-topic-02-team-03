@@ -234,7 +234,7 @@ Expression
 ## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
 
 setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Directory please
-Ensembl <- read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
+Ensembl = read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
 head(Ensembl)
 
 ## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
@@ -246,17 +246,17 @@ names(HGNC_symbol) = transcriptIDs
 HGNC_symbol
 
 ## replace ensemble IDs with HGNC symbol
-chipIDs <- rownames(Expression)
-noMatchIDs <- chipIDs[!chipIDs %in% transcriptIDs] # transcript IDs that are not in ensemble.103.txt
+chipIDs = rownames(Expression)
+noMatchIDs = chipIDs[!chipIDs %in% transcriptIDs] # transcript IDs that are not in ensemble.103.txt
 length(noMatchIDs)
 # 112 
-newChipIDs <- chipIDs[chipIDs %in% transcriptIDs] # only transcript IDs that are in ensemble.103.txt (95659 - 112 = 95547)
-Expression <- Expression[newChipIDs, ]
+newChipIDs = chipIDs[chipIDs %in% transcriptIDs] # only transcript IDs that are in ensemble.103.txt (95659 - 112 = 95547)
+Expression = Expression[newChipIDs, ]
 dim(Expression)
 # 95547    15
 
-symbol <- HGNC_symbol[newChipIDs]
-rownames(Expression) <- as.character(symbol)
+symbol = HGNC_symbol[newChipIDs]
+rownames(Expression) = as.character(symbol)
 head(Expression)
 
 
