@@ -153,7 +153,7 @@ library(stringr)
 standardPath <- .libPaths()
 standardPath
 ```
-
+```{r}
 #Setting directory for microarray data
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma/")
 
