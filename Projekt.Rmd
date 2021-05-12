@@ -234,8 +234,8 @@ Expression
 ## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
 
 setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Directory please
-ensembl_df <- read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
-head(ensembl_df)
+Ensembl <- read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
+head(Ensembl)
 
 ## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
 transcriptIDs = Ensembl$Transcript.stable.ID
