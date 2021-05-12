@@ -272,7 +272,7 @@ x11(w=10, h=7)
 
 par(las=2)
 
-mmi = c(1, 0.7, 1.0477939, 0.5366749)
+mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
 par(mai=mmi)
 
 boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
@@ -286,7 +286,7 @@ x11(w=10, h=7)
 
 par(las=2)
 
-mmi = c(1, 0.7, 1.0477939, 0.5366749)
+mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
 par(mai=mmi)
 
 boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
