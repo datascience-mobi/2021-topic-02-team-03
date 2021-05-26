@@ -153,6 +153,7 @@ library(stringr)
 standardPath <- .libPaths()
 standardPath
 ```
+
 ```{r}
 #Setting directory for microarray data
 setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma/")
@@ -204,6 +205,93 @@ setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The ro
 dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 ```
 
+
+
+#4.3. Boxplots of pre-normalized and normalized data
+
+```{r}
+#Before normalization
+  ## Install the newest version of XQuartz from https://www.xquartz.org/ in your computer
+    ### We would recommend to have the XQuartz application open while running the code
+x11(w=10, h=7)
+
+par(las=2)
+mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
+par(mai=mmi)
+
+boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "boxplot_skin_cancer_rawdata.eps")
+
+
+#After normalization
+x11(w=10, h=7)
+
+par(las=2)
+mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
+par(mai=mmi)
+
+boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
+```
+
+
+
+#4.5. RNA degradation 
+```{r}
+rna_degradation = AffyRNAdeg(data.skin.cancer)
+
+# RNA degradation plot shifted and scaled
+plotAffyRNAdeg(rna_degradation, col = rainbow(150))
+title(sub="Human skin cancer raw")
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "RNA_degradation_data_skin_cancer_raw.eps")
+
+#RNA degradation plot only shifted
+plotAffyRNAdeg(rna_degradation, col = rainbow(150), transform = "shift.only")
+title(sub = "Human skin cancer raw")
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
+
+summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, which have similar values, it seems that all the chips should be considered in our analysis
+
+## According to the plots, there is no obvious deviation, no line stands out; all of the chips have high expression intensity
+## The chips are qualitative
+```
+
+#4.6. Histogram
+```{r}
+## Histogram before data normalization
+x11(w=10, h=7)
+hist(data.skin.cancer, col = rainbow(150), main = "Histogram data pre-normalized")
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "Histogram data pre-normalized")
+
+## Histogram after data normalization
+for (i in 1:ncol(exprs(data.skin.cancer.norm))) if (i == 1) plot(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red") else lines(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red")
+
+     
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file = "Histogram data normalized.eps")
+```
+
+#4.7 Heatmap for the purpose of correlation visualization
+```{r}
+## Correlation matrix of the normalized data
+cor.mat = cor(exprs(data.skin.cancer.norm), method="spearman")
+
+## Heatmap 
+library(pheatmap)
+pheatmap(cor.mat)
+
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+dev.copy2eps(file =  "Heatmap correlation chips.eps")
+```
+
 #4.2 Creating the gene expression data frame
 ```{r}
 ## extract expression values
@@ -233,8 +321,8 @@ Expression
 ## Create the ensembl.103.txt file using BioMart
 ## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
 
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables") #Directory please
-Ensembl = read.csv("ensembl.103.txt", sep = ",") #Separation by comma! otherwise error
+setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables")
+Ensembl = read.csv("ensembl.103.txt", sep = "\t")
 head(Ensembl)
 
 ## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
@@ -258,111 +346,110 @@ dim(Expression)
 symbol = HGNC_symbol[newChipIDs]
 rownames(Expression) = as.character(symbol)
 head(Expression)
-
-
-```
-
-#4.3. Boxplots of pre-normalized and normalized data
-
-```{r}
-#Before normalization
-  ## Install the newest version of XQuartz from https://www.xquartz.org/ in your computer
-    ### We would recommend to have the XQuartz application open while running the code
-x11(w=10, h=7)
-
-par(las=2)
-
-mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
-par(mai=mmi)
-
-boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
-
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file = "boxplot_skin_cancer_rawdata.eps")
-
-
-#After normalization
-x11(w=10, h=7)
-
-par(las=2)
-
-mmi = c(1.8, 0.7, 1.0477939, 0.5366749)
-par(mai=mmi)
-
-boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
-
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
 ```
 
 #4.4. Skin-specific antigens extraction from gene expression df
 ##Checking to see how much skin specific TRAs are expressed in the melanoma data set
 ```{r}
 skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
-data_human_skin_specific_TRA_affy = Expression[skin.genes.human.expression,]
-y = sort(rownames(data_human_skin_specific_TRA_affy))
+data.skin.cancer.human_skin_TRA = Expression[skin.genes.human.expression,]
+y = sort(rownames(data.skin.cancer.human_skin_TRA))
 unique(y[y !=""])
-data_human_skin_specific_TRA_affy = data_human_skin_specific_TRA_affy[unique(y[y !=""]),]
-dim(data_human_skin_specific_TRA_affy)
-#512  15
-head(data_human_skin_specific_TRA_affy)
-
+data.skin.cancer.human_skin_TRA = data.skin.cancer.human_skin_TRA[unique(y[y !=""]),]
+dim(data.skin.cancer.human_skin_TRA)
+#5122  15
+head(data.skin.cancer.human_skin_TRA)
 ```
 
+#5. Analysis
 
-#4.5. RNA degradation 
 ```{r}
-rna_degradation = AffyRNAdeg(data.skin.cancer)
-
-# RNA degradation plot shifted and scaled
-plotAffyRNAdeg(rna_degradation, col = rainbow(150))
-title(sub="Human skin cancer raw")
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file = "RNA_degradation_data_skin_cancer_raw.eps")
-
-#RNA degradation plot only shifted
-plotAffyRNAdeg(rna_degradation, col = rainbow(150), transform = "shift.only")
-title(sub = "Human skin cancer raw")
-
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
-
-summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, which have similar values, it seems that all the chips should be considered in our analysis
-
-## According to the plots, there is no obvious deviation, no line stands out; all of the chips have high expression intensity
-## The chips are qualitative
+#Heatmap (Visualization)
+library(RColorBrewer)
+coul = colorRampPalette(brewer.pal(8, "PiYG"))(25)
+heatmap(data.skin.cancer.human_skin_TRA, Rowv = NULL, Colv = NULL, col = coul)
 ```
 
-#4.6. Histogram
 ```{r}
-## Histogram before data normalization
-x11(w=10, h=7)
-hist(data.skin.cancer, col = rainbow(150), main = "Histogram data pre-normalized")
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file = "Histogram data pre-normalized")
+#Barplot (Localisation in chromosomes)
+##Get all the chromosome numbers for all human skin TRAs
+chromosome_1 = TRA_Human_Novartis[,7]
+chromosome_skin1 = chromosome_1[ind1]
 
-## Histogram after data normalization
-plot(density(exprs(data.skin.cancer.norm)[,1]), type = "n", xlab = "log intensity", ylim = c(0,1), main = "Histogram data normalized")
-for (i in 1:ncol(exprs(data.skin.cancer.norm))) if (i == 1) plot(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "blue") else lines(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red")
+chromosome_2 = TRA_Human_protien_atlas[,2]
+chromosome_skin2 = chromosome_2[ind2]
 
+chromosome_3 = TRA_Human_gtex[,6]
+chromosome_skin3 = chromosome_3[c(ind3.s, ind3.ns)]
 
+##Combine all chromosome numbers for skin-specific human TRAs in a vector
+chromosome_skin_human = c(chromosome_skin1, chromosome_skin2, chromosome_skin3)
+length(chromosome_skin_human)
+#1070
+chromosome_skin_human = na.omit(chromosome_skin_human[chromosome_skin_human != ""])
+length(chromosome_skin_human)
+#1012
 
-     
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file = "Histogram data normalized.eps")
+##Count the number of genes on each chromosome
+chromosome = c(1:22, "X", "Y")
+
+#i cant seem to figure out how to put all these values i printed out in a vector, so the following barplot wont work with this code; if you want to see how it's supposed to look you can put this instead: chromosome_counts = c(50:73)
+chromosome_counts = for (l in c(1:22, "X", "Y")) {
+  k = 0
+  for (i in 1:length(chromosome_skin_human)) {
+    if (chromosome_skin_human[i] == l) {
+    k = k + 1
+    }
+  }
+  print(k)
+}
+
+##Make barplot
+barplot(chromosome_counts, main = "Distribution of skin-specific TRAs over chromosomes", xlab = "Chromosomes", ylab = "Number of skin-specific TRAs", names.arg = chromosome, cex.names = 0.7, col = "darkred")
 ```
 
-#4.7 Heatmap for the purpose of correlation visualization
 ```{r}
-## Correlation matrix of the normalized data
-cor.mat = cor(exprs(data.skin.cancer.norm), method="spearman")
+#Piechart (skin TRAs)
+dis ur job
 
-## Heatmap 
-library(pheatmap)
-pheatmap(cor.mat)
-
-setwd("/Users/denisaneacsu/Documents/Bioinfo SS21/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
-dev.copy2eps(file =  "Heatmap correlation chips.eps")
+pie(sort(your data table or something), col = rainbow(20), main = "Portion of skin-specific TRAs from all human TRAs")
+dev.copy2eps(file="Piechart_skin_TRA.eps")
 ```
 
+```{r}
+#Venn diagram (Upregulated genes that are also TRAs)
+
+```
+
+```{r}
+#Boxplots(Gene expression after different treatments after 3 hours)
+
+#Boxplots(Gene expression after different treatments after 24 hours)
+
+#Boxplots(Gene expression after with or without sun exposure)
+
+```
+
+
+```{r}
+#Clustering
+##Elbow method
+
+##k-means
+
+```
+
+
+```{r}
+#Principal component analysis
+
+```
+
+
+```{r}
+#Linear regression model (Predict drug target genes with identified genes)
+
+#F-test
+
+```
 
