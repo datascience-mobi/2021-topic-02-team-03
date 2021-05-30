@@ -118,6 +118,20 @@ skin.genes.human = unique(c(skin.TRA1, skin.TRA2, skin.TRA3.ns, skin.TRA3.s))
 skin.genes.human
 length(skin.genes.human)
 
+#Removing NAs
+vector = lapply(skin.genes.human,function(x){sum(is.na(x))}) #sum up all missing values
+vector
+which(vector>0) # display the missing value
+# no.239, that means 1 NA
+skin.genes.human = skin.genes.human[-which(vector>0)] 
+rm(vector)
+
+length(skin.genes.human)
+#646
+
+which(is.na(skin.genes.human)) # Verification that the NA was removed
+
+
 #Creating vector with all the mouse skin (epidermis) genes
 skin.genes.mouse = c(skin.TRA5, skin.TRA6)
 skin.genes.mouse
@@ -348,6 +362,28 @@ dim(Expression)
 symbol = HGNC_symbol[newChipIDs]
 rownames(Expression) = as.character(symbol)
 head(Expression)
+
+
+
+### Cleaning the Expression data frame
+
+## Checking for NAs
+length(which(is.na(Expression)))
+# 0 
+
+## Checking for ""
+length(which(rownames(Expression)==""))
+#1096
+
+## Removing "" (spaces)
+all.spaces.exp = sapply(rownames(Expression),function(x){which(x=="")}) #sum up all spaces ""
+
+which(all.spaces.exp>0) # display the spaces ""
+
+Expression = Expression[-which(all.spaces.exp>0),] 
+rm(all.spaces.exp)
+dim(Expression)
+#94451 15
 ```
 
 #4.4. Skin-specific antigens extraction from gene expression df
@@ -359,7 +395,7 @@ y = sort(rownames(data.skin.cancer.human_skin_TRA))
 unique(y[y !=""])
 data.skin.cancer.human_skin_TRA = data.skin.cancer.human_skin_TRA[unique(y[y !=""]),]
 dim(data.skin.cancer.human_skin_TRA)
-#5122  15
+#512  15
 head(data.skin.cancer.human_skin_TRA)
 ```
 
