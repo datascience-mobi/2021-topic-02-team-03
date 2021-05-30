@@ -411,38 +411,37 @@ heatmap(data.skin.cancer.human_skin_TRA, Rowv = NULL, Colv = NULL, col = coul)
 ```{r}
 #Barplot (Localisation in chromosomes)
 ##Get all the chromosome numbers for all human skin TRAs
-chromosome_1 = TRA_Human_Novartis[,7]
-chromosome_skin1 = chromosome_1[ind1]
+chromosome_1 = TRA_Human_Novartis[,c(3,7)]
+chromosome_skin1 = as.matrix(chromosome_1[ind1,])
 
-chromosome_2 = TRA_Human_protien_atlas[,2]
-chromosome_skin2 = chromosome_2[ind2]
+chromosome_2 = TRA_Human_protien_atlas[,c(6,2)]
+chromosome_skin2 = as.matrix(chromosome_2[ind2,])
 
-chromosome_3 = TRA_Human_gtex[,6]
-chromosome_skin3 = chromosome_3[c(ind3.s, ind3.ns)]
+chromosome_3 = TRA_Human_gtex[,c(3,6)]
+chromosome_skin3 = as.matrix(chromosome_3[c(ind3.s, ind3.ns),])
 
-##Combine all chromosome numbers for skin-specific human TRAs in a vector
-chromosome_skin_human = c(chromosome_skin1, chromosome_skin2, chromosome_skin3)
-length(chromosome_skin_human)
-#1070
-chromosome_skin_human = na.omit(chromosome_skin_human[chromosome_skin_human != ""])
-length(chromosome_skin_human)
-#1012
+##Combine all 3 tables and remove duplicates and empty values to make a clean list of chromosome numbers
+chromosome_gene_table = rbind(chromosome_skin1, chromosome_skin2, chromosome_skin3)
+rownames(chromosome_gene_table) = c()
+head(chromosome_gene_table)
+
+a = sort(chromosome_gene_table[,1])
+
+rownames(chromosome_gene_table) = chromosome_gene_table[,1]
+chromosome_gene_table = chromosome_gene_table[,2]
+
+chromosome_list = chromosome_gene_table[unique(a[a !=""])]
 
 ##Count the number of genes on each chromosome
-chromosome = c(1:22, "X", "Y")
+localization = table(chromosome_list)
+localization = as.matrix(localization)
 
-#i cant seem to figure out how to put all these values i printed out in a vector, so the following barplot wont work with this code; if you want to see how it's supposed to look you can put this instead: chromosome_counts = c(50:73)
-chromosome_counts = for (l in c(1:22, "X", "Y")) {
-  k = 0
-  for (i in 1:length(chromosome_skin_human)) {
-    if (chromosome_skin_human[i] == l) {
-    k = k + 1
-    }
-  }
-  print(k)
-}
+sorted_chromosomes = str_sort(rownames(localization), numeric = T)
+chromosome_counts = localization[sorted_chromosomes,]
 
 ##Make barplot
+chromosome = c(1:22, "X")
+
 barplot(chromosome_counts, main = "Distribution of skin-specific TRAs over chromosomes", xlab = "Chromosomes", ylab = "Number of skin-specific TRAs", names.arg = chromosome, cex.names = 0.7, col = "darkred")
 ```
 
@@ -519,10 +518,31 @@ dev.copy2eps(file="Piechart_skin_TRA.eps")
 
 ```{r}
 #Clustering
-##Elbow method
-
 ##k-means
+km = kmeans(x = t(data_topVar), centers = 4, nstart = 15)
+km$cluster
 
+##Elbow method
+###Picking the most variable genes
+topVar = apply(data.skin.cancer.human_skin_TRA, 1, var)
+data_topVar = data.skin.cancer.human_skin_TRA[topVar > quantile(topVar, probs = 0.8),]
+
+###Plot graph for WSS
+wss = sapply(2:10, function(k){kmeans(x = t(data_topVar), centers = k)$tot.withinss})
+plot(2:10, wss, type = 'b', pch = 19, xlab = "Number of clusters", ylab ="WSS")
+##Optimal number of clusters = 3 or 4 (more to 3(~70%), but sometimes also 4)
+
+##Silhouette method
+###Computing the pairwise distances of all patients
+paired_d = dist(t(data_topVar))
+
+###Plot graph
+library(cluster)
+plot(silhouette(km$cluster, paired_d))
+
+
+##3 Clusters: 1) sherk D3 & D7    2)erk & trametinib 3h   3)erk & trametinib 24h
+##4 Clusters: 1) sherk D3     2)sherk D7    3)erk & trametinib 3h   4)erk & trametinib 24h
 ```
 
 
