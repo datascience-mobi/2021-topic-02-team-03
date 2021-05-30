@@ -410,10 +410,44 @@ barplot(chromosome_counts, main = "Distribution of skin-specific TRAs over chrom
 
 ```{r}
 #Piechart (skin TRAs)
-dis ur job
 
-pie(sort(your data table or something), col = rainbow(20), main = "Portion of skin-specific TRAs from all human TRAs")
-dev.copy2eps(file="Piechart_skin_TRA.eps")
+#Creating small vectors for each table containing only NON-skin-specific TRAs
+#TRA_Human_Novartis
+bla1 = which(tissue1!="skin")
+TRA.symbolA=TRA_Human_Novartis$gene.symbol
+non.skin.TRA1=TRA.symbolA[bla1]
+non.skin.TRA1
+
+#TRA_Human_protein_atlas
+bla2 = which(tissue2!="skin")
+TRA.symbolB=TRA_Human_protien_atlas$Symbol
+non.skin.TRA2=TRA.symbolB[bla2]
+non.skin.TRA2
+
+#TRA_Human_gtex (sun exposed)
+bla3.s = which(tissue3.s!="skin")
+TRA.symbolC=TRA_Human_gtex$ensembl.symbol
+non.skin.TRA3.s=TRA.symbolC[bla3.s]
+non.skin.TRA3.s
+
+#TRA_Human_gtex (not sun exposed)
+bla3.ns = which(tissue3.ns!="skin")
+TRA.symbolD=TRA_Human_gtex$ensembl.symbol
+non.skin.TRA3.ns=TRA.symbol3.ns[bla3.ns]
+non.skin.TRA3.ns
+
+
+# Putting all the small non-skin-specific TRA vectors in a general vector containing all of them
+NON_skin_specific_TRA = unique(c(non.skin.TRA1, non.skin.TRA2, non.skin.TRA3.s, non.skin.TRA3.ns))
+length(NON_skin_specific_TRA)
+
+prozent = skin.genes.human/sum(skin.genes.human)
+prozent
+labels = c("Skin-specific TRAs", "Other TRAs")
+
+###still in work
+
+dev.copy2eps(file="Piechart_skin_TRA.eps") #won't work yet
 ```
 
 ```{r}
