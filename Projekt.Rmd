@@ -19,9 +19,11 @@ The goal of this project is to find the expression of skin specific genes in ski
 The first line below is from my computer personally, your home user name and file names are probably different in your computer!
 
 ```{r}
-setwd("/Users/christofer.richard/Desktop/DA 2.3/TRA Daten/")
+projectPath=dirname(rstudioapi::getSourceEditorContext()$path)
+projectPath
 
 #Import TRA Data
+setwd(paste(projectPath, 'TRA Daten', sep = '/'))
 TRA_Human_gtex=read.csv(file="tra.2017.human.gtex.5x.table.tsv",sep="\t")
 TRA_Mouse_4301=read.csv(file="tra.2014.mouse.4301.5x.table.tsv", sep="\t")
 TRA_Human_roth=read.csv(file="tra.2014.human.roth.5x.table.tsv", sep="\t")
@@ -128,7 +130,7 @@ length(skin.genes.mouse)
 #The data is unfiltered, meaning no imputation of missing values was applied. We observed numerous NA in both human and mouse skin genes
 
 #Putting the tables in a tables folder
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables/") #Please change the directory according to your PC
+setwd(paste(projectPath, 'tables', sep = '/')) #
 #Using write.csv to create the files
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 write.csv(matrix(skin.genes.mouse), file = "skin.specific.genes.mouse.TRA", row.names = F, sep = "\t")
@@ -156,7 +158,7 @@ standardPath
 
 ```{r}
 #Setting directory for microarray data
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/rawdata/GSE57721 melanoma/")
+setwd(paste(projectPath, 'rawdata/GSE57721 melanoma', sep = '/'))
 
 #Read all 15 microarray chips
 data.skin.cancer = ReadAffy()
@@ -167,7 +169,7 @@ orig = colnames(exprs(data.skin.cancer))
 new.name = substr(orig, 1, nchar(orig)-4)
 colnames(exprs(data.skin.cancer)) = new.name
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+setwd(paste(projectPath, 'sessions/rda', sep = '/'))
 save.image(file = "data.skin.cancer.rda")
 
 ```
@@ -191,7 +193,7 @@ image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1])
 data.skin.cancer.norm = vsnrma(data.skin.cancer)
 data.skin.cancer.norm
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/sessions/rda")
+setwd(paste(projectPath, 'sessions/rda', sep = '/'))
 save.image(file = "normalized_data.rda")
 ```
 
@@ -201,7 +203,7 @@ save.image(file = "normalized_data.rda")
 #Plotting meanSdPlot
 meanSdPlot(data.skin.cancer.norm)
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 ```
 
@@ -221,7 +223,7 @@ par(mai=mmi)
 
 boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "boxplot_skin_cancer_rawdata.eps")
 
 
@@ -234,7 +236,7 @@ par(mai=mmi)
 
 boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization") #Here use exprs(), otherwise there will be an error "x must be atomic"
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
 ```
 
@@ -247,14 +249,14 @@ rna_degradation = AffyRNAdeg(data.skin.cancer)
 # RNA degradation plot shifted and scaled
 plotAffyRNAdeg(rna_degradation, col = rainbow(150))
 title(sub="Human skin cancer raw")
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "RNA_degradation_data_skin_cancer_raw.eps")
 
 #RNA degradation plot only shifted
 plotAffyRNAdeg(rna_degradation, col = rainbow(150), transform = "shift.only")
 title(sub = "Human skin cancer raw")
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
 
 summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, which have similar values, it seems that all the chips should be considered in our analysis
@@ -268,14 +270,14 @@ summaryAffyRNAdeg(rna_degradation) # According to the values of the slopes, whic
 ## Histogram before data normalization
 x11(w=10, h=7)
 hist(data.skin.cancer, col = rainbow(150), main = "Histogram data pre-normalized")
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "Histogram data pre-normalized")
 
 ## Histogram after data normalization
 for (i in 1:ncol(exprs(data.skin.cancer.norm))) if (i == 1) plot(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red") else lines(density(log2(exprs(data.skin.cancer.norm)[, i])), col = "red")
 
      
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file = "Histogram data normalized.eps")
 ```
 
@@ -288,7 +290,7 @@ cor.mat = cor(exprs(data.skin.cancer.norm), method="spearman")
 library(pheatmap)
 pheatmap(cor.mat)
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/plots")
+setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2eps(file =  "Heatmap correlation chips.eps")
 ```
 
@@ -321,7 +323,7 @@ Expression
 ## Create the ensembl.103.txt file using BioMart
 ## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
 
-setwd("/Users/christofer.richard/Desktop/DA 2.3/Bioinformatik TRA Projekt/The role of skin specific genes in skin cancer/tables")
+setwd(paste(projectPath, 'tables', sep = '/'))
 Ensembl = read.csv("ensembl.103.txt", sep = "\t")
 head(Ensembl)
 
