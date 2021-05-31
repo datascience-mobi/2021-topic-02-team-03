@@ -338,7 +338,7 @@ Expression
 ## Here beware of Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol, as we need them to visualize the gene data frame
 
 setwd(paste(projectPath, 'tables', sep = '/'))
-Ensembl = read.csv("ensembl.103.txt", sep = "\t")
+Ensembl = read.csv(paste(projectPath, 'tables/ensembl.103.txt', sep = '/'), sep = "\t")
 head(Ensembl)
 
 ## Extracting the transcript IDs and the HGNC symbols (or gene symbols) from the ensembl data frame
