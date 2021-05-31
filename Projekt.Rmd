@@ -406,6 +406,10 @@ head(data.skin.cancer.human_skin_TRA)
 library(RColorBrewer)
 coul = colorRampPalette(brewer.pal(8, "PiYG"))(25)
 heatmap(data.skin.cancer.human_skin_TRA, Rowv = NULL, Colv = NULL, col = coul)
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer.eps') #eps file
+dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer.pdf') #pdf file
 ```
 
 ```{r}
@@ -443,6 +447,10 @@ chromosome_counts = localization[sorted_chromosomes,]
 chromosome = c(1:22, "X")
 
 barplot(chromosome_counts, main = "Distribution of skin-specific TRAs over chromosomes", xlab = "Chromosomes", ylab = "Number of skin-specific TRAs", names.arg = chromosome, cex.names = 0.7, col = "darkred")
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = 'Distribution of skin-specific TRAs over chromosomes.eps') # eps file
+dev.copy2pdf(file = 'Distribution of skin-specific TRAs over chromosomes.pdf') # pdf file
 ```
 
 ```{r}
@@ -501,7 +509,8 @@ legend("topright", labels, cex = 0.8,fill = color)
 setwd(paste(projectPath, 'plots', sep = '/'))
 
 
-dev.copy2eps(file="Piechart_skin_TRA.eps") 
+dev.copy2eps(file="Piechart_skin_TRA.eps") # eps file
+dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 ```
 
 ```{r}
