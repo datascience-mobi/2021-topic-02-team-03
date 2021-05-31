@@ -492,10 +492,13 @@ labels = paste(labels,"%",sep="") # ad % to labels
 # install.packages("RColorBrewer")
 library(RColorBrewer)
 
-color <- brewer.pal(length(labels), "Set3") 
+color = brewer.pal(length(labels), "Spectral") 
 
 pie( c(prozent, prozent_2),labels = labels, col = color,
    main="Pie Chart skin specific TRAs")
+legend("topright", labels, cex = 0.8,fill = color)
+
+setwd(paste(projectPath, 'plots', sep = '/'))
 
 
 dev.copy2eps(file="Piechart_skin_TRA.eps") 
