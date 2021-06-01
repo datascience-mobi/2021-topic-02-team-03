@@ -559,7 +559,7 @@ nosun_exp <- data.skin.cancer.human_skin_TRA[no.sun,]
 sunexpchip = unname(sun_exp[,13])
 nosunexpchip = unname(nosun_exp[,13])
 
-lmts <- range(sunexpchip1,nosunexpchip1)
+lmts <- range(sunexpchip,nosunexpchip)
 
 par(mfrow = c(1, 2))
 boxplot(sunexpchip,ylim=lmts)
@@ -575,7 +575,7 @@ twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
 three.days = data.skin.cancer.human_skin_TRA[,1:3]
 seven.days = data.skin.cancer.human_skin_TRA[,4:5]
 
-data.fortimep=rbind(mostupregulated,mostupregulated,mostupregulated,mostupregulated)
+data.fortime=rbind(mostupregulated,mostupregulated,mostupregulated,mostupregulated)
 data.fortime[c(6:9),c(three.days,seven.days,twentyfour.hours)]=NA
 data.fortime[c(10:15),c(seven.days,three.days,three.hours)]=NA
 data.fortime[c(1:3),c(twentyfour.hours,three.hours,seven.days)]=NA
@@ -592,13 +592,13 @@ sherk1 <- data[,1:5]
 ERK12inh <- c(data[,6:7], data[10:12])
 trametinib <- c(data[8:9], data[13:15])
 
-data.new=rbind(mostupregulated,mostupregulated,mostupregulated)
-data.new[c(1:5),c(ERK12inh, trametinib)]=NA
-data.new[c(6:7, 10:12),c(sherk1,trametinib)]=NA
-data.new[c(8:9, 13:15),c(sherk1, ERK12inh)]=NA
+data.fordrug=rbind(mostupregulated,mostupregulated,mostupregulated)
+data.fordrug[c(1:5),c(ERK12inh, trametinib)]=NA
+data.fordrug[c(6:7, 10:12),c(sherk1,trametinib)]=NA
+data.fordrug[c(8:9, 13:15),c(sherk1, ERK12inh)]=NA
 
-order.vector=sort(colnames(t(data.new)),index.return=T)$ix
-boxplot(t(data.new)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"),main="diff drugs",ylab="log2(gene expression)")
+order.vector=sort(colnames(t(data.fordrug)),index.return=T)$ix
+boxplot(t(data.fordrug)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"),main="diff drugs",ylab="log2(gene expression)")
 abline(h=c(6:12),col="grey",lty=3)
 legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple"),pch=15,bg="white")
 
