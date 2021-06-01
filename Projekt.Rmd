@@ -518,15 +518,95 @@ dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 
 ```
 
+
+# Highly upregulated Genes
+
 ```{r}
-#Boxplots(Gene expression after different treatments after 3 hours)
+# this is what our genes' expressions look like
 
-#Boxplots(Gene expression after different treatments after 24 hours)
+par(las=2)
+boxplot(t(data.skin.cancer.human_skin_TRA),col=rainbow(length(rownames(data.skin.cancer.human_skin_TRA))),main="all genes",cex.axis=0.8)
 
-#Boxplots(Gene expression after with or without sun exposure)
+# putting the upregulated genes in a vector, i chose 12 after looking at the overall distribution of our gene expression above, we can change it later if you guys want to
+data <- data.skin.cancer.human_skin_TRA
+upregulated <- data[which(data[,1]>12),]
+# note that this is only for chip one, i have to work on how to look at all of the chips' expressions at the same time
+
+# looking at the expressions of the upregulated genes
+par(las=2)
+boxplot(t(upregulated),col=rainbow(length(rownames(upregulated))),main="upregulated",cex.axis=0.8)
+
+# specifically the highly upregulated ones, the ones we'll be dealing with
+mostupregulated <- data[which(data[,1]>13.5),]
+boxplot(t(mostupregulated),col=rainbow(length(rownames(mostupregulated))),main="most upregulated",cex.axis=0.8)
+# i have noted the expressions of these for every chip, and they vary except for two highest: GPNMB and ANXA2
+# except for these two NDRG1, RPL18, DCT, CD44, MLANA also showed high expressions, although varying between chips, the decision of if we're going to involve these too or not would only make sense after comparing the expression data of these genes over all the chips at the same time, i'm open to ideas and help on that XD
+```
+
+# Sun exposure, different times, and different drugs
+
+```{r}
+
+# boxplots of sun exposure vs no sun exposure in all data
+
+#finding the sun exposed and sun not exposed genes in our expression dataframe
+sun=intersect(rownames(data.skin.cancer.human_skin_TRA),skin.TRA3.s)
+no.sun=intersect(rownames(data.skin.cancer.human_skin_TRA),skin.TRA3.ns)
+
+#removing the gene names, so that i can plot the gene expression only from one chip
+sun_exp <- data.skin.cancer.human_skin_TRA[sun,]
+nosun_exp <- data.skin.cancer.human_skin_TRA[no.sun,]
+sunexpchip = unname(sun_exp[,13])
+nosunexpchip = unname(nosun_exp[,13])
+
+lmts <- range(sunexpchip1,nosunexpchip1)
+
+par(mfrow = c(1, 2))
+boxplot(sunexpchip,ylim=lmts)
+boxplot(nosunexpchip,ylim=lmts)
+
+#i tried different chips as i put their numbers in the code above one by one, and they don't seem to differ significantly so i just left it at that.
+#however i did try what Maria showed in github for different times, and different drugs:
+
+# boxplots of upregulated expressions with different hours 
+
+three.hours = data.skin.cancer.human_skin_TRA[,6:9]
+twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
+three.days = data.skin.cancer.human_skin_TRA[,1:3]
+seven.days = data.skin.cancer.human_skin_TRA[,4:5]
+
+data.fortimep=rbind(mostupregulated,mostupregulated,mostupregulated,mostupregulated)
+data.fortime[c(6:9),c(three.days,seven.days,twentyfour.hours)]=NA
+data.fortime[c(10:15),c(seven.days,three.days,three.hours)]=NA
+data.fortime[c(1:3),c(twentyfour.hours,three.hours,seven.days)]=NA
+data.fortime[c(4:5),c(twentyfour.hours,three.hours,three.days)]=NA
+
+order.vector=sort(colnames(t(data.new)),index.return=T)$ix
+boxplot(t(data.new)[,order.vector],cex.axis=0.6,col=c("pink","red","yellow", "purple"),main="skin specific TRA expression in skin cancer",ylab="log2(gene expression)")
+abline(h=c(6:12),col="grey",lty=3)
+legend("topright",c("3h","24h","3d", "7d"),col=c("pink","red","yellow", "purple"),pch=15,bg="white")
+
+# boxplots of upregulated expressions with different drugs
+
+sherk1 <- data[,1:5]
+ERK12inh <- c(data[,6:7], data[10:12])
+trametinib <- c(data[8:9], data[13:15])
+
+data.new=rbind(mostupregulated,mostupregulated,mostupregulated)
+data.new[c(1:5),c(ERK12inh, trametinib)]=NA
+data.new[c(6:7, 10:12),c(sherk1,trametinib)]=NA
+data.new[c(8:9, 13:15),c(sherk1, ERK12inh)]=NA
+
+order.vector=sort(colnames(t(data.new)),index.return=T)$ix
+boxplot(t(data.new)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"),main="diff drugs",ylab="log2(gene expression)")
+abline(h=c(6:12),col="grey",lty=3)
+legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple"),pch=15,bg="white")
+
+# either i'm doing something wrong here, or there is really no significant difference between the data of sun or not, different drugs, and different times, which i think makes sense. still, please let me know your thoughts.
 
 ```
 
+# Clustering
 
 ```{r}
 #Clustering
