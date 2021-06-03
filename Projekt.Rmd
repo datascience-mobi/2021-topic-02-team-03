@@ -397,19 +397,40 @@ data.skin.cancer.human_skin_TRA = data.skin.cancer.human_skin_TRA[unique(y[y !="
 dim(data.skin.cancer.human_skin_TRA)
 #512  15
 head(data.skin.cancer.human_skin_TRA)
+
+
+## Changing column names in data.skin.cancer.human_skin_TRA data frame
+
+colnames(data.skin.cancer.human_skin_TRA)[1] = "Sherk1_D3a"
+colnames(data.skin.cancer.human_skin_TRA)[2] = "Sherk1_D3b"
+colnames(data.skin.cancer.human_skin_TRA)[3] = "Sherk1_D3c"
+colnames(data.skin.cancer.human_skin_TRA)[4] = "Sherk1_D7a"
+colnames(data.skin.cancer.human_skin_TRA)[5] = "Sherk1_D7c"
+colnames(data.skin.cancer.human_skin_TRA)[6] = "ERK12_inh_3ha"
+colnames(data.skin.cancer.human_skin_TRA)[7] = "ERK12_inh_3hb"
+colnames(data.skin.cancer.human_skin_TRA)[8] = "Trametinib_3hb"
+colnames(data.skin.cancer.human_skin_TRA)[9] = "Trametinib_3hc"
+colnames(data.skin.cancer.human_skin_TRA)[10] = "ERK12_inh_24ha"
+colnames(data.skin.cancer.human_skin_TRA)[11] = "ERK12_inh_24hb"
+colnames(data.skin.cancer.human_skin_TRA)[12] = "ERK12_inh_24hc"
+colnames(data.skin.cancer.human_skin_TRA)[13] = "Trametinib_24ha"
+colnames(data.skin.cancer.human_skin_TRA)[14] = "Trametinib_24hb"
+colnames(data.skin.cancer.human_skin_TRA)[15] = "Trametinib_24hc"
+colnames(data.skin.cancer.human_skin_TRA)
+head(data.skin.cancer.human_skin_TRA)
 ```
 
 #5. Analysis
 
 ```{r}
 #Heatmap (Visualization)
-library(RColorBrewer)
-coul = colorRampPalette(brewer.pal(8, "PiYG"))(25)
-heatmap(data.skin.cancer.human_skin_TRA, Rowv = NULL, Colv = NULL, col = coul)
 
+library(gplots)
+
+heatmap.2(data.skin.cancer.human_skin_TRA, key = T, col = redgreen(100), symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6)
 setwd(paste(projectPath, 'plots', sep = '/'))
-dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer.eps') #eps file
-dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer.pdf') #pdf file
+dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer_1.eps') #eps file
+dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer_1.pdf') #pdf file
 ```
 
 ```{r}
