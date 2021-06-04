@@ -623,7 +623,10 @@ boxplot(t(data.fordrug)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"
 abline(h=c(6:12),col="grey",lty=3)
 legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple"),pch=15,bg="white")
 
-# either i'm doing something wrong here, or there is really no significant difference between the data of sun or not, different drugs, and different times, which i think makes sense. still, please let me know your thoughts.
+# ERK12inh vs sherk1 drug efficacy
+# look into same drug same time chips separately to find out which genes' expression went high the most -> upregulated
+# compare the upregulated ones with breast cancer upregulated ones
+# cluster to confirm upregulated genes (see if they are together?)
 
 ```
 
