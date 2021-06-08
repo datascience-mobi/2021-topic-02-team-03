@@ -630,6 +630,84 @@ legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple
 
 ```
 
+# Edited version of the second half of the above chunk on 01.07.2021 + some stuff
+
+```{r}
+#three.hours = data.skin.cancer.human_skin_TRA[,6:9]
+#twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
+#three.days = data.skin.cancer.human_skin_TRA[,1:3]
+#seven.days = data.skin.cancer.human_skin_TRA[,4:5]
+
+a.data.fortime=rbind(mostupregulated,mostupregulated,mostupregulated,mostupregulated)
+a.data.fortime[c(1:4),c(4:15)]=NA
+a.data.fortime[c(5:8),c(1:3,6:15)]=NA
+a.data.fortime[c(9:12),c(1:5,10:15)]=NA
+a.data.fortime[c(13:16),c(1:9)]=NA
+
+a.order.vector=sort(colnames(t(a.data.fortime)),index.return=T)$ix
+boxplot(t(a.data.fortime)[,a.order.vector],cex.axis=0.6,col=c("pink","red","yellow", "purple"),main="skin specific TRA expression in skin cancer",ylab="log2(gene expression)")
+abline(h=c(6:12),col="grey",lty=3)
+legend("topright",c("3h","24h","3d", "7d"),col=c("pink","red","yellow", "purple"),pch=15,bg="white")
+
+
+# boxplots of upregulated expressions with different drugs
+
+#sherk1 <- data[,1:5]
+#ERK12inh <- c(data[,6:7], data[10:12])
+#trametinib <- c(data[8:9], data[13:15])
+
+mostvariable <- data[variable_expressed,]
+a.data.new=rbind(mostvariable,mostvariable,mostvariable,mostvariable,mostvariable,mostvariable)
+a.data.new[c(1:5), c(4:15)]=NA
+a.data.new[c(6:10), c(1:3, 6:15)]=NA
+a.data.new[c(11:15), c(1:5, 8:15)]=NA
+a.data.new[c(16:20), c(1:7, 10:15)]=NA
+a.data.new[c(21:25), c(1:9, 13:15)]=NA
+a.data.new[c(26:30), c(1:12)]=NA
+
+a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
+boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las =2)
+abline(h=c(6:12),col="grey",lty=3)
+legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "trametinib after 3h", "ERK12inh after 24h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
+
+
+Problem: this is only for most upregulated genes in CHIP 1, this has to be repeated for all OTHER chips (so also different number of genes) --> need for loop with length(mostupregulated)!!!!
+
+
+median(data)
+
+mostupregulated <- data[which(data[,1]>3.75),]
+a.data.new=rbind(mostupregulated,mostupregulated,mostupregulated,mostupregulated,mostupregulated,mostupregulated)
+a.data.new[c(1:4), c(4:15)]=NA
+a.data.new[c(5:8), c(1:3, 6:15)]=NA
+a.data.new[c(9:12), c(1:5, 8:15)]=NA
+a.data.new[c(13:16), c(1:7, 10:15)]=NA
+a.data.new[c(17:20), c(1:9, 13:15)]=NA
+a.data.new[c(21:24), c(1:12)]=NA
+
+a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
+boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las = 2)
+abline(h=c(6:12),col="grey",lty=3)
+legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "trametinib after 3h", "ERK12inh after 24h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
+
+
+a.km = kmeans(x = data[rownames(upregulated),], centers = 4, nstart = 15)
+table(a.km$cluster)
+a.km
+
+
+
+k = c()
+for(i in 1:15){
+  k = c(k, rownames(data[which(data[,i]>3.5),]))
+}
+k
+
+highly_expressed = unique(k)
+variable_expressed = highly_expressed[c(26, 75, 86, 87, 103)]
+```
+
+
 # Clustering
 
 ```{r}
