@@ -424,7 +424,7 @@ head(data.skin.cancer.human_skin_TRA)
 
 ```{r}
 #Heatmap (Visualization)
-
+install.packages("gplots")
 library(gplots)
 
 heatmap.2(data.skin.cancer.human_skin_TRA, key = T, col = redgreen(100), symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6)
