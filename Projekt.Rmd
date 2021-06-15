@@ -569,9 +569,9 @@ data.matrix[1:5,]
 
 require(Biobase)
 rownames(data.matrix) <- probesets
-colnames(data.matrix) <- names(gsmlist)
-pdata <- data.frame(samples=names(gsmlist))
-rownames(pdata) <- names(gsmlist)
+colnames(data.matrix) <- names(gdslist)
+pdata <- data.frame(samples=names(gdslist))
+rownames(pdata) <- names(gdslist)
 pheno <- as(pdata,"AnnotatedDataFrame")
 eset2 <- new('ExpressionSet',exprs=data.matrix,phenoData=pheno)
 
