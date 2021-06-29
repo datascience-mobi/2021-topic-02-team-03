@@ -562,7 +562,7 @@ boxplot(t(high),col=rainbow(length(rownames(high))),main="Highly expressed skin 
 # except for these two NDRG1, RPL18, DCT, CD44, MLANA also showed high expressions, although varying between chips, the decision of if we're going to involve these too or not would only make sense after comparing the expression data of these genes over all the chips at the same time
 ```
 
-# Sun exposure, different times, and different drugs
+# Sun exposure
 
 ```{r}
 # Boxplots of sun exposure vs no sun exposure in all data
@@ -604,127 +604,12 @@ both.sun = intersect(sun, no.sun)
 
 
 
-
-
-
-#however i did try what Maria showed in github for different times, and different drugs:
-
-# boxplots of high expressions with different hours 
-
-three.hours = data.skin.cancer.human_skin_TRA[,6:9]
-twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
-three.days = data.skin.cancer.human_skin_TRA[,1:3]
-seven.days = data.skin.cancer.human_skin_TRA[,4:5]
-
-data.fortime=rbind(highest,highest,highest,highest)
-data.fortime[c(6:9),c(three.days,seven.days,twentyfour.hours)]=NA
-data.fortime[c(10:15),c(seven.days,three.days,three.hours)]=NA
-data.fortime[c(1:3),c(twentyfour.hours,three.hours,seven.days)]=NA
-data.fortime[c(4:5),c(twentyfour.hours,three.hours,three.days)]=NA
-
-order.vector=sort(colnames(t(data.new)),index.return=T)$ix
-boxplot(t(data.new)[,order.vector],cex.axis=0.6,col=c("pink","red","yellow", "purple"),main="skin specific TRA expression in skin cancer",ylab="log2(gene expression)")
-abline(h=c(6:12),col="grey",lty=3)
-legend("topright",c("3h","24h","3d", "7d"),col=c("pink","red","yellow", "purple"),pch=15,bg="white")
-
-# boxplots of highly expressed genes under different drugs
-
-sherk1 <- data[,1:5]
-ERK12inh <- c(data[,6:7], data[10:12])
-trametinib <- c(data[8:9], data[13:15])
-
-data.fordrug=rbind(highest,highest,highest)
-data.fordrug[c(1:5),c(ERK12inh, trametinib)]=NA
-data.fordrug[c(6:7, 10:12),c(sherk1,trametinib)]=NA
-data.fordrug[c(8:9, 13:15),c(sherk1, ERK12inh)]=NA
-
-order.vector=sort(colnames(t(data.fordrug)),index.return=T)$ix
-boxplot(t(data.fordrug)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"),main="diff drugs",ylab="log2(gene expression)")
-abline(h=c(6:12),col="grey",lty=3)
-legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple"),pch=15,bg="white")
-
-# ERK12inh vs sherk1 drug efficacy
-# look into same drug same time chips separately to find out which genes' expression went high the most -> upregulated
-# compare the upregulated ones with breast cancer upregulated ones
-# cluster to confirm upregulated genes (see if they are together?)
-
 ```
 
-# Edited version of the second half of the above chunk on 01.07.2021 + some stuff
+# Boxplots for different treatments on different times
 
 ```{r}
-#three.hours = data.skin.cancer.human_skin_TRA[,6:9]
-#twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
-#three.days = data.skin.cancer.human_skin_TRA[,1:3]
-#seven.days = data.skin.cancer.human_skin_TRA[,4:5]
 
-a.data.fortime=rbind(highest,highest,highest,highest)
-a.data.fortime[c(1:4),c(4:15)]=NA
-a.data.fortime[c(5:8),c(1:3,6:15)]=NA
-a.data.fortime[c(9:12),c(1:5,10:15)]=NA
-a.data.fortime[c(13:16),c(1:9)]=NA
-
-a.order.vector=sort(colnames(t(a.data.fortime)),index.return=T)$ix
-boxplot(t(a.data.fortime)[,a.order.vector],cex.axis=0.6,col=c("pink","red","yellow", "purple"),main="skin specific TRA expression in skin cancer",ylab="log2(gene expression)")
-abline(h=c(6:12),col="grey",lty=3)
-legend("topright",c("3h","24h","3d", "7d"),col=c("pink","red","yellow", "purple"),pch=15,bg="white")
-
-
-# boxplots of highly expressed genes with different drugs
-
-#sherk1 <- data[,1:5]
-#ERK12inh <- c(data[,6:7], data[10:12])
-#trametinib <- c(data[8:9], data[13:15])
-
-mostvariable <- data[variable_expressed,]
-a.data.new=rbind(mostvariable,mostvariable,mostvariable,mostvariable,mostvariable,mostvariable)
-a.data.new[c(1:5), c(4:15)]=NA
-a.data.new[c(6:10), c(1:3, 6:15)]=NA
-a.data.new[c(11:15), c(1:5, 8:15)]=NA
-a.data.new[c(16:20), c(1:7, 10:15)]=NA
-a.data.new[c(21:25), c(1:9, 13:15)]=NA
-a.data.new[c(26:30), c(1:12)]=NA
-
-a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
-boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las =2)
-abline(h=c(6:12),col="grey",lty=3)
-legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "trametinib after 3h", "ERK12inh after 24h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
-
-
-Problem: this is only for most upregulated genes in CHIP 1, this has to be repeated for all OTHER chips (so also different number of genes) --> need for loop with length(mostupregulated)!!!!
-
-
-median(data)
-
-highest <- data[which(data[,1]>3.75),]
-a.data.new=rbind(highest,highest,highest,highest,highest,highest)
-a.data.new[c(1:4), c(4:15)]=NA
-a.data.new[c(5:8), c(1:3, 6:15)]=NA
-a.data.new[c(9:12), c(1:5, 8:15)]=NA
-a.data.new[c(13:16), c(1:7, 10:15)]=NA
-a.data.new[c(17:20), c(1:9, 13:15)]=NA
-a.data.new[c(21:24), c(1:12)]=NA
-
-a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
-boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las = 2)
-abline(h=c(6:12),col="grey",lty=3)
-legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "trametinib after 3h", "ERK12inh after 24h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
-
-
-a.km = kmeans(x = data[rownames(upregulated),], centers = 4, nstart = 15)
-table(a.km$cluster)
-a.km
-
-
-
-k = c()
-for(i in 1:15){
-  k = c(k, rownames(data[which(data[,i]>3.5),]))
-}
-k
-
-highly_expressed = unique(k)
-variable_expressed = highly_expressed[c(26, 75, 86, 87, 103)]
 ```
 
 # Log fold change and t-test
@@ -758,7 +643,7 @@ logchange_highexp
 # Clustering
 
 ```{r}
-#Clustering
+#Clustering of the chips
 ##k-means
 km = kmeans(x = t(data_topVar), centers = 4, nstart = 15)
 km$cluster
@@ -781,22 +666,32 @@ paired_d = dist(t(data_topVar))
 library(cluster)
 plot(silhouette(km$cluster, paired_d))
 
+####3 Clusters: 1) sherk D3 & D7    2)erk & trametinib 3h   3)erk & trametinib 24h
 
-##3 Clusters: 1) sherk D3 & D7    2)erk & trametinib 3h   3)erk & trametinib 24h
-##4 Clusters: 1) sherk D3     2)sherk D7    3)erk & trametinib 3h   4)erk & trametinib 24h
+
+#Clustering of the upregulated genes?
+
+
 ```
 
-
-```{r}
 #Principal component analysis
 
+```{r}
+#Find the most variable upregulated genes?
+
+
 ```
 
+#Regression model
 
 ```{r}
 #Linear regression model (Predict drug target genes with identified genes)
 
+
+
 #F-test
+
+
 
 ```
 
@@ -965,4 +860,87 @@ for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
 logchange_trametinib
 
 ```
+
+#Different drugs, different times
+```{r}
+#however i did try what Maria showed in github for different times, and different drugs:
+
+# boxplots of high expressions with different hours 
+three.hours = data.skin.cancer.human_skin_TRA[,6:9]
+twentyfour.hours = data.skin.cancer.human_skin_TRA[,10:15]
+three.days = data.skin.cancer.human_skin_TRA[,1:3]
+seven.days = data.skin.cancer.human_skin_TRA[,4:5]
+
+data.fortime=rbind(highest,highest,highest,highest)
+data.fortime[c(1:4),c(4:15)]=NA
+data.fortime[c(5:8),c(1:3,6:15)]=NA
+data.fortime[c(9:12),c(1:5,10:15)]=NA
+data.fortime[c(13:16),c(1:9)]=NA
+
+a.order.vector=sort(colnames(t(data.fortime)),index.return=T)$ix
+boxplot(t(data.fortime)[,a.order.vector],cex.axis=0.6,col=c("pink","red","yellow", "purple"),main="skin specific TRA expression in skin cancer",ylab="log2(gene expression)")
+abline(h=c(6:12),col="grey",lty=3)
+legend("topright",c("3h","24h","3d", "7d"),col=c("pink","red","yellow", "purple"),pch=15,bg="white")
+
+# boxplots of highly expressed genes under different drugs (binnur)
+sherk1 <- data[,1:5]
+ERK12inh <- c(data[,6:7], data[10:12])
+trametinib <- c(data[8:9], data[13:15])
+
+data.fordrug=rbind(highest,highest,highest)
+data.fordrug[c(1:5),c(ERK12inh, trametinib)]=NA
+data.fordrug[c(6:7, 10:12),c(sherk1,trametinib)]=NA
+data.fordrug[c(8:9, 13:15),c(sherk1, ERK12inh)]=NA
+
+order.vector=sort(colnames(t(data.fordrug)),index.return=T)$ix
+boxplot(t(data.fordrug)[,order.vector],cex.axis=0.6,col=c("pink","red", "purple"),main="diff drugs",ylab="log2(gene expression)")
+abline(h=c(6:12),col="grey",lty=3)
+legend("topright",c("sherk1","ERK12inh","trametinib"),col=c("pink","red","purple"),pch=15,bg="white")
+
+# ERK12inh vs sherk1 drug efficacy
+# look into same drug same time chips separately to find out which genes' expression went high the most -> upregulated
+# compare the upregulated ones with breast cancer upregulated ones
+# cluster to confirm upregulated genes (see if they are together?)
+
+
+# Boxplots of highly expressed genes with different drugs (richard)
+k = c()
+for(i in 1:15){
+  k = c(k, rownames(data[which(data[,i]>13),]))
+}
+
+highly_expressed = unique(k)
+variable_expressed = highly_expressed[c(1:5)]
+
+mostvariable = data[variable_expressed,]
+a.data.new=rbind(mostvariable,mostvariable,mostvariable,mostvariable,mostvariable,mostvariable)
+a.data.new[c(1:5), c(4:15)]=NA
+a.data.new[c(6:10), c(1:3, 6:15)]=NA
+a.data.new[c(11:15), c(1:5, 8:15)]=NA
+a.data.new[c(16:20), c(1:9, 13:15)]=NA
+a.data.new[c(21:25), c(1:7, 10:15)]=NA
+a.data.new[c(26:30), c(1:12)]=NA
+
+a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
+boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las =2)
+abline(h=c(6:12),col="grey",lty=3)
+legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "ERK12inh after 24h", "trametinib after 3h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
+
+
+#Same as before, but only for chip 1
+highest <- data[which(data[,1]>13.5),]
+a.data.new=rbind(highest,highest,highest,highest,highest,highest)
+a.data.new[c(1:4), c(4:15)]=NA
+a.data.new[c(5:8), c(1:3, 6:15)]=NA
+a.data.new[c(9:12), c(1:5, 8:15)]=NA
+a.data.new[c(13:16), c(1:9, 13:15)]=NA
+a.data.new[c(17:20), c(1:7, 10:15)]=NA
+a.data.new[c(21:24), c(1:12)]=NA
+
+a.order.vector=sort(colnames(t(a.data.new)),index.return=T)$ix
+boxplot(t(a.data.new)[,a.order.vector],cex.axis=0.6,col=c("pink","red", "green","yellow","blue","purple"),main="diff drugs",ylab="log2(gene expression)", las = 2)
+abline(h=c(6:12),col="grey",lty=3)
+legend("bottomleft",c("sherk1 after 3 days", "sherk1 after 7 days", "ERK12inh after 3h", "ERK12inh after 24h", "trametinib after 3h", "trametinib after 24h"),col=c("pink","red", "green","yellow","blue","purple"),pch=15,bg="white")
+```
+
 
