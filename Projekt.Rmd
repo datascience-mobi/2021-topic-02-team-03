@@ -534,97 +534,14 @@ dev.copy2eps(file="Piechart_skin_TRA.eps") # eps file
 dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 ```
 
-```{r}
-#Venn diagram (Upregulated genes that are also TRAs)
-
-```
-
-
-# Highly upregulated Genes
-
-```{r}
-#Making the baseline
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("Meta")
-library(GEOquery)
-install.packages("ellipsis")
-
-gds <- getGEO("GSE162973", GSEMatrix = FALSE)
-
-gdslist = GSMList(gds)
-Table(gdslist[[1]])[1:5,]
-probesets = Table(GPLList(gds)[[1]])$ID
-
-data.matrix = do.call('cbind',lapply(gdslist,function(x) 
-                                      {tab <- Table(x)
-                                       both_match <- match(probesets,tab$ID_REF)
-                                       return(tab$VALUE[both_match])
-                                     }))
-data.matrix <- apply(data.matrix,2,function(x) {as.numeric(as.character(x))})
-data.matrix <- log2(data.matrix)
-data.matrix[1:5,]
-
-
-require(Biobase)
-rownames(data.matrix) <- probesets
-colnames(data.matrix) <- names(gdslist)
-pdata <- data.frame(samples=names(gdslist))
-rownames(pdata) <- names(gdslist)
-pheno <- as(pdata,"AnnotatedDataFrame")
-eset2 <- new('ExpressionSet',exprs=data.matrix,phenoData=pheno)
-
-
-
-#From here on it's my own code
-##Making expression matrix for control
-control_exprs = exprs(eset2)[,1:3]
-
-##Renaming the control matrix with genes
-control.gene = Table(GPLList(gds)[[1]])$ILMN_Gene
-names(control.gene) = probesets
-control_chip_ID = rownames(control_exprs)
-new_control_chip_ID = control_chip_ID[control_chip_ID %in% probesets]
-
-control_exprs = control_exprs[new_control_chip_ID,]
-control_gene_names = control.gene[new_control_chip_ID]
-rownames(control_exprs) = as.character(control_gene_names)
-
-##Removing genes with no names
-all.spaces.control_exprs = sapply(rownames(control_exprs),function(x){which(x=="")})
-dim(control_exprs)
-#48107 3
-
-length(which(rownames(control_exprs) == ""))
-#784
-
-control_exprs = control_exprs[-which(all.spaces.control_exprs>0),]
-#47323 3
-
-##Replacing gene expressions with no data (code needs improvement with loop)
-na = which(is.na(control_exprs[,2]))
-for (x in na) {
-  control_exprs[x,2] = mean(control_exprs[x,c(1,3)])
-}
-
-na = which(is.na(control_exprs[,3]))
-for (x in na) {
-  control_exprs[x,3] = mean(control_exprs[x,c(1,2)])
-}
-
-head(control_exprs)
-```
-
 # Highly expressed genes (does not mean upregulated)
 
 ```{r}
-# this is what our genes' expressions look like
-
+# This is what our genes' expressions look like
 par(las=2)
-boxplot(t(data.skin.cancer.human_skin_TRA),col=rainbow(length(rownames(data.skin.cancer.human_skin_TRA))),main="all genes",cex.axis=0.8)
+boxplot(t(data.skin.cancer.human_skin_TRA),col=rainbow(length(rownames(data.skin.cancer.human_skin_TRA))),main="Expression of all skin genes in melanoma",cex.axis=0.8)
 
-# putting the upregulated genes in a vector, i chose 12 after looking at the overall distribution of our gene expression above, we can change it later if you guys want to
+# Putting the upregulated genes in a vector, i chose 12 after looking at the overall distribution of our gene expression above, we can change it later if you guys want to
 data <- data.skin.cancer.human_skin_TRA
 high <- data[which(data[,1]>12),]
 # note that this is only for chip one, i have to work on how to look at all of the chips' expressions at the same time
@@ -782,84 +699,10 @@ k
 highly_expressed = unique(k)
 variable_expressed = highly_expressed[c(26, 75, 86, 87, 103)]
 ```
-# t-test
 
-# fold change
+# Log fold change and t-test
+
 ```{r}
-#Finding upregulated (from 3rd to 7th day) human skin genes for treatment with Sherk1
-upreg_sherk1 = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if((mean(data.skin.cancer.human_skin_TRA[i,1:3]) <      mean(data.skin.cancer.human_skin_TRA[i,4:5])) == TRUE)
-    upreg_sherk1 = c(upreg_sherk1, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_sherk1
-
-#Finding highly upregulated (3rd to 7th day) human skin genes for treatment with Sherk1
-upreg_sherk1 = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if(((mean(data.skin.cancer.human_skin_TRA[i,4:5]) /      mean(data.skin.cancer.human_skin_TRA[i,1:3])) >= 1.13) == TRUE)
-    upreg_sherk1 = c(upreg_sherk1, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_sherk1
-
-
-#Finding upregulated (from 3rd to 24th hour) human skin genes for treatment with ERK inhibitor
-upreg_erk12_inh = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if((mean(data.skin.cancer.human_skin_TRA[i,6:7]) <      mean(data.skin.cancer.human_skin_TRA[i,10:12])) == TRUE)
-    upreg_erk12_inh = c(upreg_erk12_inh, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_erk12_inh
-
-#Finding highly upregulated (3rd to 24th hour) human skin genes for treatment with ERK inhibitor
-upreg_erk12_inh = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if(((mean(data.skin.cancer.human_skin_TRA[i,10:12]) /      mean(data.skin.cancer.human_skin_TRA[i,6:7])) >= 1.18) == TRUE)
-    upreg_erk12_inh = c(upreg_erk12_inh, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_erk12_inh
-
-
-#Finding upregulated (from 3rd to 24th hour) human skin genes for treatment with trametinib
-upreg_trametinib = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if((mean(data.skin.cancer.human_skin_TRA[i,8:9]) <      mean(data.skin.cancer.human_skin_TRA[i,13:15])) == TRUE)
-    upreg_trametinib = c(upreg_trametinib, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_trametinib
-
-#Finding highly upregulated (3rd to 24th hour) human skin genes for treatment with trametinib
-upreg_trametinib = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  if(((mean(data.skin.cancer.human_skin_TRA[i,13:15]) /      mean(data.skin.cancer.human_skin_TRA[i,8:9])) >= 1.16) == TRUE)
-    upreg_trametinib = c(upreg_trametinib, rownames(data.skin.cancer.human_skin_TRA)[i])
-}
-upreg_trametinib
-
-
-
-
-#Log change
-##Sherk1
-logchange_sherk1 = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  logchange_sherk1 = c(logchange_sherk1, mean(data.skin.cancer.human_skin_TRA[i,4:5]) /      mean(data.skin.cancer.human_skin_TRA[i,1:3]))
-}
-logchange_sherk1
-
-##Erk12 Inhibitor
-logchange_erk12_inh = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  logchange_erk12_inh = c(logchange_erk12_inh, mean(data.skin.cancer.human_skin_TRA[i,10:12]) /      mean(data.skin.cancer.human_skin_TRA[i,6:7]))
-}
-logchange_erk12_inh
-
-##Trametinib
-logchange_trametinib = c()
-for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
-  logchange_trametinib = c(logchange_trametinib, mean(data.skin.cancer.human_skin_TRA[i,13:15]) /      mean(data.skin.cancer.human_skin_TRA[i,8:9]))
-}
-logchange_trametinib
 
 ##Compile into a table
 logchange_table = cbind(logchange_sherk1, logchange_erk12_inh, logchange_trametinib)
@@ -877,6 +720,12 @@ highexpgenes = unique(c(upreg_sherk1, upreg_erk12_inh, upreg_trametinib))
 ##Make new table from previous table
 logchange_highexp = logchange_table[highexpgenes,]
 logchange_highexp
+```
+
+
+```{r}
+#Venn diagram (Upregulated genes that are also TRAs)
+
 ```
 
 # Clustering
@@ -921,6 +770,172 @@ plot(silhouette(km$cluster, paired_d))
 #Linear regression model (Predict drug target genes with identified genes)
 
 #F-test
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+## Unused code
+# Highly upregulated Genes
+
+```{r}
+#Making the baseline
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("Meta")
+library(GEOquery)
+install.packages("ellipsis")
+
+gds <- getGEO("GSE162973", GSEMatrix = FALSE)
+
+gdslist = GSMList(gds)
+Table(gdslist[[1]])[1:5,]
+probesets = Table(GPLList(gds)[[1]])$ID
+
+data.matrix = do.call('cbind',lapply(gdslist,function(x) 
+                                      {tab <- Table(x)
+                                       both_match <- match(probesets,tab$ID_REF)
+                                       return(tab$VALUE[both_match])
+                                     }))
+data.matrix <- apply(data.matrix,2,function(x) {as.numeric(as.character(x))})
+data.matrix <- log2(data.matrix)
+data.matrix[1:5,]
+
+
+require(Biobase)
+rownames(data.matrix) <- probesets
+colnames(data.matrix) <- names(gdslist)
+pdata <- data.frame(samples=names(gdslist))
+rownames(pdata) <- names(gdslist)
+pheno <- as(pdata,"AnnotatedDataFrame")
+eset2 <- new('ExpressionSet',exprs=data.matrix,phenoData=pheno)
+
+
+
+#From here on it's my own code
+##Making expression matrix for control
+control_exprs = exprs(eset2)[,1:3]
+
+##Renaming the control matrix with genes
+control.gene = Table(GPLList(gds)[[1]])$ILMN_Gene
+names(control.gene) = probesets
+control_chip_ID = rownames(control_exprs)
+new_control_chip_ID = control_chip_ID[control_chip_ID %in% probesets]
+
+control_exprs = control_exprs[new_control_chip_ID,]
+control_gene_names = control.gene[new_control_chip_ID]
+rownames(control_exprs) = as.character(control_gene_names)
+
+##Removing genes with no names
+all.spaces.control_exprs = sapply(rownames(control_exprs),function(x){which(x=="")})
+dim(control_exprs)
+#48107 3
+
+length(which(rownames(control_exprs) == ""))
+#784
+
+control_exprs = control_exprs[-which(all.spaces.control_exprs>0),]
+#47323 3
+
+##Replacing gene expressions with no data (code needs improvement with loop)
+na = which(is.na(control_exprs[,2]))
+for (x in na) {
+  control_exprs[x,2] = mean(control_exprs[x,c(1,3)])
+}
+
+na = which(is.na(control_exprs[,3]))
+for (x in na) {
+  control_exprs[x,3] = mean(control_exprs[x,c(1,2)])
+}
+
+head(control_exprs)
+```
+
+# fold change
+```{r}
+#Finding upregulated (from 3rd to 7th day) human skin genes for treatment with Sherk1
+upreg_sherk1 = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if((mean(data.skin.cancer.human_skin_TRA[i,1:3]) <      mean(data.skin.cancer.human_skin_TRA[i,4:5])) == TRUE)
+    upreg_sherk1 = c(upreg_sherk1, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_sherk1
+
+#Finding highly upregulated (3rd to 7th day) human skin genes for treatment with Sherk1
+upreg_sherk1 = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if(((mean(data.skin.cancer.human_skin_TRA[i,4:5]) -      mean(data.skin.cancer.human_skin_TRA[i,1:3])) >= 1.13) == TRUE)
+    upreg_sherk1 = c(upreg_sherk1, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_sherk1
+
+
+#Finding upregulated (from 3rd to 24th hour) human skin genes for treatment with ERK inhibitor
+upreg_erk12_inh = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if((mean(data.skin.cancer.human_skin_TRA[i,6:7]) <      mean(data.skin.cancer.human_skin_TRA[i,10:12])) == TRUE)
+    upreg_erk12_inh = c(upreg_erk12_inh, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_erk12_inh
+
+#Finding highly upregulated (3rd to 24th hour) human skin genes for treatment with ERK inhibitor
+upreg_erk12_inh = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if(((mean(data.skin.cancer.human_skin_TRA[i,10:12]) -      mean(data.skin.cancer.human_skin_TRA[i,6:7])) >= 1.18) == TRUE)
+    upreg_erk12_inh = c(upreg_erk12_inh, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_erk12_inh
+
+
+#Finding upregulated (from 3rd to 24th hour) human skin genes for treatment with trametinib
+upreg_trametinib = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if((mean(data.skin.cancer.human_skin_TRA[i,8:9]) <      mean(data.skin.cancer.human_skin_TRA[i,13:15])) == TRUE)
+    upreg_trametinib = c(upreg_trametinib, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_trametinib
+
+#Finding highly upregulated (3rd to 24th hour) human skin genes for treatment with trametinib
+upreg_trametinib = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  if(((mean(data.skin.cancer.human_skin_TRA[i,13:15]) -      mean(data.skin.cancer.human_skin_TRA[i,8:9])) >= 1.16) == TRUE)
+    upreg_trametinib = c(upreg_trametinib, rownames(data.skin.cancer.human_skin_TRA)[i])
+}
+upreg_trametinib
+
+
+
+
+#Log change
+##Sherk1
+logchange_sherk1 = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  logchange_sherk1 = c(logchange_sherk1, mean(data.skin.cancer.human_skin_TRA[i,4:5]) -      mean(data.skin.cancer.human_skin_TRA[i,1:3]))
+}
+logchange_sherk1
+
+##Erk12 Inhibitor
+logchange_erk12_inh = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  logchange_erk12_inh = c(logchange_erk12_inh, mean(data.skin.cancer.human_skin_TRA[i,10:12]) -      mean(data.skin.cancer.human_skin_TRA[i,6:7]))
+}
+logchange_erk12_inh
+
+##Trametinib
+logchange_trametinib = c()
+for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
+  logchange_trametinib = c(logchange_trametinib, mean(data.skin.cancer.human_skin_TRA[i,13:15]) -      mean(data.skin.cancer.human_skin_TRA[i,8:9]))
+}
+logchange_trametinib
 
 ```
 
