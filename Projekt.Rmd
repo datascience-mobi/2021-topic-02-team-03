@@ -606,34 +606,104 @@ both.sun = intersect(sun, no.sun)
 
 ```
 
-# Boxplots for different treatments on different times
-
-```{r}
-
-```
-
 # Log fold change and t-test
 
 ```{r}
+# logFC : Finding the most upregulated genes from each treatment
+## Average the gene expression for each treatment at each time point
+sherk_3d = apply(data.skin.cancer.human_skin_TRA[,1:3], 1, mean)
+sherk_7d = apply(data.skin.cancer.human_skin_TRA[,4:5], 1, mean)
+erk12_3h = apply(data.skin.cancer.human_skin_TRA[,6:7], 1, mean)
+erk12_24h = apply(data.skin.cancer.human_skin_TRA[,10:12], 1, mean)
+trametinib_3h = apply(data.skin.cancer.human_skin_TRA[,8:9], 1, mean)
+trametinib_24h = apply(data.skin.cancer.human_skin_TRA[,13:15], 1, mean)
 
-##Compile into a table
-logchange_table = cbind(logchange_sherk1, logchange_erk12_inh, logchange_trametinib)
-colnames(logchange_table) = c("Sherk1", "ERK1/2 Inhibitor", "Trametinib")
-rownames(logchange_table) = rownames(data.skin.cancer.human_skin_TRA)
-head(logchange_table)
+## Calculate the log fold change for each gene from each treatment
+logFC_sherk = sort(sherk_7d - sherk_3d, decreasing = T)
+logFC_erk12 = sort(erk12_24h - erk12_3h, decreasing = T)
+logFC_trametinib =  sort(trametinib_24h - trametinib_3h, decreasing = T)
+
+## Top 10 logFC from each treatment
+logFC_sherk_top = logFC_sherk[1:10]
+logFC_erk12_top = logFC_erk12[1:10]
+logFC_trametinib_top = logFC_trametinib[1:10]
 
 
 
+# T-test : Filtering upregulated genes that are significant
+## Checking significance for genes in the top 10 logFC of Sherk
+t_sherk = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 1:3], data.skin.cancer.human_skin_TRA[x, 4:5])$p.value
+}
+t_test_sherk = sort(sapply(names(logFC_sherk), t_sherk), decreasing = F)
+t_test_sherk_significant = t_test_sherk[which(t_test_sherk < 0.05)]
 
-#Log change for highly expressed genes
-##Combine all highly expressed genes in a vector
-highexpgenes = unique(c(upreg_sherk1, upreg_erk12_inh, upreg_trametinib))
+upreg_sherk_significant = names(logFC_sherk_top)[names(logFC_sherk_top) %in% names(t_test_sherk_significant)]
+upreg_sherk_significant
 
-##Make new table from previous table
-logchange_highexp = logchange_table[highexpgenes,]
-logchange_highexp
+
+## Checking significance for genes in the top 10 logFC of ERK1/2 inhibitor
+t_erk12 = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 6:7], data.skin.cancer.human_skin_TRA[x, 10:12])$p.value
+}
+t_test_erk12 = sort(sapply(names(logFC_erk12), t_erk12), decreasing = F)
+t_test_erk12_significant = t_test_erk12[which(t_test_erk12 < 0.05)]
+
+upreg_erk12_significant = names(logFC_erk12_top)[names(logFC_erk12_top) %in% names(t_test_erk12_significant)]
+upreg_erk12_significant
+
+
+## Checking significance for genes in the top 10 logFC of trametinib
+t_trametinib = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 8:9], data.skin.cancer.human_skin_TRA[x, 13:15])$p.value
+}
+t_test_trametinib = sort(sapply(names(logFC_trametinib), t_trametinib), decreasing = F)
+t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05)]
+
+upreg_trametinib_significant = names(logFC_trametinib_top)[names(logFC_trametinib_top) %in% names(t_test_trametinib_significant)]
+upreg_trametinib_significant
 ```
 
+# Boxplots for different treatments on different times
+
+```{r}
+#Sherk
+data_sherk_upreg = data.skin.cancer.human_skin_TRA[upreg_sherk_significant, c(1:5)]
+data.new_sherk = rbind(data_sherk_upreg, data_sherk_upreg)
+data.new_sherk[c(1:2), c(4:5)] = NA
+data.new_sherk[c(3:4), c(1:3)] = NA
+
+order.vector = sort(colnames(t(data.new_sherk)),index.return=T)$ix
+boxplot(t(data.new_sherk)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Upregulated genes in treatment with Sherk", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:12), col = "grey", lty = 3)
+legend("topleft", c("Sherk1 after 3 days", "Sherk1 after 7 days"), col = c("red", "green"), pch = 15, bg = "yellow")
+
+
+#ERK1/2 inhibitor
+data_erk12_upreg = data.skin.cancer.human_skin_TRA[upreg_erk12_significant, c(6:7, 10:12)]
+data.new_erk12 = rbind(data_erk12_upreg, data_erk12_upreg)
+data.new_erk12[c(1:8), c(3:5)] = NA
+data.new_erk12[c(9:16), c(1:2)] = NA
+
+order.vector = sort(colnames(t(data.new_erk12)),index.return=T)$ix
+boxplot(t(data.new_erk12)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Upregulated genes in treatment with ERK1/2 inhibitor", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("red", "green"), pch = 15, bg = "yellow")
+
+
+#Trametinib
+data_trametinib_upreg = data.skin.cancer.human_skin_TRA[upreg_trametinib_significant, c(8:9, 13:15)]
+data.new_trametinib = rbind(data_trametinib_upreg, data_trametinib_upreg)
+data.new_trametinib[c(1:8), c(3:5)] = NA
+data.new_trametinib[c(9:16), c(1:2)] = NA
+
+order.vector = sort(colnames(t(data.new_trametinib)),index.return=T)$ix
+boxplot(t(data.new_trametinib)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Upregulated genes in treatment with Trametinib", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("left",c("Trametinib after 3h", "Trametinib after 24h"),col=c("red", "green"), pch = 15, bg = "yellow")
+```
+
+#Venn diagram
 
 ```{r}
 #Venn diagram (Upregulated genes that are also TRAs)
@@ -859,6 +929,20 @@ for (i in 1:length(rownames(data.skin.cancer.human_skin_TRA))) {
 }
 logchange_trametinib
 
+
+# Compile all logFC into a table
+logchange_table = cbind(logchange_sherk1, logchange_erk12_inh, logchange_trametinib)
+colnames(logchange_table) = c("Sherk1", "ERK1/2 Inhibitor", "Trametinib")
+rownames(logchange_table) = rownames(data.skin.cancer.human_skin_TRA)
+head(logchange_table)
+
+#Log change for highly expressed genes
+##Combine all highly expressed genes in a vector
+highexpgenes = unique(c(upreg_sherk1, upreg_erk12_inh, upreg_trametinib))
+
+##Make new table from previous table
+logchange_highexp = logchange_table[highexpgenes,]
+logchange_highexp
 ```
 
 #Different drugs, different times
