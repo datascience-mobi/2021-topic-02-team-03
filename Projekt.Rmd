@@ -541,45 +541,72 @@ dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 par(las=2)
 boxplot(t(data.skin.cancer.human_skin_TRA),col=rainbow(length(rownames(data.skin.cancer.human_skin_TRA))),main="Expression of all skin genes in melanoma",cex.axis=0.8)
 
-# Putting the upregulated genes in a vector, i chose 12 after looking at the overall distribution of our gene expression above, we can change it later if you guys want to
-data <- data.skin.cancer.human_skin_TRA
-high <- data[which(data[,1]>12),]
-# note that this is only for chip one, i have to work on how to look at all of the chips' expressions at the same time
 
-# looking at the expressions of the upregulated genes
+# Putting the highly expressed genes in a vector
+data = data.skin.cancer.human_skin_TRA
+
+highgenes = c()
+for (i in length(colnames(data))) {
+  highgenes = c(highgenes, names(which(data[,i] > 12)))
+}
+highgenes = unique(highgenes)
+
+high = data[highgenes,]
+
+
+# looking at the expressions of the highly expressed genes
 par(las=2)
-boxplot(t(upregulated),col=rainbow(length(rownames(upregulated))),main="upregulated",cex.axis=0.8)
+boxplot(t(high),col=rainbow(length(rownames(high))),main="Highly expressed skin genes in melanoma",cex.axis=0.8)
 
-# specifically the highly upregulated ones, the ones we'll be dealing with
-highest <- data[which(data[,1]>13.5),]
-boxplot(t(mostupregulated),col=rainbow(length(rownames(mostupregulated))),main="most upregulated",cex.axis=0.8)
-# i have noted the expressions of these for every chip, and they vary except for two highest: GPNMB and ANXA2
-# except for these two NDRG1, RPL18, DCT, CD44, MLANA also showed high expressions, although varying between chips, the decision of if we're going to involve these too or not would only make sense after comparing the expression data of these genes over all the chips at the same time, i'm open to ideas and help on that XD
+# I have noted the expressions of these for every chip, and they vary except for two highest: GPNMB and ANXA2
+# except for these two NDRG1, RPL18, DCT, CD44, MLANA also showed high expressions, although varying between chips, the decision of if we're going to involve these too or not would only make sense after comparing the expression data of these genes over all the chips at the same time
 ```
 
 # Sun exposure, different times, and different drugs
 
 ```{r}
+# Boxplots of sun exposure vs no sun exposure in all data
 
-# boxplots of sun exposure vs no sun exposure in all data
+# Finding the sun exposed and sun not exposed genes in our expression dataset
+sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
+no.sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.ns)
 
-#finding the sun exposed and sun not exposed genes in our expression dataframe
-sun=intersect(rownames(data.skin.cancer.human_skin_TRA),skin.TRA3.s)
-no.sun=intersect(rownames(data.skin.cancer.human_skin_TRA),skin.TRA3.ns)
+# Removing the gene names to make a box plot of each chip
+sun_exp = data.skin.cancer.human_skin_TRA[sun,]
+nosun_exp = data.skin.cancer.human_skin_TRA[no.sun,]
 
-#removing the gene names, so that i can plot the gene expression only from one chip
-sun_exp <- data.skin.cancer.human_skin_TRA[sun,]
-nosun_exp <- data.skin.cancer.human_skin_TRA[no.sun,]
 sunexpchip = unname(sun_exp[,13])
 nosunexpchip = unname(nosun_exp[,13])
 
 lmts <- range(sunexpchip,nosunexpchip)
 
 par(mfrow = c(1, 2))
-boxplot(sunexpchip,ylim=lmts)
-boxplot(nosunexpchip,ylim=lmts)
+for (i in 1:15) {
+  boxplot(unname(sun_exp[,i]), ylim=lmts, main= "Sun exposure")
+  boxplot(unname(nosun_exp[,i]), ylim=lmts, main= "No sun exposure")
+}
+## They don't seem to differ significantly, and the trend is similar for all of the chips.
 
-#i tried different chips as i put their numbers in the code above one by one, and they don't seem to differ significantly so i just left it at that.
+
+# Comparing their significance with a Wilcoxon test for each chip
+wilcox.test(sunexpchip, nosunexpchip)$p.value
+
+wilcox_sun = function(x) {
+  wilcox.test(data[sun, x], data[no.sun, x])$p.value
+}
+
+sapply(1:15, wilcox_sun)
+## All of them have a p value of smaller than 0.05, proving a significant difference between the expression of sun or no sun exposure genes. So now we will compare the expression of genes that are expressed with or without sun exposure.
+
+# Genes that are expressed with or without sun exposure
+both.sun = intersect(sun, no.sun)
+
+
+
+
+
+
+
 #however i did try what Maria showed in github for different times, and different drugs:
 
 # boxplots of high expressions with different hours 
