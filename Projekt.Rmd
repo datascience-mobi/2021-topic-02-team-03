@@ -600,6 +600,19 @@ sapply(1:15, wilcox_sun)
 
 # Genes that are expressed with or without sun exposure
 both.sun = intersect(sun, no.sun)
+both.sun
+# Genes that are only sun exposure related
+only_sun = sun[!sun%in%both.sun]
+only_sun
+
+# Sun exposure related genes: search for the most significant genes for each treatment. From this result, it is suggested that ETV7, a transcription factor, is involved in the immunity of the tumor microenvironment, in which it stimulated cytokine intrusion in the tumor. ETV7 is normally dowregulated in melanoma patients, which is correlated with poor prognosis (Qu H, Zhao H, Zhang X, et al. Integrated Analysis of the ETS Family in Melanoma Reveals a Regulatory Role of ETV7 in the Immune Microenvironment. Front Immunol. 2020;11:612784. Published 2020 Dec 23. doi:10.3389/fimmu.2020.612784). Although in our case, ETV7 is upregulated on treatment with trametinib, suggesting that the treatment stimulates ETV7 expression and could have a significant role in the immunity of the tumor microenvironment.
+#TGFB1 has also been strongly correlated with tumour proliferation in melanoma "there is ample evidence indicating that TGF-β is a potent pro-tumorigenic agent, acting via autocrine and paracrine mechanisms to promote peri-tumoral angiogenesis, together with tumor cell migration, immune escape, and dissemination to metastatic sites." (Perrot CY, Javelaud D, Mauviel A. Insights into the Transforming Growth Factor-β Signaling Pathway in Cutaneous Melanoma. Ann Dermatol. 2013;25(2):135-144. doi:10.5021/ad.2013.25.2.135)
+
+
+# The visualization of these genes can be seen in the graphs showing the logFC for all significantly upregulated genes.
+significat_sun_1 = upreg_sherk_significant[upreg_sherk_significant%in%only_sun]
+significant_sun_2 = upreg_erk12_significant[upreg_erk12_significant%in%only_sun]
+significant_sun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in%only_sun]
 
 
 
@@ -664,7 +677,7 @@ upreg_trametinib_significant = names(logFC_trametinib_top)[names(logFC_trametini
 upreg_trametinib_significant
 ```
 
-# Boxplots for different treatments on different times
+# Boxplots for different treatments on different times for upregulated genes
 
 ```{r}
 #Sherk
@@ -703,6 +716,55 @@ abline(h = c(6:14), col = "grey", lty = 3)
 legend("left",c("Trametinib after 3h", "Trametinib after 24h"),col=c("red", "green"), pch = 15, bg = "yellow")
 ```
 
+
+Downregulated genes
+```{r}
+###Look into genes that are downregulated. It would mean that the drug has worked on genes that were tumour inducing at the beginning
+
+## Last 10 logFC from each treatment
+
+logFC_sherk_down_regulated = logFC_sherk[503:512]
+logFC_erk12_down_regulated = logFC_erk12[503:512]
+logFC_trametinib_down_regulated = logFC_trametinib[503:512]
+
+
+# T-test : Filtering downregulated genes that are significant
+## Checking significance for genes in the last 10 logFC of Sherk
+t_sherk = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 1:3], data.skin.cancer.human_skin_TRA[x, 4:5])$p.value
+}
+t_test_sherk = sort(sapply(names(logFC_sherk), t_sherk), decreasing = F)
+t_test_sherk_significant = t_test_sherk[which(t_test_sherk < 0.05)]
+
+downreg_sherk_significant = names(logFC_sherk_down_regulated)[names(logFC_sherk_down_regulated) %in% names(t_test_sherk_significant)]
+downreg_sherk_significant # TYRP1 is downregulated on the shERK treatment (doxycycline inducible shRNA), but upregulated on ERK12 Inhibitor and Trametinib. TYRP1 has been associated with a poor prognosis for melanoma (Journe, F., Boufker, H., Van Kempen, L. et al. TYRP1 mRNA expression in melanoma metastases correlates with clinical outcome. Br J Cancer 105, 1726–1732 (2011). https://doi.org/10.1038/bjc.2011.451). 
+
+
+
+## Checking significance for genes in the last 10 logFC of ERK1/2 inhibitor
+t_erk12 = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 6:7], data.skin.cancer.human_skin_TRA[x, 10:12])$p.value
+}
+t_test_erk12 = sort(sapply(names(logFC_erk12), t_erk12), decreasing = F)
+t_test_erk12_significant = t_test_erk12[which(t_test_erk12 < 0.05)]
+
+downreg_erk12_significant = names(logFC_erk12_down_regulated)[names(logFC_erk12_down_regulated) %in% names(t_test_erk12_significant)]
+downreg_erk12_significant
+
+
+## Checking significance for genes in the last 10 logFC of trametinib
+t_trametinib = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 8:9], data.skin.cancer.human_skin_TRA[x, 13:15])$p.value
+}
+t_test_trametinib = sort(sapply(names(logFC_trametinib), t_trametinib), decreasing = F)
+t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05)]
+
+downreg_trametinib_significant = names(logFC_trametinib_down_regulated)[names(logFC_trametinib_down_regulated) %in% names(t_test_trametinib_significant)]
+downreg_trametinib_significant
+
+```
+
+
 #Venn diagram
 
 ```{r}
@@ -734,7 +796,6 @@ t_sherk_all = function(x) {
   t.test(Expression[x, 1:3], Expression[x, 4:5])$p.value
 }
 
-selectionvector <- !()
 
 t_test_sherk_all = sapply(names(logFC_sherk_all), t_sherk_all)
 t_test_sherk_significant_all = t_test_sherk_all[which(t_test_sherk_all < 0.05)]
