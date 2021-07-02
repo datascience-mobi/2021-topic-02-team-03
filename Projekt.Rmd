@@ -717,7 +717,7 @@ legend("left",c("Trametinib after 3h", "Trametinib after 24h"),col=c("red", "gre
 ```
 
 
-Downregulated genes
+# Downregulated genes
 ```{r}
 ###Look into genes that are downregulated. It would mean that the drug has worked on genes that were tumour inducing at the beginning
 
@@ -762,6 +762,46 @@ t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05
 downreg_trametinib_significant = names(logFC_trametinib_down_regulated)[names(logFC_trametinib_down_regulated) %in% names(t_test_trametinib_significant)]
 downreg_trametinib_significant
 
+```
+
+
+# Boxplots for different treatments on different times for the downregulated genes
+
+```{r}
+#Sherk
+data_sherk_downreg = data.skin.cancer.human_skin_TRA[downreg_sherk_significant, c(1:5)]
+data.new_sherk_downreg = rbind(data_sherk_downreg, data_sherk_downreg)
+data.new_sherk_downreg[c(1:2), c(4:5)] = NA
+data.new_sherk_downreg[c(3:4), c(1:3)] = NA
+
+order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
+boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Downregulated genes in treatment with Sherk", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:12), col = "grey", lty = 3)
+legend("topleft", c("Sherk1 after 3 days", "Sherk1 after 7 days"), col = c("red", "green"), pch = 15, bg = "yellow")
+
+
+#ERK1/2 inhibitor
+data_erk12_downreg = data.skin.cancer.human_skin_TRA[downreg_erk12_significant, c(6:7, 10:12)]
+data.new_erk12_downreg = rbind(data_erk12_downreg, data_erk12_downreg)
+data.new_erk12_downreg[c(1:8), c(3:5)] = NA
+data.new_erk12_downreg[c(9:16), c(1:2)] = NA
+
+order.vector = sort(colnames(t(data.new_erk12_downreg)),index.return=T)$ix
+boxplot(t(data.new_erk12_downreg)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Downregulated genes in treatment with ERK1/2 inhibitor", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("red", "green"), pch = 15, bg = "yellow")
+
+
+#Trametinib
+data_trametinib_downreg = data.skin.cancer.human_skin_TRA[downreg_trametinib_significant, c(8:9, 13:15)]
+data.new_trametinib_downreg = rbind(data_trametinib_downreg, data_trametinib_downreg)
+data.new_trametinib_downreg[c(1:8), c(3:5)] = NA
+data.new_trametinib_downreg[c(9:16), c(1:2)] = NA
+
+order.vector = sort(colnames(t(data.new_trametinib_downreg)),index.return=T)$ix
+boxplot(t(data.new_trametinib_downreg)[,order.vector], cex.axis = 0.6, col = c("red", "green"), main = "Downregulated genes in treatment with Trametinib", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("Trametinib after 3h", "Trametinib after 24h"),col=c("red", "green"), pch = 15, bg = "yellow")
 ```
 
 
