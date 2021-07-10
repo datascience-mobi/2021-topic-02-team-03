@@ -928,10 +928,44 @@ plot(silhouette(km$cluster, paired_d))
 #Principal component analysis
 
 ```{r}
-#Find the most variable upregulated genes?
+#Centering and scaling, pick data only from final time and only genes with highest variance
+pca_dataframe = scale(data.skin.cancer.human_skin_TRA)
+pca_dataframe = t(pca_dataframe[,c(4:5, 10:15)])
 
+topVar = apply(pca_dataframe, 2, var)
+q75 = quantile(topVar, probs = 0.75)
+i.topvar = which(topVar >= q75)
+pca_dataframe_topVar = pca_dataframe[,i.topvar]
 
+#PCA
+skin_pca_topVar = prcomp(pca_dataframe_topVar, scale. = F, center = F)
+print(skin_pca_topVar)
+
+#Biplot of first 2 principal components (very ugly bcos too many genes, dont use this plot)
+biplot(skin_pca_topVar)
+
+#Proportion of variance of each principal component
+variance = (skin_pca_topVar$sdev)^2
+prop.variance = variance/sum(variance)
+names(prop.variance) = 1:length(prop.variance)
+barplot(prop.variance, ylab='Proportion of variance', xlab = "Principal components", main = "Proportion of variance of each principal component")
+
+#Barplots of principal components
+par(las = 2)
+barplot(skin_pca_topVar$rotation[,1], main = "PC1", ylab = "Contribution", xlab = "Genes")
+barplot(skin_pca_topVar$rotation[,2], main = "PC2", ylab = "Contribution", xlab = "Genes")
+
+#Genes with most contribution to PC1 and PC2
+top_genes_pca1 = names(sort(abs(skin_pca_topVar$rotation[,1]), decreasing = T)[1:5])
+top_genes_pca2 = names(sort(abs(skin_pca_topVar$rotation[,2]), decreasing = T)[1:5])
+
+#Scatterplot of data with PC1 and PC2 as new coordinates
+plot(skin_pca_topVar$x[,1], skin_pca_topVar$x[,2], 
+     col= c("red", "red", "green", "green", "green", "blue", "blue", "blue"), pch=19,
+     xlab='PC1', ylab='PC2', main = "PC1 and PC2 as new coordinates")
+legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "green", "blue"), pch = 15, bg = "yellow")
 ```
+
 
 #Regression model
 
