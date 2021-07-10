@@ -967,6 +967,68 @@ legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "gre
 ```
 
 
+#Limma Analysis
+
+```{r}
+## First group: We compare the expression values from day 3 to day 7 with the shERK1
+design = model.matrix(~ 0+factor(c(2,2,2,1,1)))
+design
+colnames(design) = c("Sherk7D", "Sherk3D")
+fit = lmFit(data.skin.cancer.human_skin_TRA[,1:5], design) #fit linear model
+fit
+contrast.matrix = makeContrasts(Sherk7D-Sherk3D, levels=design)
+fit2 = contrasts.fit(fit, contrast.matrix)
+fit2 =  eBayes(fit2, 0.01)
+
+
+T1 = topTable(fit2,adjust.method = "fdr", sort.by = "logFC")
+lola1=T1[which(T1$logFC>0),]
+lola1 = lola1[1:10,]
+
+
+
+## Second group: We compare 3h ERK1/2 and 24h ERK1/2
+
+data_ERK = data.skin.cancer.human_skin_TRA[,c(10:12, 6,7)]
+
+design_ERK = model.matrix(~ 0+factor(c(1,1,1,2,2)))
+design_ERK
+colnames(design_ERK) = c("ERK12_inh_24h", "ERK12_inh_3h")
+fit_ERK = lmFit(data_ERK, design_ERK) #fit linear model
+fit_ERK
+contrast.matrix_ERK = makeContrasts(ERK12_inh_24h-ERK12_inh_3h, levels=design_ERK)
+fit2_ERK = contrasts.fit(fit_ERK, contrast.matrix_ERK)
+fit2_ERK =  eBayes(fit2_ERK, 0.01)
+
+
+T2 = topTable(fit2_ERK,adjust.method = "fdr", sort.by = "logFC", number = 130) 
+lola2 = T2[which(T2$logFC>0),]
+lola2 = lola2[1:10,]
+lola2
+
+
+## Third group: We compare 3h to 24h Trametinib
+data_Trametinib = data.skin.cancer.human_skin_TRA[,c(13:15, 8,9)]
+
+design_Trametinib = model.matrix(~ 0+factor(c(1,1,1,2,2)))
+design_Trametinib
+colnames(design_Trametinib) = c("Trametinib_24h", "Trametinib_3h")
+fit_Trametinib = lmFit(data_Trametinib, design_Trametinib) #fit linear model
+fit_Trametinib
+contrast.matrix_Trametinib = makeContrasts(Trametinib_24h-Trametinib_3h, levels=design_Trametinib)
+fit2_Trametinib= contrasts.fit(fit_Trametinib, contrast.matrix_Trametinib)
+fit2_Trametinib =  eBayes(fit2_Trametinib, 0.01)
+
+
+T3 = topTable(fit2_Trametinib,adjust.method = "fdr", sort.by = "logFC", number = Inf ) 
+lola3 = T3[which(T3$logFC>0),]
+lola3 = lola3[1:10,]
+```
+
+
+
+
+
 #Regression model
 
 ```{r}
