@@ -1004,7 +1004,6 @@ fit2_ERK =  eBayes(fit2_ERK, 0.01)
 T2 = topTable(fit2_ERK,adjust.method = "fdr", sort.by = "logFC", number = 130) 
 lola2 = T2[which(T2$logFC>0),]
 lola2 = lola2[1:10,]
-lola2
 
 
 ## Third group: We compare 3h to 24h Trametinib
@@ -1034,7 +1033,7 @@ lola3 = lola3[1:10,]
 ```{r}
 #Linear regression model (Predict drug target genes with identified genes)
 
-
+summary(lm(MPZL3 ~ GJA1, data = data.frame(t(data.skin.cancer.human_skin_TRA))))
 
 #F-test
 
