@@ -416,7 +416,7 @@ colnames(data.skin.cancer.human_skin_TRA)[12] = "ERK12_inh_24hc"
 colnames(data.skin.cancer.human_skin_TRA)[13] = "Trametinib_24ha"
 colnames(data.skin.cancer.human_skin_TRA)[14] = "Trametinib_24hb"
 colnames(data.skin.cancer.human_skin_TRA)[15] = "Trametinib_24hc"
-colnames(data.skin.cancer.human_skin_TRA)
+
 head(data.skin.cancer.human_skin_TRA)
 ```
 
@@ -581,7 +581,7 @@ logFC_erk12 = sort(erk12_24h - erk12_3h, decreasing = T)
 logFC_trametinib =  sort(trametinib_24h - trametinib_3h, decreasing = T)
 
 ## Top 10 logFC from each treatment
-logFC_sherk_top = logFC_sherk[1:10]
+logFC_sherk_top = logFC_sherk[1:11]
 logFC_erk12_top = logFC_erk12[1:10]
 logFC_trametinib_top = logFC_trametinib[1:10]
 
@@ -777,10 +777,11 @@ upreg_all = unique(c(names(logFC_sherk_pos), names(logFC_erk12_pos), names(logFC
 # T-test to filter significantly upregulated genes
 ## Checking significance for Sherk
 t_sherk_all = function(x) {
+  if (Expression[x,1] == Expression[x,2] | Expression[x,1] == Expression[x,3] | Expression[x,3] == Expression[x,2] | Expression[x,4] == Expression[x,5])
+    return(0.5)
+  else
   t.test(Expression[x, 1:3], Expression[x, 4:5])$p.value
 }
-
-
 t_test_sherk_all = sapply(names(logFC_sherk_all), t_sherk_all)
 t_test_sherk_significant_all = t_test_sherk_all[which(t_test_sherk_all < 0.05)]
 
@@ -809,31 +810,24 @@ upreg_trametinib_significant_all
 
 
 
-
-
-
-
-
-
-
-
-
 #Venn diagram (Upregulated genes that are also TRAs)
-install.packages("VennDiagram")
-library(VennDiagram)
+install.packages("venn")
+library(venn)
+library(ggplot2)
+library(ggpolypath)
 
-display_venn <- function(x, y, z){
-  grid.newpage()
-  venn_object = venn.diagram(x, filename = NULL, main = "Potential drug targets", category.names = y, fill = z)
-  grid.draw(venn_object)
-}
+list_venn = list(A = unique(c(upreg_sherk_significant_all, upreg_erk12_significant_all, upreg_trametinib_significant_all)), B = skin.genes.human)
+names(list_venn) = c("Upregulated genes" , "TRA")
 
-display_venn(list(A = upreg_all, B = skin.genes.human), c("Upregulated genes" , "TRA"), c("#0073C2FF", "#EFC000FF"))
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), cex = 1000)
+text(500, 900, "Potential drug targets", cex = 2)
 
-
-
-
-venn.diagram(x, filename = "venn-4-dimensions.png")
+#Save the venn diagramm in a pdf file
+setwd(paste(projectPath, 'plots', sep = '/'))
+pdf("Venn_diagramm_trial.pdf")
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"))
+text(500, 900, "Potential drug targets", cex = 2)
+dev.off()
 ```
 
 
