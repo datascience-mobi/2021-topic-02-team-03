@@ -893,6 +893,7 @@ significant_sun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in
 
 # Clustering
 
+# from Richard
 ```{r}
 #Clustering of the chips
 ##k-means
@@ -919,11 +920,392 @@ plot(silhouette(km$cluster, paired_d))
 
 ####3 Clusters: 1) sherk D3 & D7    2)erk & trametinib 3h   3)erk & trametinib 24h
 
-
 #Clustering of the upregulated genes?
 
+```
+
+#from Binnur
+# attention! : i gotta clean some stuff up, i did the same thing differently a couple of times, this is not the final version!!!
+
+# my conclusion for all : the optimal number of clusters vary from test to test for all the gene expression data, k=2,3 seem to be the most common ones, however i cannot give any meaning to these clusters... via tests i found out that two clusters are the most "clustrable" ones, i don't know what these clusters could mean though
+# my conclusion for sun : there is definetly a quality clustering with k=2, which is the sun and no sun data.
+
+# ps: also did some hierarchical clustering to see the craziness and the accuracy
+
+```{r}
+# how many clusters?
+
+#Picking the most variable genes
+topVar = apply(data.skin.cancer.human_skin_TRA, 1, var)
+data_topVar = data.skin.cancer.human_skin_TRA[topVar > quantile(topVar, probs = 0.8),]
+
+##Elbow Method 1:
+set.seed(1234)
+k.max <- 15
+wss <- sapply(1:k.max, 
+              function(k){kmeans(data_topVar, k, nstart=25,iter.max = 15 )$tot.withinss})
+wss
+plot(1:k.max, wss,type="b", pch = 19, frame = FALSE, 
+     xlab="Number of clusters K",
+     ylab="Total within-clusters sum of squares")
+
+##Elbow Method 2:
+set.seed(1234)
+fviz_nbclust(data_topVar, kmeans, method = "wss")
+
+#optimal number of clusters: k = 3
 
 ```
+
+```{r}
+
+#visualizing the distance matrix (Euclidean distance)
+distance <- get_dist(data_topVar)
+fviz_dist(distance, gradient = list(low = "blue", mid = "white", high = "red"))
+
+#Silhouette Method 1:
+silh <- function(k) {
+  km.res <- kmeans(data_topVar, centers = k, nstart = 25)
+  ss <- silhouette(km.res$cluster, dist(data_topVar))
+  mean(ss[, 3])
+}
+
+k.values <- 2:15
+silh_values <- map_dbl(k.values, silh)
+
+plot(k.values, silh_values, type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+
+#Silhouette Method 2:
+fviz_nbclust(data_topVar, kmeans, method = "silhouette")
+
+#optimal number of clusters: k = 2
+
+```
+
+```{r}
+
+# a third method i found on the internet
+# https://uc-r.github.io/kmeans_clustering
+
+set.seed(1234)
+gap_stat <- clusGap(data_topVar, FUN = kmeans, nstart = 25,K.max = 10, B = 50)
+print(gap_stat, method = "firstmax")
+fviz_gap_stat(gap_stat)
+
+#optimal number of clusters: k = 4
+
+```
+
+```{r}
+
+# kmeans for everything
+
+##k-means
+km2 = kmeans(data_topVar,2,nstart = 25, iter.max = 15)
+km3 = kmeans(data_topVar,3,nstart = 25,iter.max = 15)
+km4 = kmeans(data_topVar,4, nstar = 25, iter.max = 15)
+
+fviz_cluster(km2, data_topVar,palette = c("red", "blue"), geom = "point",ellipse.type = "convex", ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
+
+fviz_cluster(km3, data_topVar,palette = c("red", "blue", "green"), geom = "point",ellipse.type = "convex", ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
+
+fviz_cluster(km4, data_topVar, palette = c("red", "blue", "green", "purple"), geom = "point", ellipse.type = "convex",  ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
+
+# from richard's code, i left it here
+###Plot graph for WSS
+wss = sapply(2:10, function(k){kmeans(x = t(data_topVar), centers = k)$tot.withinss})
+plot(2:10, wss, type = 'b', pch = 19, xlab = "Number of clusters", ylab ="WSS")
+
+# this is to show the names on the graph
+fviz_cluster(km3, data = data_topVar)
+fviz_cluster(km4, data = data_topVar)
+
+# this is to see which genes are in which cluster and which are the centers
+km2$centers
+km3$centers
+km4$centers
+km3$cluster
+```
+
+```{r}
+# The output of kmeans is a list with several bits of information. The most important being:
+
+# cluster: A vector of integers (from 1:k) indicating the cluster to which each point is allocated.
+# centers: A matrix of cluster centers.
+# totss: The total sum of squares.
+# withinss: Vector of within-cluster sum of squares, one component per cluster.
+# tot.withinss: Total within-cluster sum of squares, i.e. sum(withinss).
+# betweenss: The between-cluster sum of squares, i.e. $totss-tot.withinss$.
+# size: The number of points in each cluster.
+
+```
+
+```{r}
+
+# kmeans for sun exposure data
+
+# the same process all over again for sun exposure data:
+both = rbind.data.frame(sun_exp, nosun_exp)
+
+##Elbow Method 1:
+set.seed(123) 
+k.max <- 15
+wsssun <- sapply(1:k.max, 
+              function(k){kmeans(both, k, nstart=25,iter.max = 15 )$tot.withinss})
+wsssun
+plot(1:k.max, wsssun, type="b", pch = 19, frame = FALSE, 
+     xlab="Number of clusters K",
+     ylab="Total within-clusters sum of squares")
+
+##Elbow Method 2:
+set.seed(123)
+fviz_nbclust(both, kmeans, method = "wss")
+
+#optimal number of clusters: k = 2
+
+
+#Silhouette Method 1:
+silh.sun <- function(k) {
+  km.ss <- kmeans(both, centers = k, nstart = 25)
+  ss <- silhouette(km.ss$cluster, dist(both))
+  mean(ss[, 3])
+}
+
+k.values.sun <- 2:15
+silh_values.sun <- map_dbl(k.values.sun, silh.sun)
+
+plot(k.values.sun, silh_values.sun, type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+
+#Silhouette Method 2:
+fviz_nbclust(both, kmeans, method = "silhouette")
+
+#optimal number of clusters: k = 2
+
+
+# the third method i found on the internet: Gap statistic method
+set.seed(123)
+gap_stat.sun <- clusGap(both, FUN = kmeans, nstart = 25, K.max = 10, B = 50)
+print(gap_stat.sun, method = "firstmax")
+fviz_gap_stat(gap_stat.sun)
+
+#optimal number of clusters: k = 5
+
+# from richard's code
+###Plot graph for WSS
+wss = sapply(2:10, function(k){kmeans(x = t(data_topVar), centers = k)$tot.withinss})
+plot(2:10, wss, type = 'b', pch = 19, xlab = "Number of clusters", ylab ="WSS")
+
+```
+
+```{r}
+##k-means
+km2 = kmeans(both,2,nstart = 25,iter.max = 15)
+km5 = kmeans(both,5,nstart = 25,iter.max = 15)
+
+# k=2
+fviz_cluster(km2, data = both, palette = c("red", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+fviz_cluster(km2, data = both)
+
+# k=5
+fviz_cluster(km5, data = both, palette = c("red", "blue", "green", "purple", "orange"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+fviz_cluster(km2, data = both)
+```
+
+```{r}
+
+fviz_pca_ind(prcomp(data_topVar), title = "PCA - all data",
+geom = "point", ggtheme = theme_classic())
+```
+
+```{r}
+# K-means on the all dataset
+km.res2 <- kmeans(data_topVar, 3)
+fviz_cluster(list(data = data_topVar, cluster = km.res2$cluster),
+ellipse.type = "convex", geom = "point", stand = FALSE,
+palette = "jco", ggtheme = theme_classic())
+# Hierarchical clustering on the all dataset
+fviz_dend(hclust(dist(data_topVar)), k = 3, k_colors = "jco",
+as.ggplot = TRUE, show_labels = FALSE)
+
+# It can be seen that the k-means algorithm and the hierarchical clustering impose a classification on the all uniformly distributed data set even if there are no meaningful clusters present in it. This is why, clustering tendency assessment methods should be used to evaluate the validity of clustering analysis. That is, whether a given data set contains meaningful clusters.
+# Source: Kassambara Alboukadel, 2017, Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, STHDA
+```
+```{r}
+# The null and the alternative hypotheses are defined as follow:
+# Null hypothesis: the data set D is uniformly distributed (i.e., no meaningful clusters)
+# Alternative hypothesis: the data set D is not uniformly distributed (i.e., contains meaningful clusters)
+# The R function hopkins() [in clustertend package] can be used to statistically evaluate clustering tendency in R.
+library(clustertend)
+
+# A value of H about 0.5 means that the data D is uniformly distributed.
+# If the value of Hopkins statistic is close to zero, then we can reject the null hypothesis and conclude that the data set D is significantly a clusterable data.
+```
+
+```{r}
+set.seed(123)
+hopkins(data_topVar, n = nrow(data_topVar)-1)
+
+# we have clusterable data yay!
+```
+```{r}
+# the visual assessment of clustering tendency: dissimilarity matrix.
+fviz_dist(dist(data_topVar), show_labels = FALSE)+
+labs(title = "all data")
+```
+
+```{r}
+df = scale(data_topVar)
+
+# Elbow method
+fviz_nbclust(df, kmeans, method = "wss") +
+geom_vline(xintercept = 4, linetype = 2)+
+labs(subtitle = "Elbow method")
+# Silhouette method
+fviz_nbclust(df, kmeans, method = "silhouette")+
+labs(subtitle = "Silhouette method")
+# Gap statistic
+# nboot = 50 to keep the function speedy.
+# recommended value: nboot= 500 for your analysis.
+# Use verbose = FALSE to hide computing progression.
+set.seed(123)
+fviz_nbclust(df, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
+labs(subtitle = "Gap statistic method")
+```
+```{r}
+library(NbClust)
+nb <- NbClust(df, distance = "euclidean", min.nc = 2,
+max.nc = 10, method = "kmeans")
+fviz_nbclust(nb)
+```
+
+```{r}
+library(fpc)
+```
+
+```{r}
+# K-means clustering
+km.res <- eclust(df, "kmeans", k = 3, nstart = 25, graph = FALSE)
+# Visualize k-means clusters
+fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+# Hierarchical clustering
+hc.res <- eclust(df, "hclust", k = 3, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.res, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
+  
+```
+
+```{r}
+# cluster validation: silhouette plot
+fviz_silhouette(km.res, palette = "jco",
+ggtheme = theme_classic())
+
+# Silhouette information
+silinfo <- km.res$silinfo
+names(silinfo)
+# Silhouette widths of each observation
+head(silinfo$widths[, 1:3], 10)
+# Average silhouette width of each cluster
+silinfo$clus.avg.widths
+# The total average (mean of all individual silhouette widths)
+silinfo$avg.width
+# The size of each clusters
+km.res$size
+# Silhouette width of observation
+sil <- km.res$silinfo$widths[, 1:3]
+# Objects with negative silhouette
+neg_sil_index <- which(sil[,3] < 0)
+sil[neg_sil_index, , drop = FALSE]
+
+# they are fairly good clusters
+
+```
+```{r}
+res.dist <- get_dist(df, method = "pearson")
+head(round(as.matrix(res.dist), 2))[, 1:6]
+fviz_dist(res.dist, lab_size = 8)
+```
+
+```{r}
+km.res2 <- kmeans(data_topVar, 4)
+fviz_cluster(list(data = data_topVar, cluster = km.res2$cluster),
+ellipse.type = "convex", geom = "point", stand = FALSE,
+palette = "jco", ggtheme = theme_classic())
+
+km.res4 <- eclust(df, "kmeans", k = 4, nstart = 25, graph = FALSE)
+fviz_silhouette(km.res4, palette = "jco",
+ggtheme = theme_classic())
+
+# Silhouette information
+silinfo <- km.res$silinfo
+names(silinfo)
+# Silhouette widths of each observation
+head(silinfo$widths[, 1:3], 10)
+# Average silhouette width of each cluster
+silinfo$clus.avg.widths
+# The total average (mean of all individual silhouette widths)
+silinfo$avg.width
+# The size of each clusters
+km.res$size
+# Silhouette width of observation
+sil <- km.res$silinfo$widths[, 1:3]
+# Objects with negative silhouette
+neg_sil_index <- which(sil[,3] < 0)
+sil[neg_sil_index, , drop = FALSE]
+
+# four centers look better but the average silhouette width is too small (0.42), 3 clusters have a avsilwid of 0.46, and 2 clusters have 0.5. At this point i am so fcking confused as to choose which one
+# i also dont have a clue what groups of genes the clusters are
+
+```
+
+```{r}
+# same validation stuff and so for sun data:
+dfsun = scale(both)
+
+# Elbow method
+fviz_nbclust(dfsun, kmeans, method = "wss") +
+geom_vline(xintercept = 4, linetype = 2)+
+labs(subtitle = "Elbow method")
+# Silhouette method
+fviz_nbclust(dfsun, kmeans, method = "silhouette")+
+labs(subtitle = "Silhouette method")
+# Gap statistic
+set.seed(123)
+fviz_nbclust(dfsun, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
+labs(subtitle = "Gap statistic method")
+nb <- NbClust(dfsun, distance = "euclidean", min.nc = 2,
+max.nc = 10, method = "kmeans")
+fviz_nbclust(nb)
+km.res <- eclust(dfsun, "kmeans", k = 2, nstart = 25, graph = FALSE)
+# Visualize k-means clusters
+fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+# Hierarchical clustering
+hc.res <- eclust(dfsun, "hclust", k = 2, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.res, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
+# cluster validation: silhouette plot
+fviz_silhouette(km.res, palette = "jco",
+ggtheme = theme_classic())
+silinfo <- km.res$silinfo
+names(silinfo)
+head(silinfo$widths[, 1:3], 10)
+silinfo$clus.avg.widths
+silinfo$avg.width
+km.res$size
+sil <- km.res$silinfo$widths[, 1:3]
+neg_sil_index <- which(sil[,3] < 0)
+sil[neg_sil_index, , drop = FALSE]
+
+#this one is def two clusters
+
+```
+
+
 
 #Principal component analysis
 
