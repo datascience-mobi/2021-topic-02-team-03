@@ -1369,7 +1369,47 @@ downregulated_all_exp
 
 ```
 
+```{r}
+# same validation stuff and so for up/down:
+updown = scale(distinct(rbind.data.frame(upregulated_all_exp,downregulated_all_exp)))
 
+# Elbow method
+fviz_nbclust(updown, kmeans, method = "wss") +
+geom_vline(xintercept = 4, linetype = 2)+
+labs(subtitle = "Elbow method")
+# Silhouette method
+fviz_nbclust(updown, kmeans, method = "silhouette")+
+labs(subtitle = "Silhouette method")
+# Gap statistic
+set.seed(123)
+fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
+labs(subtitle = "Gap statistic method")
+nb <- NbClust(updown, distance = "euclidean", min.nc = 2,
+max.nc = 10, method = "kmeans")
+fviz_nbclust(nb)
+km.res <- eclust(updown, "kmeans", k = 4, nstart = 25, graph = FALSE)
+# Visualize k-means clusters
+fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+# Hierarchical clustering
+hc.res <- eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.res, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
+# cluster validation: silhouette plot
+fviz_silhouette(km.res, palette = "jco",
+ggtheme = theme_classic())
+silinfo <- km.res$silinfo
+names(silinfo)
+head(silinfo$widths[, 1:3], 10)
+silinfo$clus.avg.widths
+silinfo$avg.width
+km.res$size
+sil <- km.res$silinfo$widths[, 1:3]
+neg_sil_index <- which(sil[,3] < 0)
+sil[neg_sil_index, , drop = FALSE]
+
+
+```
 
 
 
