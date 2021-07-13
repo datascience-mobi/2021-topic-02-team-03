@@ -1305,6 +1305,72 @@ sil[neg_sil_index, , drop = FALSE]
 
 ```
 
+```{r}
+# extracting rows didn't work for me for some reason so i went crazy, -> question for nils XD
+# gathering the exp of upregulated genes
+
+VANGL2_exp <- data.skin.cancer.human_skin_TRA["VANGL2",]
+TRPM1_exp <- data.skin.cancer.human_skin_TRA["TRPM1",]
+ETV7_exp <- data.skin.cancer.human_skin_TRA["ETV7",]
+DAPL1_exp <- data.skin.cancer.human_skin_TRA["DAPL1",]
+EFS_exp <- data.skin.cancer.human_skin_TRA["EFS",]
+DCT_exp <- data.skin.cancer.human_skin_TRA["DCT",]
+TYRP1_exp <- data.skin.cancer.human_skin_TRA["TYRP1",]
+upreg_trametinib_significant_exp <- data.frame(VANGL2_exp,TRPM1_exp,ETV7_exp,DAPL1_exp,EFS_exp,DCT_exp,TYRP1_exp)
+upreg_trametinib_significant_exp <- t(upreg_trametinib_significant_exp)
+
+MPZL3_exp <- data.skin.cancer.human_skin_TRA["MPZL3",]
+BCL11A_exp <- data.skin.cancer.human_skin_TRA["BCL11A",]
+upreg_sherk_significant_exp <- t(data.frame(MPZL3_exp,BCL11A_exp))
+
+ARHGEF5_exp <- data.skin.cancer.human_skin_TRA["ARHGEF5",]
+TRPM1_exp <- data.skin.cancer.human_skin_TRA["TRPM1",]
+ETV7_exp <- data.skin.cancer.human_skin_TRA["ETV7",]
+AACS_exp <- data.skin.cancer.human_skin_TRA["AACS",]
+EFS_exp <- data.skin.cancer.human_skin_TRA["EFS",]
+PPFIBP2_exp <- data.skin.cancer.human_skin_TRA["PPFIBP2",]
+TYRP1_exp <- data.skin.cancer.human_skin_TRA["TYRP1",]
+TGFBI_exp <- data.skin.cancer.human_skin_TRA["TGFBI",]
+
+upreg_erk12_significant_exp <- t(data.frame(ARHGEF5_exp,TRPM1_exp,ETV7_exp,AACS_exp,EFS_exp,PPFIBP2_exp,TYRP1_exp, TGFBI_exp))
+
+upregulated_all_exp <- rbind.data.frame(upreg_erk12_significant_exp, upreg_sherk_significant_exp, upreg_trametinib_significant_exp)
+upregulated_all_exp <- distinct(upregulated_all_exp)
+upregulated_all_exp
+                                     
+```
+
+```{r}
+# gathering the exp of downregulated genes
+
+MMP2_exp <- data.skin.cancer.human_skin_TRA["MMP2",]
+TYRP1_downexp <- data.skin.cancer.human_skin_TRA["TYRP1",]
+downreg_sherk_significant_exp <- t(data.frame(MMP2_exp,TYRP1_downexp))
+
+CA12_exp <- data.skin.cancer.human_skin_TRA["CA12",]
+C3orf52_exp <- data.skin.cancer.human_skin_TRA["C3orf52",]
+CMSS1_exp <- data.skin.cancer.human_skin_TRA["CMSS1",]
+KRT27_exp <- data.skin.cancer.human_skin_TRA["KRT27",]
+CHTF18_exp <- data.skin.cancer.human_skin_TRA["CHTF18",]
+MPP4_exp <- data.skin.cancer.human_skin_TRA["MPP4",]
+POLA1_exp <- data.skin.cancer.human_skin_TRA["POLA1",]
+WEE1_exp <- data.skin.cancer.human_skin_TRA["WEE1",]
+REEP4_exp <- data.skin.cancer.human_skin_TRA["REEP4",]
+MFSD2A_exp <- data.skin.cancer.human_skin_TRA["MFSD2A",]
+downreg_erk12_significant_exp <- t(data.frame(CA12_exp,C3orf52_exp,CMSS1_exp,KRT27_exp,CHTF18_exp,MPP4_exp,POLA1_exp,WEE1_exp,REEP4_exp,MFSD2A_exp))
+
+RHNO1_exp <- data.skin.cancer.human_skin_TRA["RHNO1",]
+C3orf52_exp <- data.skin.cancer.human_skin_TRA["C3orf52",]
+CA12_exp <- data.skin.cancer.human_skin_TRA["CA12",]
+downreg_trametinib_significant_exp <- t(data.frame(RHNO1_exp,C3orf52_exp,CA12_exp))
+
+downregulated_all_exp <- distinct(rbind.data.frame(downreg_trametinib_significant_exp,downreg_erk12_significant_exp, downreg_sherk_significant_exp))
+downregulated_all_exp
+
+```
+
+
+
 
 
 #Principal component analysis
