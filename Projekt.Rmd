@@ -1024,7 +1024,7 @@ upregulated_all_exp = rbind.data.frame(upreg_erk12_significant_exp, upreg_sherk_
 upregulated_all_exp = distinct(upregulated_all_exp)
 upregulated_all_exp
 
-# gathering the exp of downregulated genes
+#Gathering the exp of downregulated genes
 MMP2_exp = data.skin.cancer.human_skin_TRA["MMP2",]
 TYRP1_downexp = data.skin.cancer.human_skin_TRA["TYRP1",]
 downreg_sherk_significant_exp = t(data.frame(MMP2_exp,TYRP1_downexp))
