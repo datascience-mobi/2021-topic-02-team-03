@@ -924,494 +924,171 @@ plot(silhouette(km$cluster, paired_d))
 
 ```
 
-#from Binnur
-# attention! : i gotta clean some stuff up, i did the same thing differently a couple of times, this is not the final version!!!
+# from Binnur
 
-# my conclusion for all : the optimal number of clusters vary from test to test for all the gene expression data, k=2,3 seem to be the most common ones, however i cannot give any meaning to these clusters... via tests i found out that two clusters are the most "clustrable" ones, i don't know what these clusters could mean though
-# my conclusion for sun : there is definetly a quality clustering with k=2, which is the sun and no sun data.
-
-# ps: also did some hierarchical clustering to see the craziness and the accuracy
+#Packages Used for Clustering
 
 ```{r}
-# how many clusters?
-
-#Picking the most variable genes
-topVar = apply(data.skin.cancer.human_skin_TRA, 1, var)
-data_topVar = data.skin.cancer.human_skin_TRA[topVar > quantile(topVar, probs = 0.8),]
-
-##Elbow Method 1:
-set.seed(1234)
-k.max <- 15
-wss <- sapply(1:k.max, 
-              function(k){kmeans(data_topVar, k, nstart=25,iter.max = 15 )$tot.withinss})
-wss
-plot(1:k.max, wss,type="b", pch = 19, frame = FALSE, 
-     xlab="Number of clusters K",
-     ylab="Total within-clusters sum of squares")
-
-##Elbow Method 2:
-set.seed(1234)
-fviz_nbclust(data_topVar, kmeans, method = "wss")
-
-#optimal number of clusters: k = 3
-
+library(factoextra)
+library(clustertend)
+library(fpc)
+library(cluster)
+library(clValid)
+library(NbClust)
 ```
 
-```{r}
-
-#visualizing the distance matrix (Euclidean distance)
-distance <- get_dist(data_topVar)
-fviz_dist(distance, gradient = list(low = "blue", mid = "white", high = "red"))
-
-#Silhouette Method 1:
-silh <- function(k) {
-  km.res <- kmeans(data_topVar, centers = k, nstart = 25)
-  ss <- silhouette(km.res$cluster, dist(data_topVar))
-  mean(ss[, 3])
-}
-
-k.values <- 2:15
-silh_values <- map_dbl(k.values, silh)
-
-plot(k.values, silh_values, type = "b", pch = 19, frame = FALSE, 
-       xlab = "Number of clusters K",
-       ylab = "Average Silhouettes")
-
-#Silhouette Method 2:
-fviz_nbclust(data_topVar, kmeans, method = "silhouette")
-
-#optimal number of clusters: k = 2
-
-```
+#Clustering of Sun Data
 
 ```{r}
 
-# a third method i found on the internet
-# https://uc-r.github.io/kmeans_clustering
+sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
+no.sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.ns)
+sun_exp = data.skin.cancer.human_skin_TRA[sun,]
+nosun_exp = data.skin.cancer.human_skin_TRA[no.sun,]
+sunexpchip = unname(sun_exp[,13])
+nosunexpchip = unname(nosun_exp[,13])
 
-set.seed(1234)
-gap_stat <- clusGap(data_topVar, FUN = kmeans, nstart = 25,K.max = 10, B = 50)
-print(gap_stat, method = "firstmax")
-fviz_gap_stat(gap_stat)
+bothexp = intersect(sun_exp, nosun_exp)
+onlysun_exp = sun_exp[!(rownames(sun_exp)%in%rownames(bothexp)),]
+onlysun_exp
 
-#optimal number of clusters: k = 4
+both = rbind.data.frame(onlysun_exp, nosun_exp)
 
-```
-
-```{r}
-
-# kmeans for everything
-
-##k-means
-km2 = kmeans(data_topVar,2,nstart = 25, iter.max = 15)
-km3 = kmeans(data_topVar,3,nstart = 25,iter.max = 15)
-km4 = kmeans(data_topVar,4, nstar = 25, iter.max = 15)
-
-fviz_cluster(km2, data_topVar,palette = c("red", "blue"), geom = "point",ellipse.type = "convex", ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
-
-fviz_cluster(km3, data_topVar,palette = c("red", "blue", "green"), geom = "point",ellipse.type = "convex", ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
-
-fviz_cluster(km4, data_topVar, palette = c("red", "blue", "green", "purple"), geom = "point", ellipse.type = "convex",  ggtheme = theme_bw(), title = "Clusters of TopVar Skin Spec Genes")
-
-# from richard's code, i left it here
-###Plot graph for WSS
-wss = sapply(2:10, function(k){kmeans(x = t(data_topVar), centers = k)$tot.withinss})
-plot(2:10, wss, type = 'b', pch = 19, xlab = "Number of clusters", ylab ="WSS")
-
-# this is to show the names on the graph
-fviz_cluster(km3, data = data_topVar)
-fviz_cluster(km4, data = data_topVar)
-
-# this is to see which genes are in which cluster and which are the centers
-km2$centers
-km3$centers
-km4$centers
-km3$cluster
-```
-
-```{r}
-# The output of kmeans is a list with several bits of information. The most important being:
-
-# cluster: A vector of integers (from 1:k) indicating the cluster to which each point is allocated.
-# centers: A matrix of cluster centers.
-# totss: The total sum of squares.
-# withinss: Vector of within-cluster sum of squares, one component per cluster.
-# tot.withinss: Total within-cluster sum of squares, i.e. sum(withinss).
-# betweenss: The between-cluster sum of squares, i.e. $totss-tot.withinss$.
-# size: The number of points in each cluster.
-
-```
-
-```{r}
-
-# kmeans for sun exposure data
-
-# the same process all over again for sun exposure data:
-both = rbind.data.frame(sun_exp, nosun_exp)
-
-##Elbow Method 1:
-set.seed(123) 
-k.max <- 15
-wsssun <- sapply(1:k.max, 
-              function(k){kmeans(both, k, nstart=25,iter.max = 15 )$tot.withinss})
-wsssun
-plot(1:k.max, wsssun, type="b", pch = 19, frame = FALSE, 
-     xlab="Number of clusters K",
-     ylab="Total within-clusters sum of squares")
-
-##Elbow Method 2:
+#Deciding on the number of clusters
 set.seed(123)
-fviz_nbclust(both, kmeans, method = "wss")
-
-#optimal number of clusters: k = 2
-
-
-#Silhouette Method 1:
-silh.sun <- function(k) {
-  km.ss <- kmeans(both, centers = k, nstart = 25)
-  ss <- silhouette(km.ss$cluster, dist(both))
-  mean(ss[, 3])
-}
-
-k.values.sun <- 2:15
-silh_values.sun <- map_dbl(k.values.sun, silh.sun)
-
-plot(k.values.sun, silh_values.sun, type = "b", pch = 19, frame = FALSE, 
-       xlab = "Number of clusters K",
-       ylab = "Average Silhouettes")
-
-#Silhouette Method 2:
-fviz_nbclust(both, kmeans, method = "silhouette")
-
-#optimal number of clusters: k = 2
-
-
-# the third method i found on the internet: Gap statistic method
-set.seed(123)
-gap_stat.sun <- clusGap(both, FUN = kmeans, nstart = 25, K.max = 10, B = 50)
+##Elbow Method:
+fviz_nbclust(both, kmeans, method = "wss")+labs(subtitle = "Elbow method")
+##Silhouette Method:
+fviz_nbclust(both, kmeans, method = "silhouette")+labs(subtitle = "Silhouette method")
+##Gap stat method
+gap_stat.both = clusGap(both, FUN = kmeans, nstart = 25, K.max = 10)
 print(gap_stat.sun, method = "firstmax")
-fviz_gap_stat(gap_stat.sun)
+fviz_gap_stat(gap_stat.both)
+##NbClust
+nb.both = NbClust(both, distance = "euclidean",
+              min.nc = 2,max.nc = 10, method = "kmeans")
+fviz_nbclust(nb.both)
 
-#optimal number of clusters: k = 5
 
-# from richard's code
-###Plot graph for WSS
-wss = sapply(2:10, function(k){kmeans(x = t(data_topVar), centers = k)$tot.withinss})
-plot(2:10, wss, type = 'b', pch = 19, xlab = "Number of clusters", ylab ="WSS")
+#Is the data really clusterable? H should be close to zero when yes.
+hopkins(both, n = nrow(both)-1)
+##H = 0.06742255
+#Cluster Validation: Silhouette Information
+km.both = kmeans(both,3)
+silboth = km.both$silinfo
+names(silboth)
+#Average silhouette width of each cluster, should be higher than 0.5
+silboth$clus.avg.widths
+#Mean of all individual silhouette widths)
+silboth$avg.width
 
-```
-
-```{r}
-##k-means
-km2 = kmeans(both,2,nstart = 25,iter.max = 15)
-km5 = kmeans(both,5,nstart = 25,iter.max = 15)
-
-# k=2
-fviz_cluster(km2, data = both, palette = c("red", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
-fviz_cluster(km2, data = both)
-
-# k=5
-fviz_cluster(km5, data = both, palette = c("red", "blue", "green", "purple", "orange"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
-fviz_cluster(km2, data = both)
-```
-
-```{r}
-
-fviz_pca_ind(prcomp(data_topVar), title = "PCA - all data",
-geom = "point", ggtheme = theme_classic())
-```
-
-```{r}
-# K-means on the all dataset
-km.res2 <- kmeans(data_topVar, 3)
-fviz_cluster(list(data = data_topVar, cluster = km.res2$cluster),
-ellipse.type = "convex", geom = "point", stand = FALSE,
-palette = "jco", ggtheme = theme_classic())
-# Hierarchical clustering on the all dataset
-fviz_dend(hclust(dist(data_topVar)), k = 3, k_colors = "jco",
+#k-means Clustering
+fviz_cluster(km.both, data = both, palette = c("orange", "blue", "green"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+#Hierarchical Clustering
+fviz_dend(hclust(dist(both)), k = 3, k_colors = c("orange", "blue", "green"),
 as.ggplot = TRUE, show_labels = FALSE)
 
-# It can be seen that the k-means algorithm and the hierarchical clustering impose a classification on the all uniformly distributed data set even if there are no meaningful clusters present in it. This is why, clustering tendency assessment methods should be used to evaluate the validity of clustering analysis. That is, whether a given data set contains meaningful clusters.
-# Source: Kassambara Alboukadel, 2017, Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, STHDA
-```
-```{r}
-# The null and the alternative hypotheses are defined as follow:
-# Null hypothesis: the data set D is uniformly distributed (i.e., no meaningful clusters)
-# Alternative hypothesis: the data set D is not uniformly distributed (i.e., contains meaningful clusters)
-# The R function hopkins() [in clustertend package] can be used to statistically evaluate clustering tendency in R.
-library(clustertend)
-
-# A value of H about 0.5 means that the data D is uniformly distributed.
-# If the value of Hopkins statistic is close to zero, then we can reject the null hypothesis and conclude that the data set D is significantly a clusterable data.
 ```
 
-```{r}
-set.seed(123)
-hopkins(data_topVar, n = nrow(data_topVar)-1)
-
-# we have clusterable data yay!
-```
-```{r}
-# the visual assessment of clustering tendency: dissimilarity matrix.
-fviz_dist(dist(data_topVar), show_labels = FALSE)+
-labs(title = "all data")
-```
+# Clustering of the Up/Downregulated Data
 
 ```{r}
-df = scale(data_topVar)
 
-# Elbow method
-fviz_nbclust(df, kmeans, method = "wss") +
-geom_vline(xintercept = 4, linetype = 2)+
-labs(subtitle = "Elbow method")
-# Silhouette method
-fviz_nbclust(df, kmeans, method = "silhouette")+
-labs(subtitle = "Silhouette method")
-# Gap statistic
-# nboot = 50 to keep the function speedy.
-# recommended value: nboot= 500 for your analysis.
-# Use verbose = FALSE to hide computing progression.
-set.seed(123)
-fviz_nbclust(df, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
-labs(subtitle = "Gap statistic method")
-```
-```{r}
-library(NbClust)
-nb <- NbClust(df, distance = "euclidean", min.nc = 2,
-max.nc = 10, method = "kmeans")
-fviz_nbclust(nb)
-```
+#Gathering the exp of upregulated genes
+VANGL2_exp = data.skin.cancer.human_skin_TRA["VANGL2",]
+TRPM1_exp = data.skin.cancer.human_skin_TRA["TRPM1",]
+ETV7_exp = data.skin.cancer.human_skin_TRA["ETV7",]
+DAPL1_exp = data.skin.cancer.human_skin_TRA["DAPL1",]
+EFS_exp = data.skin.cancer.human_skin_TRA["EFS",]
+DCT_exp = data.skin.cancer.human_skin_TRA["DCT",]
+TYRP1_exp = data.skin.cancer.human_skin_TRA["TYRP1",]
+upreg_trametinib_significant_exp = data.frame(VANGL2_exp,TRPM1_exp,ETV7_exp,DAPL1_exp,EFS_exp,DCT_exp,TYRP1_exp)
+upreg_trametinib_significant_exp = t(upreg_trametinib_significant_exp)
 
-```{r}
-library(fpc)
-```
+MPZL3_exp = data.skin.cancer.human_skin_TRA["MPZL3",]
+BCL11A_exp = data.skin.cancer.human_skin_TRA["BCL11A",]
+upreg_sherk_significant_exp = t(data.frame(MPZL3_exp,BCL11A_exp))
 
-```{r}
-# K-means clustering
-km.res <- eclust(df, "kmeans", k = 3, nstart = 25, graph = FALSE)
-# Visualize k-means clusters
-fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
-palette = "jco", ggtheme = theme_minimal())
-# Hierarchical clustering
-hc.res <- eclust(df, "hclust", k = 3, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
-fviz_dend(hc.res, show_labels = FALSE,
-palette = "jco", as.ggplot = TRUE)
-  
-```
+ARHGEF5_exp = data.skin.cancer.human_skin_TRA["ARHGEF5",]
+TRPM1_exp = data.skin.cancer.human_skin_TRA["TRPM1",]
+ETV7_exp = data.skin.cancer.human_skin_TRA["ETV7",]
+AACS_exp = data.skin.cancer.human_skin_TRA["AACS",]
+EFS_exp = data.skin.cancer.human_skin_TRA["EFS",]
+PPFIBP2_exp = data.skin.cancer.human_skin_TRA["PPFIBP2",]
+TYRP1_exp = data.skin.cancer.human_skin_TRA["TYRP1",]
+TGFBI_exp = data.skin.cancer.human_skin_TRA["TGFBI",]
 
-```{r}
-# cluster validation: silhouette plot
-fviz_silhouette(km.res, palette = "jco",
-ggtheme = theme_classic())
+upreg_erk12_significant_exp = t(data.frame(ARHGEF5_exp,TRPM1_exp,ETV7_exp,AACS_exp,EFS_exp,PPFIBP2_exp,TYRP1_exp, TGFBI_exp))
 
-# Silhouette information
-silinfo <- km.res$silinfo
-names(silinfo)
-# Silhouette widths of each observation
-head(silinfo$widths[, 1:3], 10)
-# Average silhouette width of each cluster
-silinfo$clus.avg.widths
-# The total average (mean of all individual silhouette widths)
-silinfo$avg.width
-# The size of each clusters
-km.res$size
-# Silhouette width of observation
-sil <- km.res$silinfo$widths[, 1:3]
-# Objects with negative silhouette
-neg_sil_index <- which(sil[,3] < 0)
-sil[neg_sil_index, , drop = FALSE]
-
-# they are fairly good clusters
-
-```
-```{r}
-res.dist <- get_dist(df, method = "pearson")
-head(round(as.matrix(res.dist), 2))[, 1:6]
-fviz_dist(res.dist, lab_size = 8)
-```
-
-```{r}
-km.res2 <- kmeans(data_topVar, 4)
-fviz_cluster(list(data = data_topVar, cluster = km.res2$cluster),
-ellipse.type = "convex", geom = "point", stand = FALSE,
-palette = "jco", ggtheme = theme_classic())
-
-km.res4 <- eclust(df, "kmeans", k = 4, nstart = 25, graph = FALSE)
-fviz_silhouette(km.res4, palette = "jco",
-ggtheme = theme_classic())
-
-# Silhouette information
-silinfo <- km.res$silinfo
-names(silinfo)
-# Silhouette widths of each observation
-head(silinfo$widths[, 1:3], 10)
-# Average silhouette width of each cluster
-silinfo$clus.avg.widths
-# The total average (mean of all individual silhouette widths)
-silinfo$avg.width
-# The size of each clusters
-km.res$size
-# Silhouette width of observation
-sil <- km.res$silinfo$widths[, 1:3]
-# Objects with negative silhouette
-neg_sil_index <- which(sil[,3] < 0)
-sil[neg_sil_index, , drop = FALSE]
-
-# four centers look better but the average silhouette width is too small (0.42), 3 clusters have a avsilwid of 0.46, and 2 clusters have 0.5. At this point i am so fcking confused as to choose which one
-# i also dont have a clue what groups of genes the clusters are
-
-```
-
-```{r}
-# same validation stuff and so for sun data:
-dfsun = scale(both)
-
-# Elbow method
-fviz_nbclust(dfsun, kmeans, method = "wss") +
-geom_vline(xintercept = 4, linetype = 2)+
-labs(subtitle = "Elbow method")
-# Silhouette method
-fviz_nbclust(dfsun, kmeans, method = "silhouette")+
-labs(subtitle = "Silhouette method")
-# Gap statistic
-set.seed(123)
-fviz_nbclust(dfsun, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
-labs(subtitle = "Gap statistic method")
-nb <- NbClust(dfsun, distance = "euclidean", min.nc = 2,
-max.nc = 10, method = "kmeans")
-fviz_nbclust(nb)
-km.res <- eclust(dfsun, "kmeans", k = 2, nstart = 25, graph = FALSE)
-# Visualize k-means clusters
-fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
-palette = "jco", ggtheme = theme_minimal())
-# Hierarchical clustering
-hc.res <- eclust(dfsun, "hclust", k = 2, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
-fviz_dend(hc.res, show_labels = FALSE,
-palette = "jco", as.ggplot = TRUE)
-# cluster validation: silhouette plot
-fviz_silhouette(km.res, palette = "jco",
-ggtheme = theme_classic())
-silinfo <- km.res$silinfo
-names(silinfo)
-head(silinfo$widths[, 1:3], 10)
-silinfo$clus.avg.widths
-silinfo$avg.width
-km.res$size
-sil <- km.res$silinfo$widths[, 1:3]
-neg_sil_index <- which(sil[,3] < 0)
-sil[neg_sil_index, , drop = FALSE]
-
-#this one is def two clusters
-
-```
-
-```{r}
-# extracting rows didn't work for me for some reason so i went crazy, -> question for nils XD
-# gathering the exp of upregulated genes
-
-VANGL2_exp <- data.skin.cancer.human_skin_TRA["VANGL2",]
-TRPM1_exp <- data.skin.cancer.human_skin_TRA["TRPM1",]
-ETV7_exp <- data.skin.cancer.human_skin_TRA["ETV7",]
-DAPL1_exp <- data.skin.cancer.human_skin_TRA["DAPL1",]
-EFS_exp <- data.skin.cancer.human_skin_TRA["EFS",]
-DCT_exp <- data.skin.cancer.human_skin_TRA["DCT",]
-TYRP1_exp <- data.skin.cancer.human_skin_TRA["TYRP1",]
-upreg_trametinib_significant_exp <- data.frame(VANGL2_exp,TRPM1_exp,ETV7_exp,DAPL1_exp,EFS_exp,DCT_exp,TYRP1_exp)
-upreg_trametinib_significant_exp <- t(upreg_trametinib_significant_exp)
-
-MPZL3_exp <- data.skin.cancer.human_skin_TRA["MPZL3",]
-BCL11A_exp <- data.skin.cancer.human_skin_TRA["BCL11A",]
-upreg_sherk_significant_exp <- t(data.frame(MPZL3_exp,BCL11A_exp))
-
-ARHGEF5_exp <- data.skin.cancer.human_skin_TRA["ARHGEF5",]
-TRPM1_exp <- data.skin.cancer.human_skin_TRA["TRPM1",]
-ETV7_exp <- data.skin.cancer.human_skin_TRA["ETV7",]
-AACS_exp <- data.skin.cancer.human_skin_TRA["AACS",]
-EFS_exp <- data.skin.cancer.human_skin_TRA["EFS",]
-PPFIBP2_exp <- data.skin.cancer.human_skin_TRA["PPFIBP2",]
-TYRP1_exp <- data.skin.cancer.human_skin_TRA["TYRP1",]
-TGFBI_exp <- data.skin.cancer.human_skin_TRA["TGFBI",]
-
-upreg_erk12_significant_exp <- t(data.frame(ARHGEF5_exp,TRPM1_exp,ETV7_exp,AACS_exp,EFS_exp,PPFIBP2_exp,TYRP1_exp, TGFBI_exp))
-
-upregulated_all_exp <- rbind.data.frame(upreg_erk12_significant_exp, upreg_sherk_significant_exp, upreg_trametinib_significant_exp)
-upregulated_all_exp <- distinct(upregulated_all_exp)
+upregulated_all_exp = rbind.data.frame(upreg_erk12_significant_exp, upreg_sherk_significant_exp, upreg_trametinib_significant_exp)
+upregulated_all_exp = distinct(upregulated_all_exp)
 upregulated_all_exp
-                                     
-```
 
-```{r}
 # gathering the exp of downregulated genes
+MMP2_exp = data.skin.cancer.human_skin_TRA["MMP2",]
+TYRP1_downexp = data.skin.cancer.human_skin_TRA["TYRP1",]
+downreg_sherk_significant_exp = t(data.frame(MMP2_exp,TYRP1_downexp))
 
-MMP2_exp <- data.skin.cancer.human_skin_TRA["MMP2",]
-TYRP1_downexp <- data.skin.cancer.human_skin_TRA["TYRP1",]
-downreg_sherk_significant_exp <- t(data.frame(MMP2_exp,TYRP1_downexp))
+CA12_exp = data.skin.cancer.human_skin_TRA["CA12",]
+C3orf52_exp = data.skin.cancer.human_skin_TRA["C3orf52",]
+CMSS1_exp = data.skin.cancer.human_skin_TRA["CMSS1",]
+KRT27_exp = data.skin.cancer.human_skin_TRA["KRT27",]
+CHTF18_exp = data.skin.cancer.human_skin_TRA["CHTF18",]
+MPP4_exp = data.skin.cancer.human_skin_TRA["MPP4",]
+POLA1_exp = data.skin.cancer.human_skin_TRA["POLA1",]
+WEE1_exp = data.skin.cancer.human_skin_TRA["WEE1",]
+REEP4_exp = data.skin.cancer.human_skin_TRA["REEP4",]
+MFSD2A_exp = data.skin.cancer.human_skin_TRA["MFSD2A",]
+downreg_erk12_significant_exp = t(data.frame(CA12_exp,C3orf52_exp,CMSS1_exp,KRT27_exp,CHTF18_exp,MPP4_exp,POLA1_exp,WEE1_exp,REEP4_exp,MFSD2A_exp))
 
-CA12_exp <- data.skin.cancer.human_skin_TRA["CA12",]
-C3orf52_exp <- data.skin.cancer.human_skin_TRA["C3orf52",]
-CMSS1_exp <- data.skin.cancer.human_skin_TRA["CMSS1",]
-KRT27_exp <- data.skin.cancer.human_skin_TRA["KRT27",]
-CHTF18_exp <- data.skin.cancer.human_skin_TRA["CHTF18",]
-MPP4_exp <- data.skin.cancer.human_skin_TRA["MPP4",]
-POLA1_exp <- data.skin.cancer.human_skin_TRA["POLA1",]
-WEE1_exp <- data.skin.cancer.human_skin_TRA["WEE1",]
-REEP4_exp <- data.skin.cancer.human_skin_TRA["REEP4",]
-MFSD2A_exp <- data.skin.cancer.human_skin_TRA["MFSD2A",]
-downreg_erk12_significant_exp <- t(data.frame(CA12_exp,C3orf52_exp,CMSS1_exp,KRT27_exp,CHTF18_exp,MPP4_exp,POLA1_exp,WEE1_exp,REEP4_exp,MFSD2A_exp))
+RHNO1_exp = data.skin.cancer.human_skin_TRA["RHNO1",]
+C3orf52_exp = data.skin.cancer.human_skin_TRA["C3orf52",]
+CA12_exp = data.skin.cancer.human_skin_TRA["CA12",]
+downreg_trametinib_significant_exp = t(data.frame(RHNO1_exp,C3orf52_exp,CA12_exp))
 
-RHNO1_exp <- data.skin.cancer.human_skin_TRA["RHNO1",]
-C3orf52_exp <- data.skin.cancer.human_skin_TRA["C3orf52",]
-CA12_exp <- data.skin.cancer.human_skin_TRA["CA12",]
-downreg_trametinib_significant_exp <- t(data.frame(RHNO1_exp,C3orf52_exp,CA12_exp))
-
-downregulated_all_exp <- distinct(rbind.data.frame(downreg_trametinib_significant_exp,downreg_erk12_significant_exp, downreg_sherk_significant_exp))
+downregulated_all_exp = distinct(rbind.data.frame(downreg_trametinib_significant_exp,downreg_erk12_significant_exp, downreg_sherk_significant_exp))
 downregulated_all_exp
 
-```
-
-```{r}
-# same validation stuff and so for up/down:
+#updown
 updown = scale(distinct(rbind.data.frame(upregulated_all_exp,downregulated_all_exp)))
 
-# Elbow method
-fviz_nbclust(updown, kmeans, method = "wss") +
-geom_vline(xintercept = 4, linetype = 2)+
-labs(subtitle = "Elbow method")
-# Silhouette method
-fviz_nbclust(updown, kmeans, method = "silhouette")+
-labs(subtitle = "Silhouette method")
-# Gap statistic
 set.seed(123)
-fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
-labs(subtitle = "Gap statistic method")
-nb <- NbClust(updown, distance = "euclidean", min.nc = 2,
-max.nc = 10, method = "kmeans")
-fviz_nbclust(nb)
-km.res <- eclust(updown, "kmeans", k = 4, nstart = 25, graph = FALSE)
-# Visualize k-means clusters
-fviz_cluster(km.res, geom = "point", ellipse.type = "convex",
-palette = "jco", ggtheme = theme_minimal())
-# Hierarchical clustering
-hc.res <- eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
-fviz_dend(hc.res, show_labels = FALSE,
-palette = "jco", as.ggplot = TRUE)
-# cluster validation: silhouette plot
-fviz_silhouette(km.res, palette = "jco",
+
+#How many clusters?
+##Elbow method
+fviz_nbclust(updown, kmeans, method = "wss") +
+geom_vline(xintercept = 4, linetype = 2)+labs(subtitle = "Elbow method")
+##Silhouette method
+fviz_nbclust(updown, kmeans, method = "silhouette")+labs(subtitle = "Silhouette method")
+##Gap statistic
+fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)
+##NbClust
+nb.updown = NbClust(updown, distance = "euclidean", min.nc = 2,
+max.nc = 10, method = "kmeans")+labs(subtitle = "NbClust")
+fviz_nbclust(nb.updown)
+
+#Clusterable?
+hopkins(both, n = nrow(both)-1)
+#Silhouette plot for validation
+km.updown = kmeans(updown, centers = 4, nstart = 25)
+fviz_silhouette(km.updown, palette = "jco",
 ggtheme = theme_classic())
-silinfo <- km.res$silinfo
+silinfo = km.res$silinfo
 names(silinfo)
 head(silinfo$widths[, 1:3], 10)
 silinfo$clus.avg.widths
 silinfo$avg.width
-km.res$size
-sil <- km.res$silinfo$widths[, 1:3]
-neg_sil_index <- which(sil[,3] < 0)
-sil[neg_sil_index, , drop = FALSE]
 
-fviz_cluster(km.res, data = updown)
+#k-means clustering
+fviz_cluster(km.updown, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+#Hierarchical clustering
+hc.updown = eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.updown, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
 
-# some same genes are both upregulated and downregulated in diff treatments, this could be an explanation for the 4 clusters :)
-
+#with names
+fviz_cluster(km.updown, data = updown)
 ```
 
 
