@@ -1,0 +1,28 @@
+---
+title: "The role of skin-specific TRAs on skin cancer"
+author: "Binnur Ozay, Christofer Richard, Denisa Neacsu, Pinar Cavus"
+date: "7/15/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+The goal of this project is to find the expression of skin specific genes in skin cancer datasets. As datasets, we used microarray data (Affymetrix chips).
+
+```{r, echo = FALSE}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, echo = FALSE}
+
+```
+
+
