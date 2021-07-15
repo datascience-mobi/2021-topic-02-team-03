@@ -953,6 +953,7 @@ onlysun_exp = sun_exp[!(rownames(sun_exp)%in%rownames(bothexp)),]
 onlysun_exp
 
 both = rbind.data.frame(onlysun_exp, nosun_exp)
+both = scale(both)
 
 #Deciding on the number of clusters
 set.seed(123)
@@ -974,7 +975,9 @@ fviz_nbclust(nb.both)
 hopkins(both, n = nrow(both)-1)
 ##H = 0.06742255
 #Cluster Validation: Silhouette Information
-km.both = kmeans(both,3)
+km.both = eclust(both, "kmeans", k = 3, nstart = 25, graph = FALSE)
+fviz_silhouette(km.both, palette = "jco",
+ggtheme = theme_classic())
 silboth = km.both$silinfo
 names(silboth)
 #Average silhouette width of each cluster, should be higher than 0.5
@@ -983,9 +986,9 @@ silboth$clus.avg.widths
 silboth$avg.width
 
 #k-means Clustering
-fviz_cluster(km.both, data = both, palette = c("orange", "blue", "green"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
 #Hierarchical Clustering
-fviz_dend(hclust(dist(both)), k = 3, k_colors = c("orange", "blue", "green"),
+fviz_dend(hclust(dist(both)), k = 2, k_colors = c("orange", "blue"),
 as.ggplot = TRUE, show_labels = FALSE)
 
 ```
@@ -1070,7 +1073,9 @@ fviz_nbclust(nb.updown)
 #Clusterable?
 hopkins(both, n = nrow(both)-1)
 #Silhouette plot for validation
-km.updown = kmeans(updown, centers = 4, nstart = 25)
+km.updown = eclust(updown, "kmeans", k = 4, nstart = 25, graph = FALSE)
+fviz_silhouette(km.updown, palette = "jco",
+ggtheme = theme_classic())
 fviz_silhouette(km.updown, palette = "jco",
 ggtheme = theme_classic())
 silinfo = km.res$silinfo
