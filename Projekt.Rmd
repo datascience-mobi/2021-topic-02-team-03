@@ -1055,27 +1055,29 @@ downregulated_all_exp
 #updown
 updown = scale(distinct(rbind.data.frame(upregulated_all_exp,downregulated_all_exp)))
 
-set.seed(123)
-
-#How many clusters?
 ##Elbow method
 fviz_nbclust(updown, kmeans, method = "wss") +
-geom_vline(xintercept = 4, linetype = 2)+labs(subtitle = "Elbow method")
+geom_vline(xintercept = 4, linetype = 2)+
+labs(subtitle = "Elbow method")
 ##Silhouette method
-fviz_nbclust(updown, kmeans, method = "silhouette")+labs(subtitle = "Silhouette method")
+fviz_nbclust(updown, kmeans, method = "silhouette")+
+labs(subtitle = "Silhouette method")
 ##Gap statistic
-fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)
-##NbClust
-nb.updown = NbClust(updown, distance = "euclidean", min.nc = 2,
-max.nc = 10, method = "kmeans")+labs(subtitle = "NbClust")
-fviz_nbclust(nb.updown)
-
-#Clusterable?
-hopkins(both, n = nrow(both)-1)
-#Silhouette plot for validation
+set.seed(123)
+fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
+labs(subtitle = "Gap statistic method")
+nb = NbClust(updown, distance = "euclidean", min.nc = 2,
+max.nc = 10, method = "kmeans")
+fviz_nbclust(nb)
 km.updown = eclust(updown, "kmeans", k = 4, nstart = 25, graph = FALSE)
-fviz_silhouette(km.updown, palette = "jco",
-ggtheme = theme_classic())
+#Visualize k-means clusters
+fviz_cluster(km.updown, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+#Hierarchical clustering
+hc.updown = eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.updown, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
+#Cluster validation: silhouette plot
 fviz_silhouette(km.updown, palette = "jco",
 ggtheme = theme_classic())
 silinfo = km.res$silinfo
@@ -1084,16 +1086,6 @@ head(silinfo$widths[, 1:3], 10)
 silinfo$clus.avg.widths
 silinfo$avg.width
 
-#k-means clustering
-fviz_cluster(km.updown, geom = "point", ellipse.type = "convex",
-palette = "jco", ggtheme = theme_minimal())
-#Hierarchical clustering
-hc.updown = eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
-fviz_dend(hc.updown, show_labels = FALSE,
-palette = "jco", as.ggplot = TRUE)
-
-#with names
-fviz_cluster(km.updown, data = updown)
 ```
 
 
