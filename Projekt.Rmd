@@ -631,9 +631,9 @@ data.new_sherk[c(1:2), c(4:5)] = NA
 data.new_sherk[c(3:4), c(1:3)] = NA
 
 order.vector = sort(colnames(t(data.new_sherk)),index.return=T)$ix
-boxplot(t(data.new_sherk)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with Sherk", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+boxplot(t(data.new_sherk)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with dox-shERK1", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
-legend("topleft", c("Sherk1 after 3 days", "Sherk1 after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
+legend("topleft", c("dox-shERK1 after 3 days", "dox-shERK1 after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
 
 
 #ERK1/2 inhibitor
