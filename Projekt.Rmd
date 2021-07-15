@@ -941,6 +941,7 @@ library(NbClust)
 
 ```{r}
 
+
 sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
 no.sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.ns)
 sun_exp = data.skin.cancer.human_skin_TRA[sun,]
@@ -975,7 +976,7 @@ fviz_nbclust(nb.both)
 hopkins(both, n = nrow(both)-1)
 ##H = 0.06742255
 #Cluster Validation: Silhouette Information
-km.both = eclust(both, "kmeans", k = 3, nstart = 25, graph = FALSE)
+km.both = eclust(both, "kmeans", k = 2, nstart = 25, graph = FALSE)
 fviz_silhouette(km.both, palette = "jco",
 ggtheme = theme_classic())
 silboth = km.both$silinfo
@@ -985,11 +986,12 @@ silboth$clus.avg.widths
 #Mean of all individual silhouette widths)
 silboth$avg.width
 
-#k-means Clustering
-fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
 #Hierarchical Clustering
 fviz_dend(hclust(dist(both)), k = 2, k_colors = c("orange", "blue"),
 as.ggplot = TRUE, show_labels = FALSE)
+#k-means Clustering
+fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+
 
 ```
 
