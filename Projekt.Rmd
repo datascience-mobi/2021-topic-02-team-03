@@ -1086,6 +1086,8 @@ head(silinfo$widths[, 1:3], 10)
 silinfo$clus.avg.widths
 silinfo$avg.width
 
+#with names
+fviz_cluster(km.updown, data = updown)
 ```
 
 
