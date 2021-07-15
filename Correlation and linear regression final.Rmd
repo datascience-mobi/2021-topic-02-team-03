@@ -1,0 +1,450 @@
+---
+title: "correlation and linear regression (final)"
+author: "Pinar Cavus"
+date: "14 7 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Upregulated genes that we found with the help of the log fold change:
+
+#Sherk: MPZL3
+#ERK1/ERK2: "TRPM1"   "EFS"     "ARHGEF5" "TYRP1"   "AACS"    "PPFIBP2" "TGFBI"   "ETV7"   
+#Trametinib:"VANGL2"  "TRPM1"   "ETV7"    "TGFBI"   "DAPL1"   "DCT"     "EFS"     "TYRP1"   "ARHGEF5"
+
+#Genes with the significant expression change from PCA: 
+#PC1: "ANXA2"  "DCT"    "NDRG1"  "TYRP1"  "PTPRZ1"
+#PC2:  "GJA1"     "PPP1R14C" "DSP"      "UCN2"     "TGFBI"  
+
+```
+
+```{r}
+#extracting the expression levels of all the genes and assigning them in a vector.
+#SHERK:
+mpzl3 <- as.vector(data.skin.cancer.human_skin_TRA["MPZL3",])
+
+#ERK1/ERK2:
+
+trpm1 <- as.vector(data.skin.cancer.human_skin_TRA["TRPM1",]) #also in trmetinib
+efs <- as.vector(data.skin.cancer.human_skin_TRA["EFS",]) #also in trametinib
+arhgef5 <- as.vector(data.skin.cancer.human_skin_TRA["ARHGEF5",]) #also in trametinib
+tyrp1 <- as.vector(data.skin.cancer.human_skin_TRA["TYRP1",]) #also in trametinib
+aacs <- as.vector(data.skin.cancer.human_skin_TRA["AACS",])
+ppfibp2 <- as.vector(data.skin.cancer.human_skin_TRA["PPFIBP2",])
+tgfbi <- as.vector(data.skin.cancer.human_skin_TRA["TGFBI",]) #also in trametinib
+etv7 <- as.vector(data.skin.cancer.human_skin_TRA["ETV7",]) #also in trametinib
+
+#Trametinib:
+
+vangl2 <- as.vector(data.skin.cancer.human_skin_TRA["VANGL2",])
+dapl1 <- as.vector(data.skin.cancer.human_skin_TRA["DAPL1",])
+dct <- as.vector(data.skin.cancer.human_skin_TRA["DCT",])
+
+#PCA1:
+#dct and tyrp1 already assigned
+anxa2 <- as.vector(data.skin.cancer.human_skin_TRA["ANXA2",])
+ndrg1 <- as.vector(data.skin.cancer.human_skin_TRA["NDRG1",])
+ptprz1 <- as.vector(data.skin.cancer.human_skin_TRA["PTPRZ1",])
+
+#PCA2:
+#tgfbi already assigned
+gja1 <-as.vector(data.skin.cancer.human_skin_TRA["GJA1",])
+ppp1r14c <- as.vector(data.skin.cancer.human_skin_TRA["PPP1R14C",])
+dsp <- as.vector(data.skin.cancer.human_skin_TRA["DSP",])
+ucn2 <- as.vector(data.skin.cancer.human_skin_TRA["UCN2",])
+
+
+all <- data.frame(mpzl3, trpm1, efs, arhgef5, tyrp1, aacs,ppp1r14c, ppfibp2, tgfbi, etv7, vangl2,dapl1, dct, anxa2, ndrg1, ptprz1, gja1, dsp, ucn2)
+all
+```
+
+
+1. Checking if there is a correlation between the upregulated genes
+
+```{r}
+#Putting all upregulaed genes in a dataframe
+
+df_upr<- data.frame(trpm1, mpzl3, efs, arhgef5, tyrp1, aacs, ppfibp2, tgfbi, etv7, vangl2, dapl1, dct)
+df_upr
+
+```
+
+```{r} 
+#Scatterplot PPFiBP2 and ARHGEF5 (example)
+plot(df_upr$ppfibp2,df_upr$arhgef5,
+     pch=20,
+     xlab='PPFIBP2',
+     ylab='ARHGEF5')
+#a linear relationship can clearly be seen. 
+
+```
+
+```{r}
+## compute the Pearson correlation
+cor(df_upr,method='pearson')
+##
+## compute the Spearman correlation
+cor(df_upr,method='spearman')
+```
+
+
+```{r}
+#Creating a correlation matrix 
+cor(df_upr) #pearson
+cor_upr <- data.frame(cor(df_upr)) #putting the results in a dataframe
+cor_upr
+#alternative
+cor(df_upr[,unlist(lapply(df_upr, is.numeric))]) #both give the same correlation matrix
+
+#visualization of the correalation matrix
+library(psych)
+pairs.panels(df_upr[1:4])  # select columns 1-4 #complex i didnt really understand what this means
+
+#simpler visualization of the pearson correlation
+library(corrplot)
+x <- cor(df_upr[1:12])
+corrplot(x, type="upper", order="alphabet", title = "Correlation within the upregulated genes -Pearson")
+
+#visualization of the spearman correlation
+x <- cor(df_upr[1:12], method = 'spearman')
+corrplot(x, type="upper", order="alphabet", title = "Correlation within the upregulated genes-Spearman")
+
+
+
+```
+```{r}
+# compute correlation
+cor(df_upr$aacs,df_upr$arhgef5)
+
+## test for significance
+cor.test(df_upr$aacs,df_upr$arhgef5) #very high correlation
+
+#Can we determine exactly which correlation level leads to a p-value lower than 0.05?
+cor(df_upr$tyrp1,df_upr$dapl1)
+##
+## test for significance
+cor.test(df_upr$tyrp1,df_upr$dapl1) 
+
+#approximately from 0.5 is the p value always lower than 0.05.
+
+```
+
+
+Conclusion: according to the both of the correlation methods there is a high correlation between all upregulated genes except MPZL3. For the linear regression only MPZL3 and one other gene will be used. 
+
+AACS, ARHGEF5, DAPL1, DCT, EFS, ETV7, PPFIBP2, TGFBI, TRPM1, TYRP1 and VANGL2 will be considered as one gene. 
+2 upregulated
+
+
+2. Checking if there is a correlation between all PCA genes.
+
+```{r}
+#Putting all PCA genes in a data frame.
+
+df_pca <- data.frame(anxa2, dct, ndrg1, tyrp1, ptprz1, gja1, ppp1r14c, dsp, ucn2, tgfbi)
+df_pca
+```
+
+```{r}
+## compute the Pearson correlation
+cor(df_pca,method='pearson')
+##
+## compute the Spearman correlation
+cor(df_pca,method='spearman')
+```
+
+
+```{r}
+#Creating a correlation matrix 
+cor(df_pca) #pearson
+cor_pca <- data.frame(cor(df_pca)) #putting the results in a dataframe
+cor_pca
+#alternative
+cor(df_pca[,unlist(lapply(df_pca, is.numeric))]) #both give the same correlation matrix
+
+#visualization of the correalation matrix
+library(psych)
+pairs.panels(df_pca[1:4])  # select columns 1-4 #complex i didnt really understand what this means
+
+#simpler visualization of the pearson correlation
+library(corrplot)
+x <- cor(df_pca[1:10])
+corrplot(x, type="upper", order="alphabet", title = "Correlation within the PCA genes-Pearson")
+
+#visualization of the spearman correlation
+y <- cor(df_pca[1:10], method = 'spearman')
+corrplot(y, type="upper", order="alphabet", title = "Correlation within the PCA genes-Spearman")
+```
+
+```{r}
+## compute correlation
+cor(df_pca$tgfbi,df_pca$anxa2)
+##
+## test for significance
+cor.test(df_pca$tgfbi,df_pca$anxa2)
+
+#from 0.5 is the p-value always lower than 0.05
+```
+
+
+```{r}
+#Another correlation visualization
+#Plot variable correlation scatter plots for all variables
+#upregulated genes
+pairs(df_upr,col='red',pch=20,cex=0.5)
+#PCA genes
+pairs(df_pca,col='orange',pch=20,cex=0.5)
+```
+
+Conclusion: Genes that have a high correlation will considered to have an same impact on the upregulated genes and will be taken into observation only once. 
+ANXA2, DCT, PTPRZ1, TGFBI, TYRP1 will be considered as one gene.
+NDRG1 and PPP1R14C will be considered as one gene
+5 PCA 
+3. Multiple linear regression
+```{r}
+#MPZL3 with PCA genes
+
+mpzl3_lr<- lm(MPZL3 ~ ANXA2+DSP+GJA1+PPP1R14C+UCN2 , data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(mpzl3_lr)
+ #p-value:3.554e-06
+#We can see that there is a significance on the ANXA2 and PPP1R14C.
+#R^2 is really high. This is a good model.
+```
+
+```{r}
+#The overall F-test compares the model that you specify to the model with no independent variables.
+
+#F-test
+
+#The overall F-test compares the model that you specify to the model with no independent variables.
+#Hypothese für: beschreibt diese R^2 einen signifikanten Anteil der Streung?
+#H0: Das Model verfügt über keinen Erklärungsgehalt
+#H1: Das Model verfügt über einen signifikanten Erklärungsgehalt.
+#Interpreting the F-test for significance: If the p-value is less than the significance level, your sample data provide sufficient evidence to conclude that your regression model fits the data better than the model with no independent variables. This finding is good news because it means that the independent variables in your model improve the fit!
+
+#In this case p-value is lower than 0.01 indicating we have a good fit with 5 independent variables. our p value is low enought to reject the null hypothesis and go with the
+
+#your sample provides sufficient evidence to conclude that your model is significant, but not enough to conclude that any individual variable is significant-> if no variables are significant.
+
+
+```
+
+#MPZL3_LR
+#Remember that we have to check that:
+
+* the residuals are **normally distributed**
+* there is **no correlation** between the residuals and the explanatory variable
+* mean values of the residuals should be 0
+* There has to be not correlation between the residuals and pca genes
+```{r}
+#mean of the residuals
+m_res_mpzl3 <- lm(MPZL3 ~ ANXA2+DSP+GJA1+PPP1R14C+UCN2 , data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+mean(m_res_mpzl3$residuals)
+# -9.713548e-18
+#mean is really close to 0.
+
+#Residuals against fitted values
+plot(m_res_mpzl3,1)
+
+# normal distribution of residuals
+hist(mpzl3_lr$residuals,breaks=20)
+##
+qqnorm(mpzl3_lr$residuals);qqline(mpzl3_lr$residuals)
+##
+## correlation residuals x-values?
+cor(all$mpzl3,mpzl3_lr$residuals)
+plot(all$mpzl3,mpzl3_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="MPZL3", ylab="MPZL3_lr-Residuals")
+#Residuals are not normal distributed according to the histogramm but QQ-Plot seems to be fine???
+
+#
+
+```
+
+```{r}
+#Predicting the MPZL3 expression 
+plot(all$mpzl3,mpzl3_lr$fitted.values,pch=20,col='blue', xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+cor(all$mpzl3,mpzl3_lr$fitted.values)^2
+
+#We can see that the predicted values and the real values are quite similar, indicating that these genes have a strong relationship. If one is being highly expressed the other one would also be highly expressed.
+
+#To determine the accuracy, we can compute the so called **root mean squared error (RMSE)**???
+n = nrow(all)
+rmse = sqrt(1/n*sum(l2$residuals^2))
+rmse
+```
+
+```{r}
+#In order to find the variable which has the most impact on the model we have to estimate the standardized regression coefficients.
+#A standardized regression coefficient is simply the β estimate from a regression on standardized variables. A standardized variable is a variable that has a mean of 0 and a standard deviation of 1.
+library(QuantPsyc)
+lm.beta(mpzl3_lr)
+#     ANXA2       DSP     GJA1        PPP1R14C      UCN2 
+#0.30937491 -0.04240037  0.16405314  1.48416788 -0.39856232 
+#This means a change in 1 standard deviation of PPP1R14C has more impact than a 1 standard deviation change in other variables. 
+#Plotting MPZL3 against only the tha variable that has the most impact -> PPP1R14C
+
+1.
+mpzl3_ppp <- lm(MPZL3 ~ PPP1R14C, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(mpzl3_ppp)
+
+ggPredict(mpzl3_ppp,colorn = 4,
+  point = NULL,
+  jitter = NULL,
+  se = FALSE,
+  show.summary = FALSE,
+  colorAsFactor = FALSE,
+  digits = 2,
+  interactive = FALSE,)
+2. 
+avPlots(mpzl3_lr)
+avPlots
+#We can see here all variables plotted with MPZL3.
+#The x-axis displays a single predictor variable and the y-axis displays the response variable.
+#The blue line shows the association between the predictor variable and the response variable, while holding the value of all other predictor variables constant.
+#The points that are labelled in each plot represent the 2 observations with the largest residuals and the 2 observations with the largest partial leverage.
+#Predicting the expr. value -> we probably dont need this
+3.
+# Creating data frame which comparing variables as each as vectors
+df_mpzl3_ppp1r14c <- data.frame(y= mpzl3,x= ppp1r14c)
+
+# first simple plot of linear regression model
+plot(df_mpzl3_ppp1r14c$x, df_mpzl3_ppp1r14c$y, xlab="Predictor(PPP1R14C)", ylab="Outcome(MPZL3)", main="Linear Regression", col="darkorange",pch=16)
+abline(mpzl3_ppp, col="red")
+for (i in 1:length(mpzl3_anxa2$fitted.values))
+  lines(c(df_mpzl3_ppp1r14c$x[i], df_mpzl3_ppp1r14c$x[i]), c(df_mpzl3_ppp1r14c$y[i], mpzl3_ppp$fitted.values[i]), col="blue")
+
+```
+```{r}
+
+#AACS representing all upregulated genes except MPZL3
+#AACS with all PCA genes
+
+aacs_lr <- lm(AACS ~ ANXA2+DSP+GJA1+PPP1R14C+UCN2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(aacs_lr)
+
+#p-value: 0.00209
+```
+
+AACS
+#Checking the residuals for AACS
+
+```{r}
+m_res_aacs <- lm(AACS ~ ANXA2+DSP+GJA1+PPP1R14C+UCN2 , data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+mean(m_res_aacs$residuals)
+# -4.162433e-18
+#mean is really close to 0.
+
+#Residuals against fitted values
+plot(m_res_aacs,1)
+
+# normal distribution of residuals
+hist(aacs_lr$residuals,breaks=20)
+##
+qqnorm(aacs_lr$residuals);qqline(aacs_lr$residuals)
+##
+## correlation residuals x-values?
+cor(all$aacs,aacs_lr$residuals)
+plot(all$aacs,aacs_lr$residuals,pch=20, title("Correlation between residuals"), xlab="AACS", ylab="AACS_lr-Residuals")
+
+#Residuals look better than the MPZL3 -> more normally distributed. 
+#The correlation between the residuals are low.
+
+```
+
+```{r}
+#Predicting AACS expression levels and comparing them to the real values that we have in our data.
+plot(all$aacs, aacs_lr$fitted.values,pch=20,col='blue', xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+#Predicted and real values differ slightly. The relationship is still strong.
+
+```
+```{r}
+#In order to find the variable which has the most impact on the model we have to estimate the standardized regression coefficients.
+#A standardized regression coefficient is simply the β estimate from a regression on standardized variables. A standardized variable is a variable that has a mean of 0 and a standard deviation of 1.
+library(QuantPsyc)
+lm.beta(aacs_lr)
+#     ANXA2        DSP       GJA1   PPP1R14C       UCN2 
+#0.3847852  1.6753272  0.5362430 -2.3652330 -0.1849772 
+#This means a change in 1 standard deviation of DSP has more impact than a 1 standard deviation change in other variables. 
+#Plotting AACS against only the variable that has the most impact -> DSP
+
+1.
+aacs_dsp <- lm(AACS ~ DSP, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(aacs_dsp)
+
+ggPredict(aacs_dsp,colorn = 4,
+  point = NULL,
+  jitter = NULL,
+  se = FALSE,
+  show.summary = FALSE,
+  colorAsFactor = FALSE,
+  digits = 2,
+  interactive = FALSE,)
+
+aacs_ppp <- lm(AACS ~ PPP1R14C, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(aacs_ppp)
+
+ggPredict(aacs_ppp,colorn = 4,
+  point = NULL,
+  jitter = NULL,
+  se = FALSE,
+  show.summary = FALSE,
+  colorAsFactor = FALSE,
+  digits = 2,
+  interactive = FALSE,)
+#also another strong but this time negative relationship! we should take this into consideration i guess.
+
+2. 
+avPlots(aacs_lr)
+avPlots
+#We can see here all variables plotted with MPZL3.
+#The x-axis displays a single predictor variable and the y-axis displays the response variable.
+#The blue line shows the association between the predictor variable and the response variable, while holding the value of all other predictor variables constant.
+#The points that are labelled in each plot represent the 2 observations with the largest residuals and the 2 observations with the largest partial leverage.
+#Predicting the expr. value -> we probably dont need this
+3. 
+# Creating data frame which comparing variables as each as vectors
+df_aacs_dsp <- data.frame(y= aacs,x= dsp)
+
+# first simple plot of linear regression model
+plot(df_aacs_dsp$x, df_aacs_dsp$y, xlab="Predictor(DSP)", ylab="Outcome(AACS)", main="Linear Regression", col="darkorange",pch=16)
+abline(aacs_dsp, col="red")
+for (i in 1:length(aacs_dsp$fitted.values))
+  lines(c(df_aacs_dsp$x[i], df_aacs_dsp$x[i]), c(df_aacs_dsp$y[i], aacs_dsp$fitted.values[i]), col="blue")
+
+#AACS with PPP1R14
+df_aacs_ppp <- data.frame(y= aacs,x= ppp1r14c)
+
+# first simple plot of linear regression model
+plot(df_aacs_ppp$x, df_aacs_ppp$y, xlab="Predictor(PPP1R14C)", ylab="Outcome(AACS)", main="Linear Regression", col="darkorange",pch=16)
+abline(aacs_ppp, col="red")
+for (i in 1:length(aacs_ppp$fitted.values))
+  lines(c(df_aacs_ppp$x[i], df_aacs_ppp$x[i]), c(df_aacs_ppp$y[i], aacs_ppp$fitted.values[i]), col="blue")
+
+
+
+```
+
+```{r}
+#F-test for significance
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
