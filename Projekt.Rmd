@@ -1252,7 +1252,15 @@ intersect(upreg_trametinib_significant, rownames(lola3))
 #PC2:  "GJA1"     "PPP1R14C" "DSP"      "UCN2"     "TGFBI"  
 
 ```
-
+```{r}
+library(corrplot)
+library(QuantPsyc)
+library(ggiraph)
+library(ggiraphExtra)
+library(ggplot2)
+library(plyr)
+library(car)
+```
 ```{r}
 #extracting the expression levels of all the genes and assigning them in a vector.
 #SHERK:
@@ -1288,7 +1296,6 @@ ppp1r14c <- as.vector(data.skin.cancer.human_skin_TRA["PPP1R14C",])
 dsp <- as.vector(data.skin.cancer.human_skin_TRA["DSP",])
 ucn2 <- as.vector(data.skin.cancer.human_skin_TRA["UCN2",])
 
-
 all <- data.frame(mpzl3, trpm1, efs, arhgef5, tyrp1, aacs,ppp1r14c, ppfibp2, tgfbi, etv7, vangl2,dapl1, dct, anxa2, ndrg1, ptprz1, gja1, dsp, ucn2)
 all
 ```
@@ -1301,7 +1308,6 @@ df_upr<- data.frame(trpm1, mpzl3, efs, arhgef5, tyrp1, aacs, ppfibp2, tgfbi, etv
 df_upr
 
 ```
-
 ```{r} 
 #Scatterplot PPFiBP2 and ARHGEF5 (example)
 plot(df_upr$ppfibp2,df_upr$arhgef5,
@@ -1311,7 +1317,6 @@ plot(df_upr$ppfibp2,df_upr$arhgef5,
 #a linear relationship can clearly be seen. 
 
 ```
-
 ```{r}
 #Pearson correlation
 cor(df_upr,method='pearson')
@@ -1328,7 +1333,6 @@ cor_upr
 cor(df_upr[,unlist(lapply(df_upr, is.numeric))]) #both give the same correlation matrix
 
 #Visualization of the Pearson correlation
-library(corrplot)
 x <- cor(df_upr[1:12])
 corrplot(x, type="upper", order="alphabet",title = "Correlation within the upregulated genes-Pearson")
 
@@ -1350,8 +1354,6 @@ cor.test(df_upr$tyrp1,df_upr$dapl1)
 #approximately from 0.5 is the p value always lower than 0.05.
 
 ```
-
-
 Conclusion: according to the both methods there is a high correlation between all upregulated genes except MPZL3. For the linear regression only MPZL3 and one other gene representing all others will be used. 
 
 AACS, ARHGEF5, DAPL1, DCT, EFS, ETV7, PPFIBP2, TGFBI, TRPM1, TYRP1 and VANGL2 will be considered as one gene. 
@@ -1364,15 +1366,12 @@ AACS, ARHGEF5, DAPL1, DCT, EFS, ETV7, PPFIBP2, TGFBI, TRPM1, TYRP1 and VANGL2 wi
 df_pca <- data.frame(anxa2, dct, ndrg1, tyrp1, ptprz1, gja1, ppp1r14c, dsp, ucn2, tgfbi)
 df_pca
 ```
-
 ```{r}
 #Pearson correlation
 cor(df_pca,method='pearson')
 #Spearman correlation
 cor(df_pca,method='spearman')
 ```
-
-
 ```{r}
 #Creating a correlation matrix 
 cor(df_pca) #pearson
@@ -1382,8 +1381,6 @@ cor_pca
 cor(df_pca[,unlist(lapply(df_pca, is.numeric))]) #both give the same correlation matrix
 
 #Visualization of the Pearson correlation
-library(corrplot)
-
 x <- cor(df_pca[1:10])
 corrplot(x, type="upper", order="alphabet",title = "Correlation within the PCA genes-Spearman")
 
@@ -1399,8 +1396,6 @@ cor.test(df_pca$tgfbi,df_pca$anxa2)
 
 #from 0.5 is the p-value always lower than 0.05
 ```
-
-
 ```{r}
 #Another correlation visualization with scatterplots
 #upregulated genes
@@ -1408,7 +1403,6 @@ pairs(df_upr,col='red',pch=20,cex=0.5)
 #PCA genes
 pairs(df_pca,col='orange',pch=20,cex=0.5)
 ```
-
 Conclusion: Genes that have a high correlation will be considered as they have the same impact on the upregulated genes and a randomly picked gene among them will represent all others.
 ANXA2, DCT, PTPRZ1, TGFBI, TYRP1 will be considered as one gene.
 NDRG1 and PPP1R14C will be considered as one gene
@@ -1464,10 +1458,8 @@ cor(all$mpzl3,mpzl3_lr$fitted.values)^2
 
 #We can see that the predicted values and the real values are quite similar, indicating that these genes have a strong relationship. If one is being highly expressed the other one would also be so.
 ```
-
 ```{r}
 #In order to find the variable which has the most impact on the model we have to estimate the standardized regression coefficients.
-library(QuantPsyc)
 lm.beta(mpzl3_lr)
 #     ANXA2       DSP     GJA1        PPP1R14C      UCN2 
 #0.30937491 -0.04240037  0.16405314  1.48416788 -0.39856232 
@@ -1503,8 +1495,6 @@ plot(df_mpzl3_ppp1r14c$x, df_mpzl3_ppp1r14c$y, xlab="Predictor(PPP1R14C)", ylab=
 abline(mpzl3_ppp, col="red")
 for (i in 1:length(mpzl3_anxa2$fitted.values))
   lines(c(df_mpzl3_ppp1r14c$x[i], df_mpzl3_ppp1r14c$x[i]), c(df_mpzl3_ppp1r14c$y[i], mpzl3_ppp$fitted.values[i]), col="blue")
-
-
 ```
 #AACS
 ```{r}
@@ -1521,9 +1511,6 @@ H0: The model doesn't refer to any significance.
 H1: The model refers to a significance.
 If the p-value is lower than the chosen threshold (in our case we chose 0.01), it is proven that the independent variables improve the fit in our model.
 Since the p-value is lower than 0.01 we can reject the H0 and accept H1.
-
-
-
 ```{r}
 #Checking the residuals for AACS
 m_res_aacs <- lm(AACS ~ ANXA2+DSP+GJA1+PPP1R14C+UCN2 , data = data.frame(t(data.skin.cancer.human_skin_TRA)))
@@ -1555,10 +1542,6 @@ plot(all$aacs, aacs_lr$fitted.values,pch=20,col='blue', title("Prediction of the
 ```
 ```{r}
 #In order to find the variable which has the most impact on the model we have to estimate the standardized regression coefficients.
-library(QuantPsyc)
-library(ggiraph)
-library(ggiraphExtra)
-library(car)
 lm.beta(aacs_lr)
 #   ANXA2        DSP       GJA1   PPP1R14C       UCN2 
 #0.3847852  1.6753272  0.5362430 -2.3652330 -0.1849772 
