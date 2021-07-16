@@ -1,5 +1,5 @@
 ---
-title: "The role of skin-specific TRAs on skin cancer"
+title: "The Role of Skin-Specific TRAs on Skin Cancer"
 author: "Binnur Ozay, Christofer Richard, Denisa Neacsu, Pinar Cavus"
 date: "7/15/2021"
 output: html_document
@@ -9,19 +9,257 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Introduction
+# Introduction
 
 The goal of this project is to find the expression of skin specific genes in skin cancer datasets. As datasets, we used microarray data (Affymetrix chips).
 
-```{r, echo = FALSE}
+# 1. TRA Analysis
+## 1.1. Selection of skin-specific TRAs
+
+Six TRA datasets were used to find skin-specific genes for humans and mice.
+
+```{r}
+#Define work directory
+projectPath = dirname(rstudioapi::getSourceEditorContext()$path)
+
+#Import TRA Data
+setwd(paste(projectPath, 'TRA Daten', sep = '/'))
+TRA_Human_gtex = read.csv(file = "tra.2017.human.gtex.5x.table.tsv", sep = "\t")
+TRA_Mouse_4301 = read.csv(file = "tra.2014.mouse.4301.5x.table.tsv", sep = "\t")
+TRA_Human_roth = read.csv(file = "tra.2014.human.roth.5x.table.tsv", sep = "\t")
+TRA_Human_Novartis = read.csv(file = "tra.2014.human.5x.table.tsv", sep = "\t")
+TRA_Mouse_Novartis = read.csv(file = "tra.2014.mouse.5x.table.tsv", sep = "\t")
+TRA_Human_protien_atlas = read.csv(file = "Human_protein_atlas_TRA_5median_genes_annotated.tsv", sep = ",")
+
+#Skin-specific genes from TRA_Human_Novartis
+tissue1 = TRA_Human_Novartis[,11]
+ind1 = which(tissue1 == "skin")
+TRA.symbol1 = TRA_Human_Novartis$gene.symbol
+skin.TRA1 = TRA.symbol1[ind1]
+
+#Skin-specific genes from TRA_Human_protein_atlas
+tissue2 = TRA_Human_protien_atlas[,11]
+ind2 = which(tissue2 == "skin")
+TRA.symbol2 = TRA_Human_protien_atlas$Symbol
+skin.TRA2 = TRA.symbol2[ind2]
+
+#Skin-specific genes from TRA_Human_gtex (sun exposed)
+tissue3.s = TRA_Human_gtex[,10]
+ind3.s = which(tissue3.s == "Skin - Sun Exposed")
+TRA.symbol3.s = TRA_Human_gtex$ensembl.symbol
+skin.TRA3.s = TRA.symbol3.s[ind3.s]
+
+#Skin-specific genes from TRA_Human_gtex (not sun exposed)
+tissue3.ns = TRA_Human_gtex[,10]
+ind3.ns = which(tissue3.ns == "Skin - Not Sun Exposed")
+TRA.symbol3.ns = TRA_Human_gtex$ensembl.symbol
+skin.TRA3.ns = TRA.symbol3.ns[ind3.ns]
+
+#Skin-specific genes from TRA_Human_roth (no skin-specific genes)
+tissue4 = TRA_Human_roth[,11]
+ind4 = which(tissue4 == "skin")
+TRA.symbol4 = TRA_Human_roth$gene.symbol
+skin.TRA4 = TRA.symbol4[ind4]
+
+#Skin-specific genes from TRA_Mouse_4301 (epidermis-specific genes)
+tissue5 = TRA_Mouse_4301[,11]
+ind5 = which(tissue5 == "epidermis")
+TRA.symbol5 = TRA_Mouse_4301$gene.symbol
+skin.TRA5 = TRA.symbol5[ind5]
+
+#Skin-specific genes from TRA_Mouse_Novartis (epidermis-specific genes)
+tissue6 = TRA_Mouse_Novartis[,11]
+ind6 = which(tissue6 == "epidermis")
+TRA.symbol6 = TRA_Mouse_Novartis$gene.symbol
+skin.TRA6 = TRA.symbol6[ind6]
+```
+
+## 1.2. Compilation of all skin-specific TRAs
+
+Skin-specific TRAs for humans were put into a single vector and data was cleaned up.
+
+```{r}
+#Creating vector with all the human skin genes
+skin.genes.human = unique(c(skin.TRA1, skin.TRA2, skin.TRA3.ns, skin.TRA3.s))
+
+#Removing NAs and empty values
+skin.genes.human = skin.genes.human[-which(is.na(skin.genes.human))] 
+skin.genes.human = skin.genes.human[-which(skin.genes.human == "")] 
+
+#Verification that all NA and empty values were removed
+which(is.na(skin.genes.human)) 
+which(skin.genes.human == "")
+
+#Saving this vector with all skin-specific human TRAs in a csv file
+setwd(paste(projectPath, 'tables', sep = '/'))
+write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
+```
+
+# I
+
+You
+
+```{r}
 
 ```
 
-## Including Plots
+## I
 
-You can also embed plots, for example:
+You
 
-```{r, echo = FALSE}
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
+
+```
+
+## I
+
+You
+
+```{r}
 
 ```
 
