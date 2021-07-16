@@ -1138,59 +1138,95 @@ legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "gre
 
 #Limma Analysis
 
+In limma analysis we aimed to find the differential expressed genes (or DEGs). The idea behind limma is that it takes the normalized data and performs statistical tests to discover any quantitative changes in the gene expression, in our case over time. We decided to use limma as a model of comparison to the up regulated genes we have already found manually. It is to be seen from the results of limma analysis, that the genes were very similar to the ones found, which means that the manual way succeeded. This could be checked by doing the intersection of the vectors for the significant up regulated genes of each treatment and the top 10 genes found with limma.
+This code was created with the help of the User Guide for limma from R.
+
+
 ```{r}
-## First group: We compare the expression values from day 3 to day 7 with the shERK1
+library(limma)
+## First group: We compare the expression values from day 3 to day 7 with the shERK1 treatment
+
+# Create design matrix
 design = model.matrix(~ 0+factor(c(2,2,2,1,1)))
 design
 colnames(design) = c("Sherk7D", "Sherk3D")
-fit = lmFit(data.skin.cancer.human_skin_TRA[,1:5], design) #fit linear model
+
+# Fit linear model
+fit = lmFit(data.skin.cancer.human_skin_TRA[,1:5], design)
 fit
 contrast.matrix = makeContrasts(Sherk7D-Sherk3D, levels=design)
 fit2 = contrasts.fit(fit, contrast.matrix)
 fit2 =  eBayes(fit2, 0.01)
 
-
+# Create top table with the DEGs sorted by log fold change
 T1 = topTable(fit2,adjust.method = "fdr", sort.by = "logFC")
+
+# Select only the first 10 genes with a positive log fold change from the table
 lola1=T1[which(T1$logFC>0),]
 lola1 = lola1[1:10,]
 
+# EGLN3, DSP, PPP1R14C, SPINT2, MPZL3, GATA3, GAN, GJA1, DSC3, BCL11A
+
+intersect(upreg_sherk_significant, rownames(lola1))
+# "MPZL3"  "BCL11A"
 
 
-## Second group: We compare 3h ERK1/2 and 24h ERK1/2
+
+## Second group: We compare 3h ERK1/2 and 24h ERK1/2 treatment
 
 data_ERK = data.skin.cancer.human_skin_TRA[,c(10:12, 6,7)]
 
+# Create design matrix
 design_ERK = model.matrix(~ 0+factor(c(1,1,1,2,2)))
 design_ERK
 colnames(design_ERK) = c("ERK12_inh_24h", "ERK12_inh_3h")
-fit_ERK = lmFit(data_ERK, design_ERK) #fit linear model
+
+# Fit linear model
+fit_ERK = lmFit(data_ERK, design_ERK) 
 fit_ERK
 contrast.matrix_ERK = makeContrasts(ERK12_inh_24h-ERK12_inh_3h, levels=design_ERK)
 fit2_ERK = contrasts.fit(fit_ERK, contrast.matrix_ERK)
 fit2_ERK =  eBayes(fit2_ERK, 0.01)
 
-
+# Create top table with the DEGs sorted by log fold change
 T2 = topTable(fit2_ERK,adjust.method = "fdr", sort.by = "logFC", number = 130) 
+
+# Select only the first 10 genes with a positive log fold change from the table
 lola2 = T2[which(T2$logFC>0),]
 lola2 = lola2[1:10,]
+# TRPM1, VANGL2, EFS, ETV7, ARHGEF5, PMEL, TYRP1, AACS, TGFBI, PPFIBP2
+
+intersect(upreg_erk12_significant, rownames(lola2))
+# "TRPM1"   "EFS"     "ETV7"    "ARHGEF5" "TYRP1"   "AACS"    "TGFBI"   "PPFIBP2"
 
 
-## Third group: We compare 3h to 24h Trametinib
+
+## Third group: We compare 3h to 24h Trametinib treatment
 data_Trametinib = data.skin.cancer.human_skin_TRA[,c(13:15, 8,9)]
 
+# Create design matrix
 design_Trametinib = model.matrix(~ 0+factor(c(1,1,1,2,2)))
 design_Trametinib
 colnames(design_Trametinib) = c("Trametinib_24h", "Trametinib_3h")
-fit_Trametinib = lmFit(data_Trametinib, design_Trametinib) #fit linear model
+
+# Fit linear model
+fit_Trametinib = lmFit(data_Trametinib, design_Trametinib) 
 fit_Trametinib
 contrast.matrix_Trametinib = makeContrasts(Trametinib_24h-Trametinib_3h, levels=design_Trametinib)
 fit2_Trametinib= contrasts.fit(fit_Trametinib, contrast.matrix_Trametinib)
 fit2_Trametinib =  eBayes(fit2_Trametinib, 0.01)
 
-
+# Create top table with the DEGs sorted by log fold change
 T3 = topTable(fit2_Trametinib,adjust.method = "fdr", sort.by = "logFC", number = Inf ) 
+
+# Select only the first 10 genes with a positive log fold change from the table
 lola3 = T3[which(T3$logFC>0),]
 lola3 = lola3[1:10,]
+# VANGL2, TRPM1, ETV7, DAPL1, TGFBI, EFS, DLX5, DCT, TYRP1, ARHGEF5
+
+intersect(upreg_trametinib_significant, rownames(lola3))
+# "VANGL2" "TRPM1"  "ETV7"   "DAPL1"  "TGFBI"  "EFS"    "DCT"    "TYRP1" 
+
 ```
 
 
@@ -1520,6 +1556,9 @@ plot(all$aacs, aacs_lr$fitted.values,pch=20,col='blue', title("Prediction of the
 ```{r}
 #In order to find the variable which has the most impact on the model we have to estimate the standardized regression coefficients.
 library(QuantPsyc)
+library(ggiraph)
+library(ggiraphExtra)
+library(car)
 lm.beta(aacs_lr)
 #   ANXA2        DSP       GJA1   PPP1R14C       UCN2 
 #0.3847852  1.6753272  0.5362430 -2.3652330 -0.1849772 
