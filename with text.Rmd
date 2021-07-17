@@ -667,11 +667,9 @@ legend("topleft",c("Trametinib after 3h", "Trametinib after 24h"),col=c("blue", 
 ```
 It should be noted that TYRP1 is significantly upregulated under Trametinib treatment, but significantly downregulated under dox-shERK1.
 
-## 3.10. Venn diagram
-
 Genes that are upregullated in skin cancer and are at the same time TRAs are especially interesting, as they pose as potential drug targets. To visualize these upregulated TRAs, a venn diagram was made.
-
 ```{r}
+## 3.9. Venn diagram
 #Finding upregulated genes in skin cancer by logFC
 #Average the gene expression for each treatment at each time point
 sherk_3d_all = apply(Expression[,1:3], 1, mean)
@@ -745,12 +743,10 @@ upreg_tra_nonskin = upreg_tra[!upreg_tra%in%rownames(data.skin.cancer.human_skin
 length(upreg_tra_nonskin) #There are no non-skin specific TRAs that are upregulated in skin cancer
 ```
 
-## 3.11. Sun exposure
-
-to show melanoma is caused by uv/sun --> which upregulated genes are sun exposed genes (related to uv exposure)
-Boxplots of sun exposure vs no sun exposure in all data
+Expression boxplots of chips exposed to sun and not exposed to sun are made, there is not any significant difference seen between them. However, a significant difference between the expression levels of the two gene groups was observed after a Wilcoxon signed rank test was run for each chip. Genes expressed both under the sun and without the sun are removed from the data, and the genes that were only expressed under sun exposure are acquired. Four of these sun exposure related genes are also upregulated genes: ETV7, TGFBI, DAPL1, and ARHGEF5.
 
 ```{r}
+## 3.10. Sun exposure
 #Finding the sun exposed and not sun exposed genes in our skin-specific expression dataset
 sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
 no.sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.ns)
@@ -784,14 +780,12 @@ significant_sun_2 = upreg_erk12_significant[upreg_erk12_significant%in%only_sun]
 significant_sun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in%only_sun]
 
 upregulated_sun = unique(c(significant_sun_1, significant_sun_2, significant_sun_3))
-upregulated_sun
 
 significant_nosun_1 = upreg_sherk_significant[upreg_sherk_significant%in%only_nosun]
 significant_nosun_2 = upreg_erk12_significant[upreg_erk12_significant%in%only_nosun]
 significant_nosun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in%only_nosun]
 
 upregulated_nosun = unique(c(significant_nosun_1, significant_nosun_2, significant_nosun_3))
-upregulated_nosun
 ```
 
 ## 4. Clustering
@@ -842,32 +836,6 @@ ggtheme = theme_classic())
 #Average silhouette width of both clusters are higher than 0.5, meaning they are significantly clustered.
 ```
 
-## 4.2. Clustering of the up- and downregulated skin-specific TRAs
-
-why also downregulated
-
-```{r}
-#Gathering the expression of highest up- and downregulated genes
-upregulated_all_exp = data.frame(data.skin.cancer.human_skin_TRA[c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant),])
-upregulated_all_exp = distinct(upregulated_all_exp)
-
-#Elbow method
-fviz_nbclust(upregulated_all_exp, kmeans, method = "wss")+labs(subtitle = "Elbow method")
-
-#Silhouette method
-fviz_nbclust(upregulated_all_exp, kmeans, method = "silhouette")+labs(subtitle = "Silhouette method")
-#The optimal number of clusters is 3.
-
-#Is the data really clusterable?
-hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)#The H value is also lower than 0.5 and is relatively close to 0, so data probably has clusters.
-
-#Visualize k-means clusters
-km.upreg = eclust(upregulated_all_exp, "kmeans", k = 3, nstart = 25, graph = FALSE)
-fviz_cluster(km.upreg, data = upregulated_all_exp)
-
-#Cluster validation: silhouette plot
-fviz_silhouette(km.upreg, palette = "jco", ggtheme = theme_classic())
-```
 
 ## 5. Principal component analysis
 
