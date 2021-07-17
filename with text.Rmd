@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# Introduction
+# INTRODUCTION
 
 Skin cancer makes up most of the malignancies all around the world, and consists of two main different types; melanoma and non-melanoma (Linares et al., 2015). Both are mainly caused by exposure to UV lights, but non-melanoma cancer develops in the outer layers of the skin (Leiter & Garbe, 2008), whereas melanoma develops from the melanocytes (Smith et al., 2003). Melanomas only make up a small amount of reported skin cancer diagnoses, however they still account for the majority of skin cancer deaths, making them extremely dangerous (Smith et al., 2003). Melanomas have the highest rate of metastatic capacity of all tumors when they have delayed diagnoses (Potrony et al., 2015). 
 More than half of all melanoma cases contain a mutation of the BRAF gene (Alqathama, 2020). The B-Raf protein is a signaling molecule in the Mitogen-activated protein kinase (MAPK) pathway, activating MEK and leading to the phosphorylation of ERK (Alqathama, 2020). This kinase cascade is known to direct important cell processes such as proliferation, differentiation, and survival (Alqathama, 2020).
@@ -155,7 +155,7 @@ dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 Before the analysis, the data must be investigated to see if there are any problems within, for instance a  broken microarray chip, that would alter the results.
 ```{r, fig.show = 'hide'}
 #2. Quality control of microarray data of skin cancer
-The Affymetrix Human Genome U133 Plus 2.0 Array was used and the package for annotation of the chips was downloaded from the Brainarray website.
+#The Affymetrix Human Genome U133 Plus 2.0 Array was used and the package for annotation of the chips was downloaded from the Brainarray website.
 
 ##2.1. Loading the skin cancer dataset
 #15 chips were chosen to be analysed and were downloaded from the GEO website. The 15 chips that were chosen to be used are: GSM1387513, GSM1387514, GSM1387515, GSM1387525, GSM1387527, GSM1387537, GSM1387538, GSM1387544, GSM1387545, GSM1387552, GSM1387553, GSM1387554, GSM1387558, GSM1387559 and GSM1387560.
@@ -742,10 +742,8 @@ upreg_tra = intersect(unique(c(upreg_sherk_significant_all, upreg_erk12_signific
 upreg_tra_nonskin = upreg_tra[!upreg_tra%in%rownames(data.skin.cancer.human_skin_TRA)]
 length(upreg_tra_nonskin) #There are no non-skin specific TRAs that are upregulated in skin cancer
 ```
-
-Expression boxplots of chips exposed to sun and not exposed to sun are made, there is not any significant difference seen between them. However, a significant difference between the expression levels of the two gene groups was observed after a Wilcoxon signed rank test was run for each chip. Genes expressed both under the sun and without the sun are removed from the data, and the genes that were only expressed under sun exposure are acquired. Four of these sun exposure related genes are also upregulated genes: ETV7, TGFBI, DAPL1, and ARHGEF5.
-
-```{r}
+A Wilcoxon signed rank test was run for each chip and a significant difference between the expression levels of the two gene groups was observed. Genes expressed both under the sun and without the sun are removed from the data, and the genes that were only expressed under sun exposure are acquired. Four of these sun exposure related genes are also upregulated genes: ETV7, TGFBI, DAPL1, and ARHGEF5.
+```{r,fig.show = 'hide'}
 ## 3.10. Sun exposure
 #Finding the sun exposed and not sun exposed genes in our skin-specific expression dataset
 sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
@@ -787,12 +785,9 @@ significant_nosun_3 = upreg_trametinib_significant[upreg_trametinib_significant%
 
 upregulated_nosun = unique(c(significant_nosun_1, significant_nosun_2, significant_nosun_3))
 ```
-
+The expression difference of genes exposed to sun and genes that were not exposed to sun is visualized by k-means. After running the elbow, silhouette, and one other method provided by the package NbClust (v3.0; Charrad, 2015), it is decided that two clusters are the optimal amount for this data. After clustering and plotting with the package factoextra (v1.0.3; Kassambara, 2020), two clusters are defined with an average silhouette width of 0.65, indicating that there is indeed a clusterable difference between the expressions of these two gene groups.
+```{r,fig.show = 'hide'}
 ## 4. Clustering
-
-Clustering was done to observe if there are any distinctive groups in our dataset.
-
-```{r}
 #Load libraries needed for clustering
 library(factoextra)
 library(clustertend)
@@ -801,13 +796,7 @@ library(cluster)
 library(clValid)
 library(NbClust)
 library(dplyr)
-```
 
-## 4.1. Clustering of sun / no sun exposure data
-
-Sun and no sun exposure data were clustered to see if there are any obvious differences between the two gene groups.
-
-```{r}
 #Deciding on the optimal number of clusters
 set.seed(123)
 both = data.skin.cancer.human_skin_TRA[c(only_sun, only_nosun),]
@@ -826,22 +815,18 @@ fviz_nbclust(nb.both)
 #Is the data really clusterable?
 hopkins(both, n = nrow(both)-1) #H value is lower than 0.5 and is relatively close to 1, meaning that there is a high probability that there are clusters in the sun/no sun data.
 
-#Visualize k-means clusters
-fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
-
 #Cluster Validation: Silhouette Information
 km.both = eclust(both, "kmeans", k = 2, nstart = 30, graph = FALSE)
 fviz_silhouette(km.both, palette = "jco",
 ggtheme = theme_classic())
 #Average silhouette width of both clusters are higher than 0.5, meaning they are significantly clustered.
+
+#Visualize k-means clusters
+fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
 ```
-
-
+Principal component analysis (PCA) is carried out on the 24h and 7d chips to find the genes that explain most of the variance in the data and to reduce the amount of dimensions. PC1 and PC2 represent 88% of all the variance of the melanoma dataset. Five genes with the top variance from each of these components are chosen to continue the analysis with: ANXA2, DCT, NDRG1, TYRP1, PTPRZ1 from PC1, and DSP, GJA1, PPP1R14C, TGFBI, UCN2 from PC2.
+```{r,fig.show = 'hide'}
 ## 5. Principal component analysis
-
-PCA was done to find the genes that explain most of the variance in the data. These genes were picked from principal components with the highest percentage of variance explained. Later on, the expression of upregulated genes will be predicted by using one or more of these genes through regression models.
-
-```{r}
 #Centering and scaling, pick data only from final time and only genes with highest variance
 pca_dataframe = scale(data.skin.cancer.human_skin_TRA)
 pca_dataframe = t(pca_dataframe[,c(4:5, 10:15)])
@@ -903,4 +888,46 @@ You
 
 ```
 
+DISCUSSION
+
+Regardless of treatment type and time variation between different chips, GPNMB and ANXA2 proved to be highest expressed in all of them. ANXA2 is known as a biomarker in cancers, it is already seen as an ideal target for cancer therapy because of its crucial functions in cancer cell proliferation, migration, invasion, metastasis (Wang et al., 2019). GPNMB has been formerly identified as an aggressive pro-metastatic protein that is highly expressed in many tumor types, including melanoma (Taya & Hammes, 2018). The fact that brings these two together is that they are both responsible for the genesis of melanosomes (Setaluri & Jayanthy, 2013; Delevoye et al., 2015).
+Melanoma develops from melanocytes, which normally assemble melanosomes; organelles in mammals responsible for melanin production (Setaluri & Jayanthy, 2013). It makes sense that these two genes related to the assembly and maturation of melanosomes are found to be highly expressed in melanoma. The two other important genes TYRP1 and DCT found in this analysis, which are also involved in the development of melanosomes (Setaluri & Jayanthy, 2013), are both upregulated and principal component genes at the same time. DCT also known as TYRP2 encodes proteins that play roles in the melanin synthesis, just as TYRP1 (Setaluri & Jayanthy, 2013). The upregulation and high expression of these melanosome related genes, indicates that a therapy focusing to direct melanosome functions would be effective against melanoma.
+Microphthalmia-associated transcription factor (MITF) is a key signal regulator with the subset target genes GPNMB and TYRP1 (Rose et al., 2016). MITF plays important roles in melanosomal function, pigmentation, but it is also required for sustaining the BRAF-mutant melanoma, and supporting the melanoma cell proliferation (Rose et al., 2016). It has been observed before that MITF related genes are upregulated under certain BRAF and MEK inhibitors, such as Trametinib (Rose et al., 2016). This would explain the expression results of TYRP1 in this project. It is upregulated as it is needed for the maintenance of the melanoma cell, and the Trametinib treatment, which is a MEK1/2 inhibitor further accelerates its expression. The other two treatments are inhibitors of ERK, which partially successfully seem to have worked, because one of the genes supporting the cancer cell is downregulated under them.
+Other significant genes that have been found are the four upregulated genes that are only expressed under the sun. DAPL1 is a gene upregulated by the aforementioned MITF (Ma et al., 2018), and TGFBI regulates cyclin-dependent kinases, which are known to be in charge of the cell cycle, and allows a high metastatic potential to the melanoma (Lauden et al., 2014). Lastly, ARHGEF5 codes for a guanin exchange factor that is crucial for certain membrane formations that are related to the invasive potential of cancer cells (Kuroiwa et al., 2011). The knowledge that such genes, aiding the development of melanoma, have only been upregulated under sun exposure, confirms the already commonly known fact that the exposure to sun is a trigger for skin cancer.
+The fourth upregulated gene under sun exposure, ETV7, codes for a transcription factor, which is usually seen to be downregulated in melanoma patients and correlates with a poor prognosis. (Qu et al., 2020). However, ETV7 is seen to be upregulated in our data under Trametinib, suggesting that it might have a role in attacking the tumor microenvironment, leading to a better prognosis. The fact that this gene is expressed under the sun suggests that it might be a natural response to the tumorigenic genes, upregulated under sun exposure. Trametinib helps upregulate it further to fight tumor proliferation. The relationship between ETV7 and the three genes mentioned above should be looked into with more detail, as a treatment upregulating its expression seems to be possibly effective against melanoma.
+What’s important to give attention to here is that almost all of the upregulated genes are either regulated by MITF or are from the data that was exposed to the sun. This indicates that the high expression of the genes that are related to MITF are as effective as exposure to sun when it comes to helping create or supporting the melanoma. Since all of the genes analysed on are human skin specific TRA genes, a new treatment where the expression of the genes mentioned above are targeted, would not harm healthy tissues. This opens countless opportunities for future research and treatment of melanomas, especially because melanoma is highly metastatic.
+Through the opposite expression of TYRP1, and varying up- and downregulated genes between chips of different treatments, the different effects of MEK and ERK inhibitors on melanoma have been shown. Even though these treatments in this project have shown to downregulate some known tumor inducing genes such as WEE1, an important regulator in the cell cycle (Tashnizi et al., 2016), it should be further researched and discussed on if these inhibitors should be used on melanoma. If yes, a combination of other drugs are needed as treatment to inhibit the accelerating effects of MAPK inhibitors on melanosome related genes.
+The strong linear dependency found between the expression of the gene DSP and most of the upregulated genes also raises new questions requiring additional research.  DSP codes for a desmosomal protein, which helps human melanoma metastases to escape the immune system (Salerno et al., 2016). Some desmosomal proteins are used to identify melanomas, even when there are not any immune signatures seen (Salerno et al., 2016). This linear relationship between DSP and the upregulated genes could be used for better diagnosis of melanomas, however more information on the expression of DSP in melanomas is needed. 
+The findings that melanosome related genes, and genes highly expressed under sun exposure strongly influence the melanoma cells, and that there is a strong linear relationship between the upregulated and the high variance genes set base for further research in new treatments for melanoma. Therefore, it can be stated that this analysis has given successful results.
+
+LITERATURE
+
+Alboukadel, K. (2017). Practical Guide to Cluster Analysis in R: Unsupervised Machine Learning, STHDA
+Alqathama A. (2020). BRAF in malignant melanoma progression and metastasis: potentials and challenges. American journal of cancer research, 10(4), 1103–1114.
+Delevoye, C., Heiligenstein, X., Ripoll, L., Gilles-Marsens, F., Dennis, M. K., Linares, R. A., Derman, L., Gokhale, A., Morel, E., Faundez, V., Marks, M.S., Raposo, G. (2015). BLOC-1 Brings Together the Actin and Microtubule Cytoskeletons to Generate Recycling Endosomes, Current Biology, Vol 26(1), 1-13, https://doi.org/10.1016/j.cub.2015.11.020
+Dinkelacker, 2007. A database of genes that are expressed in a tissue-restricted manner to analyse promiscuous gene expression in medullary thymic epithelial cells. Diplomarbeit, Albert-Ludwigs-Universitaet, Freiburg, Germany.
+Dinkelacker, 2019. Chromosomal clustering of tissue restricted antigens, Dissertation, University Heidelberg, Germany.
+Gruber, P., Zito, P. M. (2021). Jan, Skin Cancer. [Updated 2020 Nov 19]. In: StatPearls [Internet]. Treasure Island (FL): StatPearls Publishing; Available from: https://www.ncbi.nlm.nih.gov/books/NBK441949/
+Klein, L., Kyewski, B., Allen, P. et al. (2014). Positive and negative selection of the T cell repertoire: what thymocytes see (and don't see). Nat Rev Immunol 14, 377–391. https://doi.org/10.1038/nri3667
+Kuroiwa, M., Oneyama, C., Nada, S., & Okada, M. (2011). The guanine nucleotide exchange factor Arhgef5 plays crucial roles in Src-induced podosome formation. Journal of cell science, 124(Pt 10), 1726–1738. https://doi.org/10.1242/jcs.080291
+Kyewski, B., Derbinski, J. (2004) Self-representation in the thymus: an extended view. Nat Rev Immunol 4, 688–698. https://doi.org/10.1038/nri1436
+Lauden, L., Siewiera, J., Boukouaci, W., Ramgolam, K., Mourah, S., Lebbe, C., Charron, D., Aoudjit, F., Jabrane-Ferrat, N., Al-Daccak, R. (2014). TGF-β-Induced (TGFBI) Protein in Melanoma: A Signature of High Metastatic Potential, Journal of Investigative Dermatology, Vol:134(6), 1675-1685, ISSN 0022-202X, https://doi.org/10.1038/jid.2014.20.
+Leiter, U., & Garbe, C. (2008). Epidemiology of melanoma and nonmelanoma skin cancer--the role of sunlight. Advances in experimental medicine and biology, 624, 89–103. https://doi.org/10.1007/978-0-387-77574-6_8
+Linares, M. A., Zakaria, A., & Nizran, P. (2015). Skin Cancer. Primary care, 42(4), 645–659. https://doi.org/10.1016/j.pop.2015.07.006
+Ma, X., Hua, J., Zheng, G., Li, F., Rao, C., Li, H., Wang, J., Pan, L., & Hou, L. (2018). Regulation of cell proliferation in the retinal pigment epithelium: Differential regulation of the death-associated protein like-1 DAPL1 by alternative MITF splice forms. Pigment cell & melanoma research, 31(3), 411–422. https://doi.org/10.1111/pcmr.12676
+Moloney, E. B., Moskites, A., Ferrari, E. J., Isacson, O., & Hallett, P. J. (2018). The glycoprotein GPNMB is selectively elevated in the substantia nigra of Parkinson's disease patients and increases after lysosomal stress. Neurobiology of disease, 120, 1–11. https://doi.org/10.1016/j.nbd.2018.08.013
+Opitz, L., Salinas-Riester, G., Grade, M., Jung, K., Jo, P., Emons, G., Ghadimi, B. M., Beissbarth, T., & Gaedcke, J. (2010). Impact of RNA degradation on gene expression profiling. BMC medical genomics, 3, 36. https://doi.org/10.1186/1755-8794-3-36
+Potrony, M., Badenas, C., Aguilera, P., Puig-Butille, J. A., Carrera, C., Malvehy, J., Puig, S. (2015). Update in genetic susceptibility in melanoma. Annals of translational medicine, 3(15), 210.	 https://doi.org/10.3978/j.issn.2305-5839.2015.08.11
+Qu, H., Zhao, H., Zhang, X., Liu, Y., Li, F., Sun, L., & Song, Z. (2020). Integrated Analysis of the ETS Family in Melanoma Reveals a Regulatory Role of ETV7 in the Immune Microenvironment. Frontiers in immunology, 11, 612784. https://doi.org/10.3389/fimmu.2020.612784
+Ritchie, M. E., Phipson, B., Wu, D., Hu, Y., Law, C. W., Shi, W., & Smyth, G. K. (2015). limma powers differential expression analyses for RNA-sequencing and microarray studies. Nucleic acids research, 43(7), e47. https://doi.org/10.1093/nar/gkv007
+Rose, A. A., Annis, M. G., Frederick, D. T., Biondini, M., Dong, Z., Kwong, L., Chin, L., Keler, T., Hawthorne, T., Watson, I. R., Flaherty, K. T., Siegel, P. M. (2016). MAPK Pathway Inhibitors Sensitize BRAF-Mutant Melanoma to an Antibody-Drug Conjugate Targeting GPNMB, DOI: 10.1158/1078-0432.CCR-16-1192 
+Rosenberg S. A. (1999). A new era for cancer immunotherapy based on the genes that encode cancer antigens. Immunity, 10(3), 281–287. https://doi.org/10.1016/s1074-7613(00)80028-x
+Salerno, E. P., Bedognetti, D., Mauldin, I. S., Deacon, D. H., Shea, S. M., Pinczewski, J., Obeid, J. M., Coukos, G., Wang, E., Gajewski, T. F., Marincola, F. M., & Slingluff, C. L., Jr (2016). Human melanomas and ovarian cancers overexpressing mechanical barrier molecule genes lack immune signatures and have increased patient mortality risk. Oncoimmunology, 5(12), e1240857. https://doi.org/10.1080/2162402X.2016.1240857
+Setaluri, V., Jayanthy, A. (2013). Coat Color Mutations, Animals, Brenner's Encyclopedia of Genetics, Second Edition, Academic Press, 58-60, ISBN 9780080961569, https://doi.org/10.1016/B978-0-12-374984-0.00275-8.
+Smith, R. A., Mettlin, C. J., Eyre, H. (2003). Melanoma and Nonmelanoma Skin Cancer, Holland-Frei Cancer Medicine. 6th edition. Hamilton (ON): BC Decker;  https://www.ncbi.nlm.nih.gov/books/NBK13764/
+Tashnizi, A. H., Jaberipour, M., Razmkhah, M., Rahnama, S., & Habibagahi, M. (2016). Tumour suppressive effects of WEE1 gene silencing in neuroblastomas. Journal of cancer research and therapeutics, 12(1), 221–227. https://doi.org/10.4103/0973-1482.165861
+Taya, M., Hammes, S. R. (2018). Glycoprotein Non-Metastatic Melanoma Protein B (GPNMB) and Cancer: A Novel Potential Therapeutic Target. Steroids, 133, 102–107. https://doi.org/10.1016/j.steroids.2017.10.013
+Volz, A., Korge, B. P., Compton, J. G., Ziegler, A., Steinert, P. M., & Mischke, D. (1993). Physical mapping of a functional cluster of epidermal differentiation genes on chromosome 1q21. Genomics, 18(1), 92–99. https://doi.org/10.1006/geno.1993.1430
+Wang, T., Wang, Z., Niu, R., & Wang, L. (2019). Crucial role of Anxa2 in cancer progression: highlights on its novel regulatory mechanism. Cancer biology & medicine, 16(4), 671–687. https://doi.org/10.20892/j.issn.2095-3941.2019.0228
+Zeiser R. (2014). Trametinib. Recent results in cancer research. Fortschritte der Krebsforschung. Progrès dans les recherches sur le cancer, 201, 241–248. https://doi.org/10.1007/978-3-642-54490-3_15
 
