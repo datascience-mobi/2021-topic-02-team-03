@@ -284,7 +284,6 @@ all.spaces.exp = sapply(rownames(Expression), function(x){which(x == "")})
 Expression = Expression[-which(all.spaces.exp>0),] 
 rm(all.spaces.exp)
 
-head(Expression)
 ```
 
 ## 3.2. Extraction of skin-specific TRAs from the gene expression data frame
@@ -815,13 +814,10 @@ sapply(1:15, ttest_sun)
 
 # Genes that are expressed with or without sun exposure
 both.sun = intersect(sun, no.sun)
-both.sun
 # Genes that are only sun exposure related
 only_sun = sun[!sun%in%both.sun]
-only_sun
 #Genes that are only no sun exposure related
 only_nosun = no.sun[!no.sun%in%both.sun]
-only_nosun
 
 #The upregulated sun exposed genes ETV7 and TGFBI are especially interesting, as ETV7 downregulation is related to poor prognosis (so working against the cancer) and TGFBI is strongly associated with tumor proliferation.
 
