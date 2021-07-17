@@ -284,7 +284,6 @@ all.spaces.exp = sapply(rownames(Expression), function(x){which(x == "")})
 Expression = Expression[-which(all.spaces.exp>0),] 
 rm(all.spaces.exp)
 
-head(Expression)
 ```
 
 ## 3.2. Extraction of skin-specific TRAs from the gene expression data frame
