@@ -949,7 +949,7 @@ barplot(skin_pca_topVar$rotation[,2], main = "PC2", ylab = "Contribution", xlab 
 
 #Genes with most contribution to PC1 and PC2
 top_genes_pca1 = names(sort(abs(skin_pca_topVar$rotation[,1]), decreasing = T)[1:5])
-top_genes_pca2 = names(sort(abs(skin_pca_topVar$rotation[,2]), decreasing = T)[1:5])
+top_genes_pca2 = names(sort(abs(skin_pca_topVar$rotation[,2]), decreasing = T)[1:6])
 
 #Scatterplot of data with PC1 and PC2 as new coordinates
 plot(skin_pca_topVar$x[,1], skin_pca_topVar$x[,2], 
@@ -962,7 +962,52 @@ legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "gre
 
 Finally, regression models were made to predict the expression of the upregulated TRAs by using the genes previously selected by PCA. It is hoped that the expression of these essential upregulated genes in cancer can be modulated by targeting the genes from PCA. This would then be a good opportunity in developing new drugs with new drug targets.
 
+## 6.1. Correlation between genes
+
+Correlation between upregulated genes and genes obtained from PCA must first be done
+
 ```{r}
+#Load libraries
+library(corrplot)
+library(QuantPsyc)
+library(ggiraph)
+library(ggiraphExtra)
+library(ggplot2)
+library(plyr)
+library(car)
+
+#Correlation of upregulated genes
+df_upr = data.frame(t(data.skin.cancer.human_skin_TRA[unique(c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant)),]))
+
+#Scatterplot PPFIBP2 and ARHGEF5 (example)
+plot(df_upr[,"PPFIBP2"], df_upr[,"ARHGEF5"], pch=20, xlab='PPFIBP2', ylab='ARHGEF5')
+#A linear relationship can clearly be seen. 
+
+#Creating a correlation matrix with pearson correlation
+cor_upr = cor(df_upr, method='pearson')
+
+#Visualization of the Pearson correlation
+corrplot(cor_upr, type="upper", order="alphabet",title = "Correlation within the upregulated genes (Pearson)")
+#From the plot it can be seen that there is a high correlation between all upregulated genes except MPZL3. For the linear regression only MPZL3 and one other gene representing all others will be used (2 upregulated genes used in total).
+
+#Correlation of genes from PCA
+df_pca = data.frame(t(data.skin.cancer.human_skin_TRA[unique(c(top_genes_pca1, top_genes_pca2)),]))
+
+#Creating a correlation matrix with pearson correlation
+cor_pca = cor(df_pca, method='pearson')
+
+#Visualization of the Pearson correlation
+corrplot(cor_pca, type="upper", order="alphabet", title = "Correlation within the PCA genes (Pearson)")
+#Genes that have a high correlation will be considered as they have the same impact on the upregulated genes. ANXA2, DCT, PTPRZ1, TGFBI, TYRP1 will be considered as one gene. NDRG1 and PPP1R14C will be considered as one gene. (5 genes from PCA used in total)
+
+
+
+
+
+
+#ANXA2, DCT, PTPRZ1, TGFBI, TYRP1
+#DSP, GJA1, NDRG1, PPP1R14C, SPINT2, UCN2
+
 
 ```
 
@@ -971,7 +1016,8 @@ Finally, regression models were made to predict the expression of the upregulate
 You
 
 ```{r}
-
+#Extracting the expression levels of all the genes and assigning them in a vector
+#all = data.frame(data.skin.cancer.human_skin_TRA[unique(c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant, top_genes_pca1, top_genes_pca2)),])
 ```
 
 ## I
