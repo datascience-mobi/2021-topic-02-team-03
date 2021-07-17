@@ -95,153 +95,925 @@ setwd(paste(projectPath, 'tables', sep = '/'))
 write.csv(matrix(skin.genes.human), file = "skin.specific.genes.human.TRA", row.names = F, sep = "\t")
 ```
 
-# I
+#2. Quality control of microarray data of skin cancer
 
-You
+Microarray data was taken from the GEO website, series number GSE57721. Here, gene expression of the WM266-4 BRAF V600D mutant melanoma cell line was measured on different time points after treatment with several inhibitors, such as Doxycycline-shERK1, ERK1/2 inhibitor and trametinib. The Affymetrix Human Genome U133 Plus 2.0 Array was used and the package for annotation of the chips was downloaded from the Brainarray website.
 
-```{r}
+##2.1. Loading the skin cancer dataset
 
-```
-
-## I
-
-You
+15 chips were chosen to be analysed and were downloaded from the GEO website. The 15 chips that were chosen to be used are: GSM1387513, GSM1387514, GSM1387515, GSM1387525, GSM1387527, GSM1387537, GSM1387538, GSM1387544, GSM1387545, GSM1387552, GSM1387553, GSM1387554, GSM1387558, GSM1387559 and GSM1387560.
 
 ```{r}
+#Loading the necessary libraries
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(hgu133plus2hsenstcdf)
+library(hgu133plus2hsenstprobe)
+library(hexbin)
+library(stringr)
 
+#Read all 15 microarray chips
+setwd(paste(projectPath, 'rawdata/GSE57721 melanoma', sep = '/'))
+data.skin.cancer = ReadAffy()
+data.skin.cancer@cdfName = "HGU133Plus2_Hs_ENST"
+
+orig = colnames(exprs(data.skin.cancer))
+new.name = substr(orig, 1, nchar(orig)-4)
+colnames(exprs(data.skin.cancer)) = new.name
+
+#Saving raw data as a .rda file
+setwd(paste(projectPath, 'sessions/rda', sep = '/'))
+save.image(file = "data.skin.cancer.rda")
 ```
 
-## I
+## 2.2. Single chip control
 
-You
+Qualitative quality control by looking at the chips was done by visualizing every single chip.
 
 ```{r}
-
+#Visualizing raw microarray data
+par(mfrow = c(3,5))
+image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1]) #All of the chips seem to have a very good quality, so we can use all of them
 ```
 
-## I
+## 2.3. Normalization of microarray data
 
-You
+Normalization is used to remove systematic variation that can affect the analysis of the chips. The microarray data for skin cancer was normalized with the vsn package. The values after normalization are glog2-transformed.
 
 ```{r}
+#Data normalization
+data.skin.cancer.norm = vsnrma(data.skin.cancer)
 
+#Saving normalized microarray data as a .rda file
+setwd(paste(projectPath, 'sessions/rda', sep = '/'))
+save.image(file = "normalized_data.rda")
 ```
 
-## I
+## 2.4. meanSd Plot
 
-You
+A meanSd plot was made to show the relation between the mean and variance of the data. For good quality chips, we need a relatively horizontal line (no relation between mean and variance).
 
 ```{r}
+#Plotting meanSdPlot
+meanSdPlot(data.skin.cancer.norm)
 
+#Saving meanSd plot
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 ```
 
-## I
+## 2.5. Boxplots of pre-normalized and normalized data
 
-You
+Boxplots before and after normalization had to be compared to show that the normalization worked and that the distribution of all chips are similar.
 
 ```{r}
+#Before normalization
+par(las = 2)
+mmi = c(1.8, 0.7, 1.05, 0.54)
+par(mai = mmi)
+boxplot(data.skin.cancer, col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer before normalization")
 
+#Saving boxplot with data before normalization
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "boxplot_skin_cancer_rawdata.eps")
+
+#After normalization
+par(las = 2, mai = mmi)
+boxplot(exprs(data.skin.cancer.norm), col=rainbow(150), cex.axis = 0.5, main = "Gene expression in skin cancer after normalization")
+
+#Saving boxplot with data after normalization
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "boxplot_skin_cancer_normalized.eps")
 ```
 
-## I
+## 2.6. RNA degradation
 
-You
+RNA degradation plots were also made to ensure that the RNAs used on the chips are of good quality. Good quality chips show a similar trend to each other and are relatively flat on the only-shifted plot.
 
 ```{r}
+# RNA degradation plot shifted and scaled
+rna_degradation = AffyRNAdeg(data.skin.cancer)
 
+plotAffyRNAdeg(rna_degradation, col = rainbow(150))
+title(sub="Human skin cancer raw")
+
+#Saving shifted and scaled RNA degradation plot
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "RNA_degradation_data_skin_cancer_raw.eps")
+
+#RNA degradation plot only shifted
+plotAffyRNAdeg(rna_degradation, col = rainbow(150), transform = "shift.only")
+title(sub = "Human skin cancer raw")
+
+#Saving only-shifted RNA degradation plot
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
+
+#Analysis of values and plots from RNA degradation
+summaryAffyRNAdeg(rna_degradation) # The values of the slopes are similar, so all of the chips are usable for further analysis
+
+## According to the plots, there is no obvious deviation, no line stands out; all of the chips have high expression intensity. In otherwords, all chips are of high quality.
 ```
 
-## I
+## 2.7. Histogram
 
-You
+Histograms before and after normalization were made to visualize the change in expression after normalization. Each line of the histogram presents the data from each microarray chip.
 
 ```{r}
+#Histogram before data normalization
+hist(data.skin.cancer, col = rainbow(150), main = "Histogram data pre-normalized", xlab = "Log intensity", ylab = "Density")
 
+#Saving histogram before normalization
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "Histogram data pre-normalized")
+
+#Histogram after data normalization
+for (i in 1:ncol(exprs(data.skin.cancer.norm))) if (i == 1) plot(density(exprs(data.skin.cancer.norm)[, i]), col = "red", xlab = "Log intensity", ylab = "Density") else lines(density(exprs(data.skin.cancer.norm)[, i]), col = "red")
+
+#Saving histogram after normalization
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = "Histogram data normalized.eps")
 ```
 
-## I
+# 3. Analysis
+## 3.1. Creating the gene expression data frame
 
-You
+First of all, a clean gene expression data frame has to be made before the data can be analyzed. The annotation data (ensembl.103.txt, containing Transcript.stable.ID, Chromosome, AFFY HG U133 Plus 2 probe and HGNC symbol) was downloaded from https://www.ensembl.org/biomart and used to replace the transcript IDs with gene names.
 
 ```{r}
+#Extraction of the expression values
+Expression = exprs(data.skin.cancer.norm)
 
+#Select only ENST IDs, which represent the transcript IDs
+enst_id = str_detect(rownames(Expression),"ENST")
+Expression = Expression[enst_id,]
+
+#Remove .x_at suffix from each row name
+rownames(Expression) = sub("\\..*", "", rownames(Expression)) 
+
+#Remove .CEL suffix from each column name
+colnames(Expression) = sub("\\..*", "", colnames(Expression))
+
+#Load ensemble IDs and gene symbols from annotation data
+setwd(paste(projectPath, 'tables', sep = '/'))
+Ensembl = read.csv(paste(projectPath, 'tables/ensembl.103.txt', sep = '/'), sep = "\t")
+
+#Extracting the transcript IDs and the HGNC symbols (gene symbols)
+transcriptIDs = Ensembl$Transcript.stable.ID
+HGNC_symbol = Ensembl$HGNC.symbol
+
+#Assigning every gene symbol to a transcript ID
+names(HGNC_symbol) = transcriptIDs
+
+#Replace ensemble IDs with HGNC symbol
+chipIDs = rownames(Expression)
+newChipIDs = chipIDs[chipIDs %in% transcriptIDs]
+Expression = Expression[newChipIDs,]
+
+symbol = HGNC_symbol[newChipIDs]
+rownames(Expression) = as.character(symbol)
+head(Expression)
+
+
+#Cleaning the Expression data frame (removing NAs and empty values "")
+length(which(is.na(Expression)))
+length(which(rownames(Expression) == ""))
+
+all.spaces.exp = sapply(rownames(Expression), function(x){which(x == "")})
+Expression = Expression[-which(all.spaces.exp>0),] 
+rm(all.spaces.exp)
+
+head(Expression)
 ```
 
-## I
+## 3.2. Extraction of skin-specific TRAs from the gene expression data frame
 
-You
+A new data frame has to be made with only skin-specific genes for a more specific analysis, as its these genes that are interesting.
 
 ```{r}
+#Filtering the gene expression data frame to obtain expression values only for skin-specific TRAs
+skin.genes.human.expression = which(rownames(Expression)%in%skin.genes.human)
+data.skin.cancer.human_skin_TRA = Expression[skin.genes.human.expression,]
 
+y = sort(rownames(data.skin.cancer.human_skin_TRA))
+data.skin.cancer.human_skin_TRA = data.skin.cancer.human_skin_TRA[unique(y[y !=""]),]
+
+#Renaming the columns in the data frame with the skin-specific genes
+colnames(data.skin.cancer.human_skin_TRA)[1] = "Sherk1_D3a"
+colnames(data.skin.cancer.human_skin_TRA)[2] = "Sherk1_D3b"
+colnames(data.skin.cancer.human_skin_TRA)[3] = "Sherk1_D3c"
+colnames(data.skin.cancer.human_skin_TRA)[4] = "Sherk1_D7a"
+colnames(data.skin.cancer.human_skin_TRA)[5] = "Sherk1_D7c"
+colnames(data.skin.cancer.human_skin_TRA)[6] = "ERK12_inh_3ha"
+colnames(data.skin.cancer.human_skin_TRA)[7] = "ERK12_inh_3hb"
+colnames(data.skin.cancer.human_skin_TRA)[8] = "Trametinib_3hb"
+colnames(data.skin.cancer.human_skin_TRA)[9] = "Trametinib_3hc"
+colnames(data.skin.cancer.human_skin_TRA)[10] = "ERK12_inh_24ha"
+colnames(data.skin.cancer.human_skin_TRA)[11] = "ERK12_inh_24hb"
+colnames(data.skin.cancer.human_skin_TRA)[12] = "ERK12_inh_24hc"
+colnames(data.skin.cancer.human_skin_TRA)[13] = "Trametinib_24ha"
+colnames(data.skin.cancer.human_skin_TRA)[14] = "Trametinib_24hb"
+colnames(data.skin.cancer.human_skin_TRA)[15] = "Trametinib_24hc"
+
+head(data.skin.cancer.human_skin_TRA)
 ```
 
-## I
+## 3.3. Heatmap
 
-You
+A heatmap was made to visualize the expression data of all skin-specific TRAs over all chips.
 
 ```{r}
+#Heatmap
+library(gplots)
 
+heatmap.2(data.skin.cancer.human_skin_TRA, key = T, col = redgreen(100), symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6)
+
+#Saving the heatmap
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer_1.eps') #eps file
+dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer_1.pdf') #pdf file
 ```
 
-## I
+## 3.4. Barplot
 
-You
+To show the localization of the skin-specific TRAs in the human genome, a barplot was made to easily visualize this distribution.
 
 ```{r}
+#Barplot
+#Get all the chromosome numbers for all human skin TRAs
+chromosome_1 = TRA_Human_Novartis[,c(3,7)]
+chromosome_skin1 = as.matrix(chromosome_1[ind1,])
 
+chromosome_2 = TRA_Human_protien_atlas[,c(6,2)]
+chromosome_skin2 = as.matrix(chromosome_2[ind2,])
+
+chromosome_3 = TRA_Human_gtex[,c(3,6)]
+chromosome_skin3 = as.matrix(chromosome_3[c(ind3.s, ind3.ns),])
+
+#Combine all 3 tables and remove duplicates and empty values to make a clean list of chromosome numbers
+chromosome_gene_table = rbind(chromosome_skin1, chromosome_skin2, chromosome_skin3)
+rownames(chromosome_gene_table) = c()
+a = sort(chromosome_gene_table[,1])
+
+rownames(chromosome_gene_table) = chromosome_gene_table[,1]
+chromosome_gene_table = chromosome_gene_table[,2]
+chromosome_list = chromosome_gene_table[unique(a[a !=""])]
+
+#Count the number of genes on each chromosome
+localization = table(chromosome_list)
+localization = as.matrix(localization)
+sorted_chromosomes = str_sort(rownames(localization), numeric = T)
+chromosome_counts = localization[sorted_chromosomes,]
+
+#Make barplot
+chromosome = c(1:22, "X")
+
+barplot(chromosome_counts, main = "Distribution of skin-specific TRAs over chromosomes", xlab = "Chromosomes", ylab = "Number of skin-specific TRAs", names.arg = chromosome, cex.names = 0.7, col = "darkred")
+
+#Saving the barplot
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = 'Distribution of skin-specific TRAs over chromosomes.eps') # eps file
+dev.copy2pdf(file = 'Distribution of skin-specific TRAs over chromosomes.pdf') # pdf file
 ```
 
-## I
+## 3.5. Pie chart
 
-You
+To visualize the portion of the skin-specific genes over all TRAs, a pie chart was made.
 
 ```{r}
+#Piechart
+#Creating small vectors for each table containing only NON-skin-specific TRAs
 
+#TRA_Human_Novartis
+bla1 = which(tissue1 != "skin")
+TRA.symbolA = TRA_Human_Novartis$gene.symbol
+non.skin.TRA1 = TRA.symbolA[bla1]
+
+#TRA_Human_protein_atlas
+bla2 = which(tissue2 != "skin")
+TRA.symbolB = TRA_Human_protien_atlas$Symbol
+non.skin.TRA2 = TRA.symbolB[bla2]
+
+#TRA_Human_gtex (sun exposed)
+bla3.s = which(tissue3.s != "skin")
+TRA.symbolC = TRA_Human_gtex$ensembl.symbol
+non.skin.TRA3.s = TRA.symbolC[bla3.s]
+
+#TRA_Human_gtex (not sun exposed)
+bla3.ns = which(tissue3.ns != "skin")
+TRA.symbolD = TRA_Human_gtex$ensembl.symbol
+non.skin.TRA3.ns = TRA.symbol3.ns[bla3.ns]
+
+#Putting all the small non-skin-specific TRA vectors in a general vector containing all of them
+NON_skin_specific_TRA = unique(c(non.skin.TRA1, non.skin.TRA2, non.skin.TRA3.s, non.skin.TRA3.ns))
+
+#Calculating the total number of TRA
+total = length(skin.genes.human) + length(NON_skin_specific_TRA)
+prozent = round(length(skin.genes.human)/total*100, 2)
+prozent_2 = round(length(NON_skin_specific_TRA)/total*100, 2)
+
+labels = c("Skin-specific TRAs", "Other TRAs")
+labels = paste(labels, c(prozent, prozent_2))
+labels = paste(labels,"%", sep = "")
+
+#Make pie chart
+library(RColorBrewer)
+color = brewer.pal(length(labels), "Spectral") 
+
+pie(c(prozent, prozent_2), labels = labels, col = color, main = "Pie Chart skin specific TRAs")
+legend("topright", labels, cex = 0.8, fill = color)
+
+#Saving the pie chart
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file="Piechart_skin_TRA.eps") # eps file
+dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 ```
 
-## I
+## 3.6. Highly upregulated genes
 
-You
+Highly regulated genes in skin cancer may be interesting to look into.
 
 ```{r}
+#Expression of all skin-specific TRAs in skin cancer
+par(las=2)
+boxplot(t(data.skin.cancer.human_skin_TRA), col = rainbow(length(rownames(data.skin.cancer.human_skin_TRA))), main = "Expression of all skin genes in melanoma", cex.axis = 0.8)
 
+#Putting the highly expressed genes in a vector
+highgenes = c()
+for (i in length(colnames(data.skin.cancer.human_skin_TRA))) {
+  highgenes = c(highgenes, names(which(data.skin.cancer.human_skin_TRA[,i] > 12)))
+}
+highgenes = unique(highgenes)
+
+high = data.skin.cancer.human_skin_TRA[highgenes,]
+
+# Expression of the highly expressed genes
+par(las=2)
+boxplot(t(high),col=rainbow(length(rownames(high))),main="Highly expressed skin genes in melanoma",cex.axis=0.8) # It can be clearly observed that there are two genes with distinctively highest expressions: GPNMB and ANXA2.
 ```
 
-## I
+## 3.7. Log fold change and significance
 
-You
+In order to determine the mostly upregulated genes, the expression data has to be transformed by using a log fold change. Downregulated genes was also determined, as interesting results may arise after comparison. To further confirm whether the genes are significantly up- or downregulated, Welsh t-test was applied as a statistical test. Here, the null hypothesis states that the genes are not differently expressed between the two time points after treatment.
+
+### 3.7.1. Upregulated genes
+
+Upregulated genes are important to be analysed, as these are genes that are most essential for the survival of cancer cells. Since the cancer cells are attacked by the treatment (inhibitors), they have to upregulate certain genes in order to keep on living. By identifying these upregulated genes, survival pathways can be determined, analyzed and used as future drug targets.
 
 ```{r}
+#LogFC: Finding the most upregulated genes from each treatment
+#Average the gene expression for each treatment at each time point
+sherk_3d = apply(data.skin.cancer.human_skin_TRA[,1:3], 1, mean)
+sherk_7d = apply(data.skin.cancer.human_skin_TRA[,4:5], 1, mean)
+erk12_3h = apply(data.skin.cancer.human_skin_TRA[,6:7], 1, mean)
+erk12_24h = apply(data.skin.cancer.human_skin_TRA[,10:12], 1, mean)
+trametinib_3h = apply(data.skin.cancer.human_skin_TRA[,8:9], 1, mean)
+trametinib_24h = apply(data.skin.cancer.human_skin_TRA[,13:15], 1, mean)
 
+#Calculate the log fold change for each gene from each treatment
+logFC_sherk = sort(sherk_7d - sherk_3d, decreasing = T)
+logFC_erk12 = sort(erk12_24h - erk12_3h, decreasing = T)
+logFC_trametinib =  sort(trametinib_24h - trametinib_3h, decreasing = T)
+
+#Top logFC from each treatment
+logFC_sherk_top = logFC_sherk[1:11]
+logFC_erk12_top = logFC_erk12[1:10]
+logFC_trametinib_top = logFC_trametinib[1:10]
+
+#T-test: Filtering upregulated genes that are significant
+#Checking significance for genes in the top logFC of Dox-shERK
+t_sherk = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 1:3], data.skin.cancer.human_skin_TRA[x, 4:5])$p.value
+}
+t_test_sherk = sort(sapply(names(logFC_sherk), t_sherk), decreasing = F)
+t_test_sherk_significant = t_test_sherk[which(t_test_sherk < 0.05)]
+
+upreg_sherk_significant = names(logFC_sherk_top)[names(logFC_sherk_top) %in% names(t_test_sherk_significant)]
+upreg_sherk_significant
+
+#Checking significance for genes in the top logFC of ERK1/2 inhibitor
+t_erk12 = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 6:7], data.skin.cancer.human_skin_TRA[x, 10:12])$p.value
+}
+t_test_erk12 = sort(sapply(names(logFC_erk12), t_erk12), decreasing = F)
+t_test_erk12_significant = t_test_erk12[which(t_test_erk12 < 0.05)]
+
+upreg_erk12_significant = names(logFC_erk12_top)[names(logFC_erk12_top) %in% names(t_test_erk12_significant)]
+upreg_erk12_significant
+
+#Checking significance for genes in the top logFC of trametinib
+t_trametinib = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 8:9], data.skin.cancer.human_skin_TRA[x, 13:15])$p.value
+}
+t_test_trametinib = sort(sapply(names(logFC_trametinib), t_trametinib), decreasing = F)
+t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05)]
+
+upreg_trametinib_significant = names(logFC_trametinib_top)[names(logFC_trametinib_top) %in% names(t_test_trametinib_significant)]
+upreg_trametinib_significant
 ```
 
-## I
+### 3.7.2. Downregulated genes
 
-You
+Downregulated genes show that the drug has worked on genes that were tumour inducing at the beginning. Analysis of these genes
 
 ```{r}
+#Least logFC from each treatment
+logFC_sherk_down_regulated = logFC_sherk[503:512]
+logFC_erk12_down_regulated = logFC_erk12[503:512]
+logFC_trametinib_down_regulated = logFC_trametinib[503:512]
 
+#T-test: Filtering downregulated genes that are significant
+#Checking significance for genes in the last 10 logFC of Dox-shERK
+t_sherk = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 1:3], data.skin.cancer.human_skin_TRA[x, 4:5])$p.value
+}
+t_test_sherk = sort(sapply(names(logFC_sherk), t_sherk), decreasing = F)
+t_test_sherk_significant = t_test_sherk[which(t_test_sherk < 0.05)]
+
+downreg_sherk_significant = names(logFC_sherk_down_regulated)[names(logFC_sherk_down_regulated) %in% names(t_test_sherk_significant)]
+downreg_sherk_significant
+
+#Checking significance for genes in the last 10 logFC of ERK1/2 inhibitor
+t_erk12 = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 6:7], data.skin.cancer.human_skin_TRA[x, 10:12])$p.value
+}
+t_test_erk12 = sort(sapply(names(logFC_erk12), t_erk12), decreasing = F)
+t_test_erk12_significant = t_test_erk12[which(t_test_erk12 < 0.05)]
+
+downreg_erk12_significant = names(logFC_erk12_down_regulated)[names(logFC_erk12_down_regulated) %in% names(t_test_erk12_significant)]
+downreg_erk12_significant
+
+## Checking significance for genes in the last 10 logFC of trametinib
+t_trametinib = function(x) {
+  t.test(data.skin.cancer.human_skin_TRA[x, 8:9], data.skin.cancer.human_skin_TRA[x, 13:15])$p.value
+}
+t_test_trametinib = sort(sapply(names(logFC_trametinib), t_trametinib), decreasing = F)
+t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05)]
+
+downreg_trametinib_significant = names(logFC_trametinib_down_regulated)[names(logFC_trametinib_down_regulated) %in% names(t_test_trametinib_significant)]
+downreg_trametinib_significant
 ```
 
-## I
+## 3.8. Boxplots for different treatments on different times for up- and downregulated genes
 
-You
+To better visualize the up- and downregulation of these genes, boxplots were made.
+
+### 3.8.1. Upregulated genes
 
 ```{r}
+#Dox-shERK
+data_sherk_upreg = data.skin.cancer.human_skin_TRA[upreg_sherk_significant, c(1:5)]
+data.new_sherk = rbind(data_sherk_upreg, data_sherk_upreg)
+data.new_sherk[c(1:2), c(4:5)] = NA
+data.new_sherk[c(3:4), c(1:3)] = NA
+order.vector = sort(colnames(t(data.new_sherk)),index.return=T)$ix
 
+boxplot(t(data.new_sherk)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with Dox-shERK1", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:12), col = "grey", lty = 3)
+legend("topleft", c("Dox-shERK1 after 3 days", "Dox-shERK1 after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
+
+#ERK1/2 inhibitor
+data_erk12_upreg = data.skin.cancer.human_skin_TRA[upreg_erk12_significant, c(6:7, 10:12)]
+data.new_erk12 = rbind(data_erk12_upreg, data_erk12_upreg)
+data.new_erk12[c(1:8), c(3:5)] = NA
+data.new_erk12[c(9:16), c(1:2)] = NA
+order.vector = sort(colnames(t(data.new_erk12)),index.return=T)$ix
+
+boxplot(t(data.new_erk12)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with ERK1/2 inhibitor", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("blue", "pink"), pch = 15, bg = "white")
+
+#Trametinib
+data_trametinib_upreg = data.skin.cancer.human_skin_TRA[upreg_trametinib_significant, c(8:9, 13:15)]
+data.new_trametinib = rbind(data_trametinib_upreg, data_trametinib_upreg)
+data.new_trametinib[c(1:8), c(3:5)] = NA
+data.new_trametinib[c(9:16), c(1:2)] = NA
+order.vector = sort(colnames(t(data.new_trametinib)),index.return=T)$ix
+
+boxplot(t(data.new_trametinib)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with Trametinib", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("left",c("Trametinib after 3h", "Trametinib after 24h"),col=c("blue", "pink"), pch = 15, bg = "white")
 ```
 
-## I
-
-You
+### 3.8.2. Downregulated genes
 
 ```{r}
+#Dox-shERK
+data_sherk_downreg = data.skin.cancer.human_skin_TRA[downreg_sherk_significant, c(1:5)]
+data.new_sherk_downreg = rbind(data_sherk_downreg, data_sherk_downreg)
+data.new_sherk_downreg[c(1:2), c(4:5)] = NA
+data.new_sherk_downreg[c(3:4), c(1:3)] = NA
+order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
 
+boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Dox-shERK", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:12), col = "grey", lty = 3)
+legend("topleft", c("Dox-shERK after 3 days", "Dox-shERK after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
+
+#ERK1/2 inhibitor
+data_erk12_downreg = data.skin.cancer.human_skin_TRA[downreg_erk12_significant, c(6:7, 10:12)]
+data.new_erk12_downreg = rbind(data_erk12_downreg, data_erk12_downreg)
+data.new_erk12_downreg[c(1:8), c(3:5)] = NA
+data.new_erk12_downreg[c(9:16), c(1:2)] = NA
+order.vector = sort(colnames(t(data.new_erk12_downreg)),index.return=T)$ix
+
+boxplot(t(data.new_erk12_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with ERK1/2 inhibitor", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("blue", "pink"), pch = 15, bg = "white")
+
+#Trametinib
+data_trametinib_downreg = data.skin.cancer.human_skin_TRA[downreg_trametinib_significant, c(8:9, 13:15)]
+data.new_trametinib_downreg = rbind(data_trametinib_downreg, data_trametinib_downreg)
+data.new_trametinib_downreg[c(1:8), c(3:5)] = NA
+data.new_trametinib_downreg[c(9:16), c(1:2)] = NA
+order.vector = sort(colnames(t(data.new_trametinib_downreg)),index.return=T)$ix
+
+boxplot(t(data.new_trametinib_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Trametinib", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
+abline(h = c(6:14), col = "grey", lty = 3)
+legend("topleft",c("Trametinib after 3h", "Trametinib after 24h"),col=c("blue", "pink"), pch = 15, bg = "white")
 ```
 
-## I
+## 3.9. Limma Analysis
 
-You
+The aim for using limma analysis is to find the differential expressed genes (or DEGs). The idea behind limma is that it takes the normalized data and performs statistical tests to discover any quantitative changes in the gene expression over time. Here, limma was used as a comparison to the upregulated genes found manually. 
+
+```{r}
+library(limma)
+
+#First group: We compare the expression values from day 3 to day 7 with the Dox-shERK treatment
+# Create design matrix
+design = model.matrix(~ 0+factor(c(2,2,2,1,1)))
+colnames(design) = c("Sherk7D", "Sherk3D")
+
+#Fit linear model
+fit = lmFit(data.skin.cancer.human_skin_TRA[,1:5], design)
+contrast.matrix = makeContrasts(Sherk7D-Sherk3D, levels=design)
+fit2 = contrasts.fit(fit, contrast.matrix)
+fit2 =  eBayes(fit2, 0.01)
+
+#Create top table with the DEGs sorted by log fold change
+T1 = topTable(fit2,adjust.method = "fdr", sort.by = "logFC")
+
+#Select only the first 10 genes with a positive log fold change from the table
+lola1=T1[which(T1$logFC>0),]
+lola1 = lola1[1:10,]
+
+#Confirmed top upregulated genes
+intersect(upreg_sherk_significant, rownames(lola1))
+
+
+#Second group: We compare 3h ERK1/2 and 24h ERK1/2 treatment
+#Create design matrix
+design_ERK = model.matrix(~ 0+factor(c(1,1,1,2,2)))
+colnames(design_ERK) = c("ERK12_inh_24h", "ERK12_inh_3h")
+
+#Fit linear model
+data_ERK = data.skin.cancer.human_skin_TRA[,c(10:12, 6,7)]
+fit_ERK = lmFit(data_ERK, design_ERK) 
+contrast.matrix_ERK = makeContrasts(ERK12_inh_24h-ERK12_inh_3h, levels=design_ERK)
+fit2_ERK = contrasts.fit(fit_ERK, contrast.matrix_ERK)
+fit2_ERK =  eBayes(fit2_ERK, 0.01)
+
+#Create top table with the DEGs sorted by log fold change
+T2 = topTable(fit2_ERK,adjust.method = "fdr", sort.by = "logFC", number = 130) 
+
+#Select only the first 10 genes with a positive log fold change from the table
+lola2 = T2[which(T2$logFC>0),]
+lola2 = lola2[1:10,]
+
+#Confirmed top upregulated genes
+intersect(upreg_erk12_significant, rownames(lola2))
+
+
+#Third group: We compare 3h to 24h Trametinib treatment
+#Create design matrix
+design_Trametinib = model.matrix(~ 0+factor(c(1,1,1,2,2)))
+colnames(design_Trametinib) = c("Trametinib_24h", "Trametinib_3h")
+
+#Fit linear model
+data_Trametinib = data.skin.cancer.human_skin_TRA[,c(13:15, 8,9)]
+fit_Trametinib = lmFit(data_Trametinib, design_Trametinib) 
+contrast.matrix_Trametinib = makeContrasts(Trametinib_24h-Trametinib_3h, levels=design_Trametinib)
+fit2_Trametinib= contrasts.fit(fit_Trametinib, contrast.matrix_Trametinib)
+fit2_Trametinib =  eBayes(fit2_Trametinib, 0.01)
+
+#Create top table with the DEGs sorted by log fold change
+T3 = topTable(fit2_Trametinib,adjust.method = "fdr", sort.by = "logFC", number = Inf ) 
+
+#Select only the first 10 genes with a positive log fold change from the table
+lola3 = T3[which(T3$logFC>0),]
+lola3 = lola3[1:10,]
+
+#Confirmed top upregulated genes
+intersect(upreg_trametinib_significant, rownames(lola3))
+
+
+#The genes from limma analysis were very similar to the ones found manually, which means that the manual way succeeded. This was checked by doing the intersection of the vectors for the significant upregulated genes of each treatment and the top 10 genes found with limma.
+```
+
+## 3.10. Venn diagram
+
+Genes that are upregullated in skin cancer and are at the same time TRAs are especially interesting, as they pose as potential drug targets. To visualize these upregulated TRAs, a venn diagram was made.
+
+```{r}
+#Finding upregulated genes in skin cancer by logFC
+#Average the gene expression for each treatment at each time point
+sherk_3d_all = apply(Expression[,1:3], 1, mean)
+sherk_7d_all = apply(Expression[,4:5], 1, mean)
+erk12_3h_all = apply(Expression[,6:7], 1, mean)
+erk12_24h_all = apply(Expression[,10:12], 1, mean)
+trametinib_3h_all = apply(Expression[,8:9], 1, mean)
+trametinib_24h_all = apply(Expression[,13:15], 1, mean)
+
+## Calculate the log fold change for each gene from each treatment
+logFC_sherk_all = sherk_7d_all - sherk_3d_all
+logFC_erk12_all = erk12_24h_all - erk12_3h_all
+logFC_trametinib_all =  trametinib_24h_all - trametinib_3h_all
+
+## Only positive logFC from each treatment (only upregulated genes!)
+logFC_sherk_pos = which(logFC_sherk_all > 0)
+logFC_erk12_pos = which(logFC_erk12_all > 0)
+logFC_trametinib_pos = which(logFC_trametinib_all > 0)
+
+upreg_all = unique(c(names(logFC_sherk_pos), names(logFC_erk12_pos), names(logFC_trametinib_pos)))
+
+# T-test to filter significantly upregulated genes
+## Checking significance for Dox-shERK
+t_sherk_all = function(x) {
+  if (Expression[x,1] == Expression[x,2] | Expression[x,1] == Expression[x,3] | Expression[x,3] == Expression[x,2] | Expression[x,4] == Expression[x,5])
+    return(0.5)
+  else
+  t.test(Expression[x, 1:3], Expression[x, 4:5])$p.value
+}
+t_test_sherk_all = sapply(names(logFC_sherk_all), t_sherk_all)
+t_test_sherk_significant_all = t_test_sherk_all[which(t_test_sherk_all < 0.05)]
+
+upreg_sherk_significant_all = names(logFC_sherk_pos)[names(logFC_sherk_pos) %in% names(t_test_sherk_significant_all)]
+
+## Checking significance for ERK1/2 inhibitor
+t_erk12_all = function(x) {
+  t.test(Expression[x, 6:7], Expression[x, 10:12])$p.value
+}
+t_test_erk12_all = sapply(names(logFC_erk12_all), t_erk12_all)
+t_test_erk12_significant_all = t_test_erk12_all[which(t_test_erk12_all < 0.05)]
+
+upreg_erk12_significant_all = names(logFC_erk12_pos)[names(logFC_erk12_pos) %in% names(t_test_erk12_significant_all)]
+
+## Checking significance for Trametinib
+t_trametinib_all = function(x) {
+  t.test(Expression[x, 8:9], Expression[x, 13:15])$p.value
+}
+t_test_trametinib_all = sapply(names(logFC_trametinib_all), t_trametinib_all)
+t_test_trametinib_significant_all = t_test_trametinib_all[which(t_test_trametinib_all < 0.05)]
+
+upreg_trametinib_significant_all = names(logFC_trametinib_pos)[names(logFC_trametinib_pos) %in% names(t_test_trametinib_significant_all)]
+
+#Venn diagram (Upregulated genes that are also TRAs)
+library(venn)
+list_venn = list(A = unique(c(upreg_sherk_significant_all, upreg_erk12_significant_all, upreg_trametinib_significant_all)), B = skin.genes.human)
+names(list_venn) = c("Upregulated genes" , "TRA")
+
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), cex = 1000)
+text(500, 900, "Potential drug targets", cex = 2)
+
+#Save the venn diagramm in a pdf file
+setwd(paste(projectPath, 'plots', sep = '/'))
+pdf("Venn_diagramm_trial.pdf")
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"))
+text(500, 900, "Potential drug targets", cex = 2)
+dev.off()
+```
+
+## 3.11. Sun exposure?
+
+Boxplots of sun exposure vs no sun exposure in all data
+
+```{r}
+#Finding the sun exposed and not sun exposed genes in our skin-specific expression dataset
+sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.s)
+no.sun = intersect(rownames(data.skin.cancer.human_skin_TRA), skin.TRA3.ns)
+
+#Removing the gene names to make a box plot of each chip
+sun_exp = data.skin.cancer.human_skin_TRA[sun,]
+nosun_exp = data.skin.cancer.human_skin_TRA[no.sun,]
+sunexpchip = unname(sun_exp[,13])
+nosunexpchip = unname(nosun_exp[,13])
+lmts = range(sunexpchip,nosunexpchip)
+
+par(mfrow = c(1, 2))
+for (i in 1:15) {
+  boxplot(unname(sun_exp[,i]), ylim = lmts, main = "Sun exposure")
+  boxplot(unname(nosun_exp[,i]), ylim = lmts, main = "No sun exposure")
+}
+#They don't seem to differ significantly, and the trend is similar for all of the chips.
+
+# Comparing their significance with a Wilcoxon test for each chip
+wilcox_sun = function(x) {
+  wilcox.test(data.skin.cancer.human_skin_TRA[sun, x], data.skin.cancer.human_skin_TRA[no.sun, x])$p.value
+}
+sapply(1:15, wilcox_sun)
+## All of them have a p value of smaller than 0.05, proving a significant difference between the expression of sun or no sun exposure genes. So now we will compare the expression of genes that are expressed with or without sun exposure.
+
+# Genes that are expressed with or without sun exposure
+both.sun = intersect(sun, no.sun)
+both.sun
+# Genes that are only sun exposure related
+only_sun = sun[!sun%in%both.sun]
+only_sun
+#Genes that are only no sun exposure related
+only_nosun = no.sun[!no.sun%in%both.sun]
+only_nosun
+
+# Sun exposure related genes: search for the most significant genes for each treatment. From this result, it is suggested that ETV7, a transcription factor, is involved in the immunity of the tumor microenvironment, in which it stimulated cytokine intrusion in the tumor. ETV7 is normally dowregulated in melanoma patients, which is correlated with poor prognosis (Qu H, Zhao H, Zhang X, et al. Integrated Analysis of the ETS Family in Melanoma Reveals a Regulatory Role of ETV7 in the Immune Microenvironment. Front Immunol. 2020;11:612784. Published 2020 Dec 23. doi:10.3389/fimmu.2020.612784). Although in our case, ETV7 is upregulated on treatment with trametinib, suggesting that the treatment stimulates ETV7 expression and could have a significant role in the immunity of the tumor microenvironment.
+#TGFB1 has also been strongly correlated with tumour proliferation in melanoma "there is ample evidence indicating that TGF-β is a potent pro-tumorigenic agent, acting via autocrine and paracrine mechanisms to promote peri-tumoral angiogenesis, together with tumor cell migration, immune escape, and dissemination to metastatic sites." (Perrot CY, Javelaud D, Mauviel A. Insights into the Transforming Growth Factor-β Signaling Pathway in Cutaneous Melanoma. Ann Dermatol. 2013;25(2):135-144. doi:10.5021/ad.2013.25.2.135)
+
+# The visualization of these genes can be seen in the graphs showing the logFC for all significantly upregulated genes.
+significant_sun_1 = upreg_sherk_significant[upreg_sherk_significant%in%only_sun]
+significant_sun_2 = upreg_erk12_significant[upreg_erk12_significant%in%only_sun]
+significant_sun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in%only_sun]
+
+upregulated_sun = unique(c(significant_sun_1, significant_sun_2, significant_sun_3))
+upregulated_sun
+
+significant_nosun_1 = upreg_sherk_significant[upreg_sherk_significant%in%only_nosun]
+significant_nosun_2 = upreg_erk12_significant[upreg_erk12_significant%in%only_nosun]
+significant_nosun_3 = upreg_trametinib_significant[upreg_trametinib_significant%in%only_nosun]
+
+upregulated_nosun = unique(c(significant_nosun_1, significant_nosun_2, significant_nosun_3))
+upregulated_nosun
+```
+
+## 4. Clustering
+
+Clustering was done to observe if there are any distinctive groups in our dataset.
+
+```{r}
+#Load libraries needed for clustering
+library(factoextra)
+library(clustertend)
+library(fpc)
+library(cluster)
+library(clValid)
+library(NbClust)
+library(dplyr)
+```
+
+## 4.1. Clustering of sun / no sun exposure data
+
+Sun and no sun exposure data were clustered to see if there are any obvious differences between the two gene groups.
+
+```{r}
+#Deciding on the optimal number of clusters
+set.seed(123)
+both = data.skin.cancer.human_skin_TRA[c(only_sun, only_nosun),]
+both = scale(both)
+
+#Elbow Method:
+fviz_nbclust(both, kmeans, method = "wss")+labs(subtitle = "Elbow method")
+
+#Silhouette Method:
+fviz_nbclust(both, kmeans, method = "silhouette")+labs(subtitle = "Silhouette method")
+
+#Gap stat method
+gap_stat.both = clusGap(both, FUN = kmeans, nstart = 25, K.max = 10)
+print(gap_stat.sun, method = "firstmax")
+fviz_gap_stat(gap_stat.both)
+
+#NbClust
+nb.both = NbClust(both, distance = "euclidean", min.nc = 2,max.nc = 10, method = "kmeans")
+fviz_nbclust(nb.both)
+
+
+#Is the data really clusterable? H should be close to zero when yes.
+hopkins(both, n = nrow(both)-1)
+##H = 0.06742255
+
+#Cluster Validation: Silhouette Information
+km.both = eclust(both, "kmeans", k = 2, nstart = 25, graph = FALSE)
+fviz_silhouette(km.both, palette = "jco",
+ggtheme = theme_classic())
+silboth = km.both$silinfo
+
+#Average silhouette width of each cluster, should be higher than 0.5
+silboth$clus.avg.widths
+
+#Mean of all individual silhouette widths)
+silboth$avg.width
+
+#Hierarchical Clustering
+fviz_dend(hclust(dist(both)), k = 2, k_colors = c("orange", "blue"),
+as.ggplot = TRUE, show_labels = FALSE)
+
+#k-means Clustering
+fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+```
+
+## 4.2. Clustering of the up- and downregulated skin-specific TRAs
+
+why also downregulated
+
+```{r}
+#Gathering the expression of highest up- and downregulated genes
+upregulated_all_exp = data.frame(data.skin.cancer.human_skin_TRA[c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant),])
+upregulated_all_exp = distinct(upregulated_all_exp)
+
+downregulated_all_exp = data.frame(data.skin.cancer.human_skin_TRA[c(downreg_sherk_significant, downreg_erk12_significant, downreg_trametinib_significant),])
+downregulated_all_exp = distinct(downregulated_all_exp)
+
+#Combined expression matrix of highest up- and downregulated genes
+updown = scale(distinct(rbind.data.frame(upregulated_all_exp,downregulated_all_exp)))
+
+##Elbow method
+fviz_nbclust(updown, kmeans, method = "wss") +
+geom_vline(xintercept = 4, linetype = 2)+
+labs(subtitle = "Elbow method")
+
+##Silhouette method
+fviz_nbclust(updown, kmeans, method = "silhouette")+
+labs(subtitle = "Silhouette method")
+
+##Gap statistic
+set.seed(123)
+fviz_nbclust(updown, kmeans, nstart = 25, method = "gap_stat", nboot = 50)+
+labs(subtitle = "Gap statistic method")
+
+#u mean this nbclust? or stil gapstat?
+nb = NbClust(updown, distance = "euclidean", min.nc = 2,max.nc = 10, method = "kmeans")
+fviz_nbclust(nb)
+
+
+#Visualize k-means clusters
+km.updown = eclust(updown, "kmeans", k = 4, nstart = 25, graph = FALSE)
+fviz_cluster(km.updown, geom = "point", ellipse.type = "convex",
+palette = "jco", ggtheme = theme_minimal())
+
+#Hierarchical clustering
+hc.updown = eclust(updown, "hclust", k = 4, hc_metric = "euclidean", hc_method = "ward.D2", graph = FALSE)
+fviz_dend(hc.updown, show_labels = FALSE,
+palette = "jco", as.ggplot = TRUE)
+
+#Cluster validation: silhouette plot
+fviz_silhouette(km.updown, palette = "jco",
+ggtheme = theme_classic())
+silinfo = km.res$silinfo
+names(silinfo)
+head(silinfo$widths[, 1:3], 10)
+silinfo$clus.avg.widths
+silinfo$avg.width
+
+#with names
+fviz_cluster(km.updown, data = updown)
+
+#Is the data really clusterable? H should be close to zero when yes.
+hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)
+##H = 0.1836
+```
+
+## 5. Principal component analysis
+
+PCA was done to find the genes that explain most of the variance in the data. These genes were picked from principal components with the highest percentage of variance explained. Later on, the expression of upregulated genes will be predicted by using one or more of these genes through regression models.
+
+```{r}
+#Centering and scaling, pick data only from final time and only genes with highest variance
+pca_dataframe = scale(data.skin.cancer.human_skin_TRA)
+pca_dataframe = t(pca_dataframe[,c(4:5, 10:15)])
+
+topVar = apply(pca_dataframe, 2, var)
+q75 = quantile(topVar, probs = 0.75)
+i.topvar = which(topVar >= q75)
+pca_dataframe_topVar = pca_dataframe[,i.topvar]
+
+#PCA
+skin_pca_topVar = prcomp(pca_dataframe_topVar, scale. = F, center = F)
+
+#Biplot of first 2 principal components
+biplot(skin_pca_topVar)
+
+#Proportion of variance of each principal component
+variance = (skin_pca_topVar$sdev)^2
+prop.variance = variance/sum(variance)
+names(prop.variance) = 1:length(prop.variance)
+barplot(prop.variance, ylab='Proportion of variance', xlab = "Principal components", main = "Proportion of variance of each principal component")
+
+#Barplots of principal components
+par(las = 2)
+barplot(skin_pca_topVar$rotation[,1], main = "PC1", ylab = "Contribution", xlab = "Genes")
+barplot(skin_pca_topVar$rotation[,2], main = "PC2", ylab = "Contribution", xlab = "Genes")
+
+#Genes with most contribution to PC1 and PC2
+top_genes_pca1 = names(sort(abs(skin_pca_topVar$rotation[,1]), decreasing = T)[1:5])
+top_genes_pca2 = names(sort(abs(skin_pca_topVar$rotation[,2]), decreasing = T)[1:5])
+
+#Scatterplot of data with PC1 and PC2 as new coordinates
+plot(skin_pca_topVar$x[,1], skin_pca_topVar$x[,2], 
+     col= c("red", "red", "green", "green", "green", "blue", "blue", "blue"), pch=19,
+     xlab='PC1', ylab='PC2', main = "PC1 and PC2 as new coordinates")
+legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "green", "blue"), pch = 15, bg = "yellow")
+```
+
+## 6. Regression models
+
+Finally, regression models were made to predict the expression of the upregulated TRAs by using the genes previously selected by PCA. It is hoped that the expression of these essential upregulated genes in cancer can be modulated by targeting the genes from PCA. This would then be a good opportunity in developing new drugs with new drug targets.
 
 ```{r}
 
