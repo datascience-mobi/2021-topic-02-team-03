@@ -1029,7 +1029,7 @@ The following have to be checked:
 
 ```{r}
 #MPZL3 expression predicted with PCA genes
-mpzl3_lr = lm(MPZL3 ~ DCT+DSP+ANXA2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+mpzl3_lr = lm(MPZL3 ~ GJA1+DSP+ANXA2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
 summary(mpzl3_lr)
 #We can see that there is a significance on DSP. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
 
@@ -1039,7 +1039,7 @@ shapiro.test(mpzl3_lr$residuals) #P-value is very high, meaning its almost defin
 
 #Correlation within residuals
 plot(data.skin.cancer.human_skin_TRA["DSP",],mpzl3_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="MPZL3", ylab="MPZL3_lr-Residuals")
-cor(data.skin.cancer.human_skin_TRA["DCT",], mpzl3_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["GJA1",], mpzl3_lr$residuals)
 cor(data.skin.cancer.human_skin_TRA["DSP",], mpzl3_lr$residuals)
 cor(data.skin.cancer.human_skin_TRA["ANXA2",], mpzl3_lr$residuals)
 #No correlation between any of the explanatory genes and the residuals.
@@ -1076,7 +1076,7 @@ for (i in 1:length(mpzl3_dsp$fitted.values))
 
 ```{r}
 #ARHGEF5 expression predicted with PCA genes
-arhgef5_lr = lm(ARHGEF5 ~ DCT+GJA1+ANXA2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+arhgef5_lr = lm(ARHGEF5 ~ DSP+GJA1+ANXA2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
 summary(arhgef5_lr)
 #We can see that there is a significance on DCT, but especially on TGFBI. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
 
@@ -1086,7 +1086,7 @@ shapiro.test(arhgef5_lr$residuals) #P-value is relatively high, meaning its prob
 
 #Correlation within residuals
 plot(data.skin.cancer.human_skin_TRA["ANXA2",],arhgef5_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="ARHGEF5", ylab="ARHGEF5_lr-Residuals")
-cor(data.skin.cancer.human_skin_TRA["DCT",], arhgef5_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["DSP",], arhgef5_lr$residuals)
 cor(data.skin.cancer.human_skin_TRA["GJA1",], arhgef5_lr$residuals)
 cor(data.skin.cancer.human_skin_TRA["ANXA2",], arhgef5_lr$residuals)
 #No correlation between any of the explanatory genes and the residuals.
