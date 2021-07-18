@@ -888,12 +888,10 @@ ggtheme = theme_classic())
 #Average silhouette width of both clusters are higher than 0.5, meaning they are significantly clustered.
 ```
 
-## 4.2. Clustering of the up- and downregulated skin-specific TRAs
-
-why also downregulated
+## 4.2. Clustering of the upregulated skin specific TRAs
 
 ```{r}
-#Gathering the expression of highest up- and downregulated genes
+#Gathering the expression of highest upregulated genes
 upregulated_all_exp = data.frame(data.skin.cancer.human_skin_TRA[c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant),])
 upregulated_all_exp = distinct(upregulated_all_exp)
 
