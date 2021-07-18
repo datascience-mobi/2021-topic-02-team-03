@@ -879,10 +879,10 @@ fviz_nbclust(nb.both)
 hopkins(both, n = nrow(both)-1) #H value is lower than 0.5 and is relatively close to 1, meaning that there is a high probability that there are clusters in the sun/no sun data.
 
 #Visualize k-means clusters
+km.both = eclust(both, "kmeans", k = 2, nstart = 30, graph = FALSE)
 fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
 
 #Cluster Validation: Silhouette Information
-km.both = eclust(both, "kmeans", k = 2, nstart = 30, graph = FALSE)
 fviz_silhouette(km.both, palette = "jco",
 ggtheme = theme_classic())
 #Average silhouette width of both clusters are higher than 0.5, meaning they are significantly clustered.
@@ -997,34 +997,113 @@ cor_pca = cor(df_pca, method='pearson')
 
 #Visualization of the Pearson correlation
 corrplot(cor_pca, type="upper", order="alphabet", title = "Correlation within the PCA genes (Pearson)")
-#Genes that have a high correlation will be considered as they have the same impact on the upregulated genes. ANXA2, DCT, PTPRZ1, TGFBI, TYRP1 will be considered as one gene. NDRG1 and PPP1R14C will be considered as one gene. (5 genes from PCA used in total)
-
-
-
-
-
-
-#ANXA2, DCT, PTPRZ1, TGFBI, TYRP1
-#DSP, GJA1, NDRG1, PPP1R14C, SPINT2, UCN2
-
-
+#Genes that have a high correlation will be considered as they have the same impact on the upregulated genes. DCT, GJA1 and TGFBI will be used for the linear regression (5 genes from PCA used in total).
 ```
 
-## I
+## 6.2. Linear regression and F-Tes
 
-You
+F-Test:
+H0: The model doesn't refer to any significance.
+H1: The model refers to a significance.
+If the p-value is lower than the chosen threshold (in our case we chose 0.01), it is proven that the independent variables improve the fit in our model
+
+The following have to be checked:
+* the residuals are **normally distributed**
+* there is **no correlation** between the residuals and the explanatory variable
+* mean values of the residuals are close to 0
+
+## 6.2.1. Multiple linear regression of MPZL3
 
 ```{r}
-#Extracting the expression levels of all the genes and assigning them in a vector
-#all = data.frame(data.skin.cancer.human_skin_TRA[unique(c(upreg_sherk_significant, upreg_erk12_significant, upreg_trametinib_significant, top_genes_pca1, top_genes_pca2)),])
+#MPZL3 expression predicted with PCA genes
+mpzl3_lr = lm(MPZL3 ~ DCT+GJA1+TGFBI, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(mpzl3_lr)
+#We can see that there is a significance on GJA1. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
+
+#Normal distribution of residuals
+hist(mpzl3_lr$residuals,breaks=20)
+shapiro.test(mpzl3_lr$residuals) #P-value is very high, meaning its almost definitely normally distributed.
+
+#Correlation within residuals
+plot(data.skin.cancer.human_skin_TRA["GJA1",],mpzl3_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="MPZL3", ylab="MPZL3_lr-Residuals")
+cor(data.skin.cancer.human_skin_TRA["DCT",], mpzl3_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["GJA1",], mpzl3_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["TGFBI",], mpzl3_lr$residuals)
+#No correlation between any of the explanatory genes and the residuals.
+
+#Mean of the residuals
+mean(mpzl3_lr$residuals) #Mean is almost 0.
+
+#Predicting the MPZL3 expression with a multiple linear regression
+plot(data.skin.cancer.human_skin_TRA["MPZL3",], mpzl3_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of MPZL3"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+#We can see that the predicted values and the real values are quite similar, indicating that these genes have a strong relationship. If one is being highly expressed the other one would also be so.
 ```
 
-## I
-
-You
+## 6.2.2. Simple linear regression of MPZL3
 
 ```{r}
+#MPZL3 expression predicted with a single gene
+#In order to find the variable which has the most impact on the model, the standardized regression coefficients for each predictor gene have to be calculated.
+lm.beta(mpzl3_lr)
+#This means a change in 1 standard deviation of GJA1 has more impact than a 1 standard deviation change in other variables. 
 
+#Plotting MPZL3 against only the variable that has the most impact (GJA1)
+mpzl3_gja1 = lm(MPZL3 ~ GJA1, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(mpzl3_gja1)
+
+df_mpzl3_gja1 = data.frame(y= data.skin.cancer.human_skin_TRA["MPZL3",], x= data.skin.cancer.human_skin_TRA["GJA1",])
+
+plot(df_mpzl3_gja1$x, df_mpzl3_ppp1r14c$y, xlab="Predictor(GJA1)", ylab="Outcome(MPZL3)", main="Simple linear regression of MPZL3 by GJA1", col="darkorange",pch=16)
+abline(mpzl3_gja1, col="red")
+for (i in 1:length(mpzl3_gja1$fitted.values))
+  lines(c(df_mpzl3_gja1$x[i], df_mpzl3_gja1$x[i]), c(df_mpzl3_gja1$y[i], mpzl3_gja1$fitted.values[i]), col="blue")
 ```
 
+## 6.2.3. Multiple linear regression of ARHGEF5
+
+```{r}
+#ARHGEF5 expression predicted with PCA genes
+arhgef5_lr = lm(ARHGEF5 ~ DCT+GJA1+TGFBI, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(arhgef5_lr)
+#We can see that there is a significance on DCT, but especially on TGFBI. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
+
+#Normal distribution of residuals
+hist(arhgef5_lr$residuals,breaks=20)
+shapiro.test(arhgef5_lr$residuals) #P-value is relatively high, meaning its probably normally distributed.
+
+#Correlation within residuals
+plot(data.skin.cancer.human_skin_TRA["TGFBI",],arhgef5_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="ARHGEF5", ylab="ARHGEF5_lr-Residuals")
+cor(data.skin.cancer.human_skin_TRA["DCT",], arhgef5_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["GJA1",], arhgef5_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["TGFBI",], arhgef5_lr$residuals)
+#No correlation between any of the explanatory genes and the residuals.
+
+#Mean of the residuals
+mean(arhgef5_lr$residuals) #Mean is almost 0.
+
+#Predicting the ARHGEF5 expression with a multiple linear regression
+plot(data.skin.cancer.human_skin_TRA["ARHGEF5",], arhgef5_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of ARHGEF5"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+#Here the predicted values and the real values are very similar everywhere along the regression line, meaning these genes have a very strong relationship. The expressions of ARHGEF5 and TGFBI are directly proportional to each other.
+```
+
+## 6.2.2. Simple linear regression of ARHGEF5
+
+```{r}
+#ARHGEF5 expression predicted with a single gene
+#In order to find the variable which has the most impact on the model, the standardized regression coefficients for each predictor gene have to be calculated.
+lm.beta(arhgef5_lr)
+
+#Plotting ARHGEF5 against only the variable that has the most impact (TGFBI)
+arhgef5_tgfb1 = lm(ARHGEF5 ~ TGFBI, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(arhgef5_tgfb1)
+
+df_arhgef5_tgfb1 = data.frame(y= data.skin.cancer.human_skin_TRA["ARHGEF5",], x= data.skin.cancer.human_skin_TRA["TGFBI",])
+
+plot(df_arhgef5_tgfb1$x, df_arhgef5_tgfb1$y, xlab="Predictor(TGFBI)", ylab="Outcome(ARHGEF5)", main="Simple linear regression of ARHGEF5 by TGFBI", col="darkorange",pch=16)
+abline(arhgef5_tgfb1, col="red")
+for (i in 1:length(arhgef5_tgfb1$fitted.values))
+  lines(c(df_arhgef5_tgfb1$x[i], df_arhgef5_tgfb1$x[i]), c(df_arhgef5_tgfb1$y[i], arhgef5_tgfb1$fitted.values[i]), col="blue")
+
+#The actual reason I picked ARHGEF5 is because apparently ARHGEF5 is downstream of TGFBI (they are on the same pathway), so this would make sense that they are connected to each other. More info abt this will be sent by denisa, bcos she searched for the genes for clustering and found this. Very good to be put in the discussion!
+```
 
