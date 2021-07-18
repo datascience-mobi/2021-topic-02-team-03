@@ -939,6 +939,10 @@ prop.variance = variance/sum(variance)
 names(prop.variance) = 1:length(prop.variance)
 barplot(prop.variance, ylab='Proportion of variance', xlab = "Principal components", main = "Proportion of variance of each principal component")
 
+#Total variance explained by PC1 and PC2
+total_var = prop.variance[1] + prop.variance[2]
+total_var
+
 #Barplots of principal components
 par(las = 2)
 barplot(skin_pca_topVar$rotation[,1], main = "PC1", ylab = "Contribution", xlab = "Genes")
