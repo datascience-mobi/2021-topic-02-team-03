@@ -481,6 +481,29 @@ t_test_trametinib_significant = t_test_trametinib[which(t_test_trametinib < 0.05
 upreg_trametinib_significant = names(logFC_trametinib_top)[names(logFC_trametinib_top) %in% names(t_test_trametinib_significant)]
 upreg_trametinib_significant
 ```
+The heatmap is used to visualize the upregulation of certain skin TRAs. It is clearly visible that the skin-specific genes have a considerable increase in expression on chips from a later time period after treatment, especially on those treated with ERK1/2 inhibitor or Trametinib.
+```{r, echo = FALSE, results=‘hide’, message=FALSE, warning=FALSE}
+#Heatmap
+library(gplots)
+library(RColorBrewer)
+
+exp.all.upregulated.tra = data.skin.cancer.human_skin_TRA[c(upreg_sherk_significant,upreg_erk12_significant,upreg_trametinib_significant),]
+exp.all.upregulated.tra=exp.all.upregulated.tra[unique(rownames(exp.all.upregulated.tra)),]
+
+yyyy = sort(rownames(exp.all.upregulated.tra))
+exp.all.upregulated.tra = exp.all.upregulated.tra[yyyy,]
+
+my_colors = brewer.pal(100, "RdBu" )
+lmat = rbind(c(2,3), c(4,1))
+lwid = c(1,4)
+lhei = c(0.95,4)
+heatmap.2(exp.all.upregulated.tra, key = T, col = my_colors, symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6, Rowv = F, Colv = F, lmat = lmat, lwid=lwid, lhei=lhei, main = "Expression of upregulated genes")
+
+#Saving the heatmap
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer_1.eps') #eps file
+dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer_1.pdf') #pdf file
+```
 Box plots were built to visualize the expressions of the significantly upregulated genes.
 ```{r, echo = FALSE, results=‘hide’, message=FALSE, warning=FALSE, fig.show='hide'}
 ##Boxplots for upregulated genes
