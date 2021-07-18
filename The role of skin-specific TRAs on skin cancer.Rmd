@@ -325,8 +325,19 @@ A heatmap was made to visualize the expression data of all skin-specific TRAs ov
 ```{r}
 #Heatmap
 library(gplots)
+library(RColorBrewer)
 
-heatmap.2(data.skin.cancer.human_skin_TRA, key = T, col = redgreen(100), symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6)
+exp.all.upregulated.tra = data.skin.cancer.human_skin_TRA[c(upreg_sherk_significant,upreg_erk12_significant,upreg_trametinib_significant),]
+exp.all.upregulated.tra=exp.all.upregulated.tra[unique(rownames(exp.all.upregulated.tra)),]
+
+yyyy = sort(rownames(exp.all.upregulated.tra))
+exp.all.upregulated.tra = exp.all.upregulated.tra[yyyy,]
+
+my_colors = brewer.pal(100, "RdBu" )
+lmat = rbind(c(2,3), c(4,1))
+lwid = c(1,4)
+lhei = c(0.95,4)
+heatmap.2(exp.all.upregulated.tra, key = T, col = my_colors, symkey = F, symm = F,symbreaks = T, scale = "row", density.info = "none", trace = "none", cexRow = 0.6, cexCol = 0.6, Rowv = F, Colv = F, lmat = lmat, lwid=lwid, lhei=lhei, main = "Expression of upregulated genes")
 
 #Saving the heatmap
 setwd(paste(projectPath, 'plots', sep = '/'))
@@ -880,7 +891,7 @@ hopkins(both, n = nrow(both)-1) #H value is lower than 0.5 and is relatively clo
 
 #Visualize k-means clusters
 km.both = eclust(both, "kmeans", k = 2, nstart = 30, graph = FALSE)
-fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+fviz_cluster(km.both, data = both, palette = c("orange", "blue"), geom = "point", main = "Clustering of genes with or without sun exposure") + theme(plot.title = element_text(hjust = 0.5))
 
 #Cluster Validation: Silhouette Information
 fviz_silhouette(km.both, palette = "jco",
@@ -999,7 +1010,7 @@ cor_pca = cor(df_pca, method='pearson')
 
 #Visualization of the Pearson correlation
 corrplot(cor_pca, type="upper", order="alphabet", title = "Correlation within the PCA genes (Pearson)")
-#Genes that have a high correlation will be considered as they have the same impact on the upregulated genes. DCT, GJA1 and TGFBI will be used for the linear regression (5 genes from PCA used in total).
+#Genes that have a high correlation will be considered as they have the same impact on the upregulated genes. DCT, DSP and TGFBI will be used for the linear regression (5 genes from PCA used in total).
 ```
 
 ## 6.2. Linear regression and F-Tes
@@ -1018,18 +1029,18 @@ The following have to be checked:
 
 ```{r}
 #MPZL3 expression predicted with PCA genes
-mpzl3_lr = lm(MPZL3 ~ DCT+GJA1+TGFBI, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+mpzl3_lr = lm(MPZL3 ~ DCT+DSP+TGFBI, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
 summary(mpzl3_lr)
-#We can see that there is a significance on GJA1. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
+#We can see that there is a significance on DSP. The p-value is also very small (<0.01), meaning that this model is significantly better than the null model. R-squared value is also high, meaning it was a good model (proportion of variance explained is high).
 
 #Normal distribution of residuals
 hist(mpzl3_lr$residuals,breaks=20)
 shapiro.test(mpzl3_lr$residuals) #P-value is very high, meaning its almost definitely normally distributed.
 
 #Correlation within residuals
-plot(data.skin.cancer.human_skin_TRA["GJA1",],mpzl3_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="MPZL3", ylab="MPZL3_lr-Residuals")
+plot(data.skin.cancer.human_skin_TRA["DSP",],mpzl3_lr$residuals,pch=20, title("Correlation of the residuals"), xlab="MPZL3", ylab="MPZL3_lr-Residuals")
 cor(data.skin.cancer.human_skin_TRA["DCT",], mpzl3_lr$residuals)
-cor(data.skin.cancer.human_skin_TRA["GJA1",], mpzl3_lr$residuals)
+cor(data.skin.cancer.human_skin_TRA["DSP",], mpzl3_lr$residuals)
 cor(data.skin.cancer.human_skin_TRA["TGFBI",], mpzl3_lr$residuals)
 #No correlation between any of the explanatory genes and the residuals.
 
@@ -1047,18 +1058,18 @@ plot(data.skin.cancer.human_skin_TRA["MPZL3",], mpzl3_lr$fitted.values,pch=20,co
 #MPZL3 expression predicted with a single gene
 #In order to find the variable which has the most impact on the model, the standardized regression coefficients for each predictor gene have to be calculated.
 lm.beta(mpzl3_lr)
-#This means a change in 1 standard deviation of GJA1 has more impact than a 1 standard deviation change in other variables. 
+#This means a change in 1 standard deviation of DSP has more impact than a 1 standard deviation change in other variables. 
 
-#Plotting MPZL3 against only the variable that has the most impact (GJA1)
-mpzl3_gja1 = lm(MPZL3 ~ GJA1, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
-summary(mpzl3_gja1)
+#Plotting MPZL3 against only the variable that has the most impact (DSP)
+mpzl3_dsp = lm(MPZL3 ~ DSP, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
+summary(mpzl3_dsp)
 
-df_mpzl3_gja1 = data.frame(y= data.skin.cancer.human_skin_TRA["MPZL3",], x= data.skin.cancer.human_skin_TRA["GJA1",])
+df_mpzl3_dsp = data.frame(y= data.skin.cancer.human_skin_TRA["MPZL3",], x= data.skin.cancer.human_skin_TRA["DSP",])
 
-plot(df_mpzl3_gja1$x, df_mpzl3_ppp1r14c$y, xlab="Predictor(GJA1)", ylab="Outcome(MPZL3)", main="Simple linear regression of MPZL3 by GJA1", col="darkorange",pch=16)
-abline(mpzl3_gja1, col="red")
-for (i in 1:length(mpzl3_gja1$fitted.values))
-  lines(c(df_mpzl3_gja1$x[i], df_mpzl3_gja1$x[i]), c(df_mpzl3_gja1$y[i], mpzl3_gja1$fitted.values[i]), col="blue")
+plot(df_mpzl3_dsp$x, df_mpzl3_dsp$y, xlab="Predictor(DSP)", ylab="Outcome(MPZL3)", main="Simple linear regression of MPZL3 by DSP", col="darkorange",pch=16)
+abline(mpzl3_dsp, col="red")
+for (i in 1:length(mpzl3_dsp$fitted.values))
+  lines(c(df_mpzl3_dsp$x[i], df_mpzl3_dsp$x[i]), c(df_mpzl3_dsp$y[i], mpzl3_dsp$fitted.values[i]), col="blue")
 ```
 
 ## 6.2.3. Multiple linear regression of ARHGEF5
