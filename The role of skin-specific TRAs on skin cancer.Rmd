@@ -907,7 +907,7 @@ hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)#The H value is als
 
 #Visualize k-means clusters
 km.upreg = eclust(upregulated_all_exp, "kmeans", k = 3, nstart = 25, graph = FALSE)
-fviz_cluster(km.upreg, data = upregulated_all_exp)
+fviz_cluster(km.upreg, data = upregulated_all_exp, main = "Clustering of upregulated TRAs in skin cancer") + theme(plot.title = element_text(hjust = 0.5))
 
 #Cluster validation: silhouette plot
 fviz_silhouette(km.upreg, palette = "jco", ggtheme = theme_classic())
