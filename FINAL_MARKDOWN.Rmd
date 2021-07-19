@@ -55,7 +55,7 @@ TRA_Mouse_Novartis = read.csv(file = "tra.2014.mouse.5x.table.tsv", sep = "\t")
 TRA_Human_protien_atlas = read.csv(file = "Human_protein_atlas_TRA_5median_genes_annotated.tsv", sep = ",")
 ```
 
-TRA data is made up of genes from different tissues, different cell lines of humans and mice. All skin genes are extracted and combined in a vector, all NA values are erased. As the skin data available on mice is very little, only the expression of human genes is analyzed. One set of TRA data has the information of sun exposure, as this information might be valuable further into the analysis, these genes are separated into two vectors; exposed to the sun and not exposed to the sun. A pie chart is finalized to visualize how much of the TRA data comes from skin. It is found out that skin specific genes make up only 4.84% of all TRA data.
+TRA data is made up of genes from different tissues, different cell lines of humans and mice. All skin genes are extracted and combined in a vector, all NA values are erased. As the skin data available on mice is very little, only the expression of human genes is analyzed. One set of TRA data has the information of sun exposure, as this information might be valuable further into the analysis, these genes are separated into two vectors; exposed to the sun and not exposed to the sun. A pie chart is finalized to visualize how much of the TRA data comes from skin. It is found out that skin specific genes make up only 2.98% of all TRA data.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
