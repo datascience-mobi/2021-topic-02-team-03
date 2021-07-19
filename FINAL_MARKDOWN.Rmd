@@ -453,7 +453,7 @@ par(las=2)
 boxplot(t(data.skin.cancer.human_skin_TRA), col = rainbow(length(rownames(data.skin.cancer.human_skin_TRA))), main = "Expression of all skin genes in melanoma", cex.axis = 0.8)
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='80%', out.height='60%', fig.align='center'}
 
 # Putting the highly expressed genes in a vector
 highgenes = c()
@@ -536,7 +536,7 @@ upreg_trametinib_significant
 
 Another heatmap is used to visualize the upregulation of certain skin TRAs. It is clearly visible that the skin-specific genes have a considerable increase in expression on chips from a later time period after treatment, especially on those treated with ERK1/2 inhibitor or Trametinib. Box plots were built to visualize the expressions of the significantly upregulated genes.
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='60%', out.height='40%', fig.align='center'}
 
 # Heatmap
 library(gplots)
@@ -590,7 +590,7 @@ abline(h = c(6:14), col = "grey", lty = 3)
 legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("blue", "pink"), pch = 15, bg = "white")
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='80%', out.height='60%', fig.align='center'}
 
 # Trametinib
 
@@ -747,8 +747,8 @@ upreg_tra_nonskin = upreg_tra[!upreg_tra%in%rownames(data.skin.cancer.human_skin
 length(upreg_tra_nonskin)
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
-venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), cex = 1000)
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='40%', out.height='40%', fig.align='center'}
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), cex = 100)
 text(500, 900, "Potential drug targets", cex = 2)
 ```
 
@@ -811,7 +811,7 @@ data.new_sherk_downreg[c(3:4), c(1:3)] = NA
 order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='50%', out.height='40%', fig.align='center'}
 boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Dox-shERK", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
 legend("topleft", c("Dox-shERK after 3 days", "Dox-shERK after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
@@ -934,7 +934,7 @@ fviz_silhouette(km.both, palette = "jco",
 ggtheme = theme_classic())
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='60%', out.height='40%', fig.align='center'}
 
 # Visualize k-means clusters
 fviz_cluster(km.both, data = both, main = "Clustering of Gene Expression With and Without Sun", palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
@@ -966,7 +966,7 @@ hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)
 # The H value is also lower than 0.5 here and is relatively close to 0.
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='86%', out.height='40%', fig.align='center'}
 
 # Visualize k-means clusters
 km.upreg = eclust(upregulated_all_exp, "kmeans", k = 3, nstart = 25, graph = FALSE)
@@ -1156,11 +1156,12 @@ lm.beta(arhgef5_lr)
 
 To confirm the accuracy of the predictions made by the PC genes on the expression of the two representative upregulated genes ARHGEF5 and MPZL3, the predicted values are plotted against the real values of expression. They seem to be nearly identical. Since the gene ARHGEF5 is highly correlated with the rest of the upregulated genes, it can be concluded that the expression of almost all of the upregulated genes can be predicted by the expression profiles of the PC genes.
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='30%', out.height='30%', fig.align='center'}
 
 ### 6.4 Plots of Linear Regression
 
 # Predicting the MPZL3 expression with a multiple linear regression
+par(mfrow = c(1,2))
 plot(data.skin.cancer.human_skin_TRA["MPZL3",], mpzl3_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of MPZL3"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Multiple linear regression of MPZL3.pdf') 
@@ -1174,10 +1175,12 @@ plot(df_mpzl3_dsp$x, df_mpzl3_dsp$y, xlab="Predictor(DSP)", ylab="Outcome(MPZL3)
 abline(mpzl3_dsp, col="red")
 for (i in 1:length(mpzl3_dsp$fitted.values))
   lines(c(df_mpzl3_dsp$x[i], df_mpzl3_dsp$x[i]), c(df_mpzl3_dsp$y[i], mpzl3_dsp$fitted.values[i]), col="blue")
+
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Simple linear regression of MPZL3 by DSP.pdf') 
 
 # Predicting the ARHGEF5 expression with a multiple linear regression
+par(mfrow = c(1,2))
 plot(data.skin.cancer.human_skin_TRA["ARHGEF5",], arhgef5_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of ARHGEF5"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Multiple linear regression of ARHGEF5.pdf') 
