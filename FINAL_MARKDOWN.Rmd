@@ -758,7 +758,7 @@ The existence of significantly downregulated genes indicates that the treatment 
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
-### 3.6 Upregulated genes
+### 3.6 Downregulated genes
 # Least logFC from each treatment
 logFC_sherk_down_regulated = logFC_sherk[503:512]
 logFC_erk12_down_regulated = logFC_erk12[503:512]
@@ -802,9 +802,6 @@ data.new_sherk_downreg = rbind(data_sherk_downreg, data_sherk_downreg)
 data.new_sherk_downreg[c(1:2), c(4:5)] = NA
 data.new_sherk_downreg[c(3:4), c(1:3)] = NA
 order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
-```
-
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
 
 boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Dox-shERK", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
