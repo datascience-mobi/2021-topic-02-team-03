@@ -1247,6 +1247,8 @@ Miller, A. J., Du, J., Rowan, S., Hershey, C. L., Widlund, H. R., & Fisher, D. E
 
 Mohammadi, S., Ravindra, V., Gleich, D. F., & Grama, A. (2018). A geometric approach to characterize the functional identity of single cells. Nature communications, 9(1), 1516. https://doi.org/10.1038/s41467-018-03933-2
 
+Neumann, L. C., et al. 2011. EFS shows biallelic methylation in uveal melanoma with poor prognosis as well as tissue-specific methylation. BMC Cancer 11:380. doi:10.1186/1471-2407-11-380
+
 Noguchi, K., Dalton, A. C., Howley, B. V., McCall, B. J., Yoshida, A., Diehl, J. A., & Howe, P. H. (2017). Interleukin-like EMT inducer regulates partial phenotype switching in MITF-low melanoma cell lines. PloS one, 12(5), e0177830. https://doi.org/10.1371/journal.pone.0177830
 
 Opitz, L., Salinas-Riester, G., Grade, M., Jung, K., Jo, P., Emons, G., Ghadimi, B. M., Beissbarth, T., & Gaedcke, J. (2010). Impact of RNA degradation on gene expression profiling. BMC medical genomics, 3, 36. https://doi.org/10.1186/1755-8794-3-36
@@ -1283,3 +1285,7 @@ Wang, T., Wang, Z., Niu, R., & Wang, L. (2019). Crucial role of Anxa2 in cancer 
 Wellbrock, C., & Arozarena, I. (2015). Microphthalmia-associated transcription factor in melanoma development and MAP-kinase pathway targeted therapy. Pigment cell & melanoma research, 28(4), 390–406. https://doi.org/10.1111/pcmr.12370
 
 Zeiser, R. (2014). Trametinib. Recent results in cancer research. Fortschritte der Krebsforschung. Progrès dans les recherches sur le cancer, 201, 241–248. https://doi.org/10.1007/978-3-642-54490-3_15
+
+Zheng, J., et al. 2021. Biomarkers Associated with CD8+ T Cell Infiltration in Childhood AML. https://doi.org/10.21203/rs.3.rs-659529/v1
+
+Zhou, J., et al. 2020. BCL11A Promotes the Progression of Laryngeal Squamous Cell Carcinoma. Frontiers in oncology 10:375. doi:10.3389/fonc.2020.00375
