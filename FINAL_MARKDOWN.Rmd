@@ -466,6 +466,9 @@ high = data.skin.cancer.human_skin_TRA[highgenes,]
 # Expression of the highly expressed genes
 par(las=2)
 boxplot(t(high),col=rainbow(length(rownames(high))),main="Highly expressed skin genes in melanoma",cex.axis=0.8)
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Highly expressed skin genes in melanoma.pdf') #pdf file
 ```
 
 
@@ -553,8 +556,7 @@ heatmap.2(exp.all.upregulated.tra, key = T, col = my_colors, symkey = F, symm = 
 
 # Saving the heatmap
 setwd(paste(projectPath, 'plots', sep = '/'))
-dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer_1.eps') #eps file
-dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer_1.pdf') #pdf file
+dev.copy2pdf(file = 'Heatmap expression of upregulated genes.pdf') #pdf file
 ```
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -570,6 +572,8 @@ order.vector = sort(colnames(t(data.new_sherk)),index.return=T)$ix
 boxplot(t(data.new_sherk)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with Dox-shERK1", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
 legend("topleft", c("Dox-shERK1 after 3 days", "Dox-shERK1 after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Upregulated genes in treatment with Dox-shERK1.pdf') #pdf file
 ```
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -599,6 +603,9 @@ order.vector = sort(colnames(t(data.new_trametinib)),index.return=T)$ix
 boxplot(t(data.new_trametinib)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Upregulated genes in treatment with Trametinib", ylab = "log2(gene expression)", xlab = "Upregulated genes", las = 2)
 abline(h = c(6:14), col = "grey", lty = 3)
 legend("left",c("Trametinib after 3h", "Trametinib after 24h"),col=c("blue", "pink"), pch = 15, bg = "white")
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Upregulated genes in treatment with Trametinib.pdf') #pdf file
 ```
 
 The package limma (v4.1, Ritchie _et al_., 2015) is used as a model of comparison to the upregulated genes that were found manually using the log fold change. Limma takes the normalized data and performs statistical tests to discover any quantitative changes in the expression (Ritchie _et al_., 2015). The results show mostly identical genes to the already found upregulated genes. 
@@ -802,10 +809,15 @@ data.new_sherk_downreg = rbind(data_sherk_downreg, data_sherk_downreg)
 data.new_sherk_downreg[c(1:2), c(4:5)] = NA
 data.new_sherk_downreg[c(3:4), c(1:3)] = NA
 order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
+```
 
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE}
 boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Dox-shERK", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
 legend("topleft", c("Dox-shERK after 3 days", "Dox-shERK after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Downregulated genes in treatment with Dox-shERK.pdf') 
 ```
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -926,6 +938,9 @@ ggtheme = theme_classic())
 
 # Visualize k-means clusters
 fviz_cluster(km.both, data = both, main = "Clustering of Gene Expression With and Without Sun", palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Clustering of Gene Expression With and Without sun.pdf') 
 ```
 
 Same process is repeated for upregulated genes to see if there are any certain sub-groups of genes inbetween them.Three distant clusters are viewed in k-means, with an average silhouette of 0.61.
@@ -956,6 +971,9 @@ hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)
 # Visualize k-means clusters
 km.upreg = eclust(upregulated_all_exp, "kmeans", k = 3, nstart = 25, graph = FALSE)
 fviz_cluster(km.upreg, data = upregulated_all_exp, main = "Clustering of Upregulated TRAs in Skin Cancer") + theme(plot.title = element_text(hjust = 0.5))
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Clustering of Upregulated TRAs in Skin Cancer.pdf') 
 ```
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -990,6 +1008,9 @@ variance = (skin_pca_topVar$sdev)^2
 prop.variance = variance/sum(variance)
 names(prop.variance) = 1:length(prop.variance)
 barplot(prop.variance, ylab='Proportion of variance', xlab = "Principal components", main = "Proportion of variance of each principal component")
+
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Proportion of variance of each principal component.pdf') 
 
 # Total variance explained by PC1 and PC2
 total_var = prop.variance[1] + prop.variance[2]
@@ -1141,6 +1162,8 @@ To confirm the accuracy of the predictions made by the PC genes on the expressio
 
 # Predicting the MPZL3 expression with a multiple linear regression
 plot(data.skin.cancer.human_skin_TRA["MPZL3",], mpzl3_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of MPZL3"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Multiple linear regression of MPZL3.pdf') 
 
 # Plotting MPZL3 against only the variable that has the most impact: DSP
 mpzl3_dsp = lm(MPZL3 ~ DSP, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
@@ -1151,9 +1174,13 @@ plot(df_mpzl3_dsp$x, df_mpzl3_dsp$y, xlab="Predictor(DSP)", ylab="Outcome(MPZL3)
 abline(mpzl3_dsp, col="red")
 for (i in 1:length(mpzl3_dsp$fitted.values))
   lines(c(df_mpzl3_dsp$x[i], df_mpzl3_dsp$x[i]), c(df_mpzl3_dsp$y[i], mpzl3_dsp$fitted.values[i]), col="blue")
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Simple linear regression of MPZL3 by DSP.pdf') 
 
 # Predicting the ARHGEF5 expression with a multiple linear regression
 plot(data.skin.cancer.human_skin_TRA["ARHGEF5",], arhgef5_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of ARHGEF5"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Multiple linear regression of ARHGEF5.pdf') 
 
 # Plotting ARHGEF5 against only the variable that has the most impact: TGFBI
 arhgef5_anxa2 = lm(ARHGEF5 ~ ANXA2, data = data.frame(t(data.skin.cancer.human_skin_TRA)))
@@ -1164,6 +1191,8 @@ plot(df_arhgef5_anxa2$x, df_arhgef5_anxa2$y, xlab="Predictor(ANXA2)", ylab="Outc
 abline(arhgef5_anxa2, col="red")
 for (i in 1:length(arhgef5_anxa2$fitted.values))
   lines(c(df_arhgef5_anxa2$x[i], df_arhgef5_anxa2$x[i]), c(df_arhgef5_anxa2$y[i], arhgef5_anxa2$fitted.values[i]), col="blue")
+setwd(paste(projectPath, 'plots', sep = '/'))
+dev.copy2pdf(file = 'Simple linear regression of ARHGEF5 by ANXA2.pdf') 
 
 ```
 
