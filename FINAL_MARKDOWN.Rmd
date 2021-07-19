@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # ABSTRACT
 
-Tissue restricted antigen genes have been researched on because of their ability to open ways to new personalized and specific cancer treatments which is not harmful for the rest of the organism, except for the concerned tissue. In this project, certain tissue restricted antigen genes in melanoma show upregulated expressions after being treated with MAPK pathway and MEK inhibitors. As they are analyzed further, genes that are expressed under the influence of the sun and genes related to melanosome biogenesis are found. The dependency of the upregulated genes on the genes representing the rest of the expressions with highest variance was questioned. For this analysis, methods such as principal component analysis, box plots, log fold change, and linear regression models have been used.
+Tissue restricted antigen genes have been researched on because of their ability to open ways to new personalized and specific cancer treatments which is not harmful for the rest of the organism, except for the concerned tissue. In this project, certain tissue restricted antigen genes in melanoma show upregulated expressions after being treated with inhibitors of the MAPK pathway. As they are analyzed further, genes that are expressed under the influence of the sun and genes related to melanosome biogenesis are found. The dependency of the upregulated genes on the genes representing the rest of the expressions with highest variance was questioned. For this analysis, methods such as principal component analysis, box plots, log fold change and linear regression models have been used.
 
 
 # INTRODUCTION
@@ -24,7 +24,7 @@ More than half of all melanoma cases contain a mutation of the BRAF gene (Alqath
 
 In this analysis, data from the melanoma cell line WM266-4 is used. This cell line has a BRAF-V600D mutation, meaning that the valine at codon 600 is changed into aspartic acid. This mutation leads to an overexpression of BRAF, thus an uncontrolled increase in oncogenic signaling (Alqathama, 2020). The cell line is treated with Trametinib, which is an inhibitor of MEK 1 and MEK2 (Zeiser, 2014), ERK1/2-inhibitor, and doxycycline-shERK1 for different periods of time; 3 and 24 hours, 3 and 7 days. Later, the mRNA from these cells are extracted and processed into labeled cRNA fragments. These fragments are hybridized on microarrays and scanned, resulting in expression level quantifications of large amounts of genes. It is to mention that there are no units in this data, because it is simply light intensity scanned.
 
-The focus in this microarray analysis is a mechanism cancer cells have been shown to use; the upregulation of tissue restricted antigen (TRA) genes. TRAs are highly expressed selectively in their tissues, and T-cells reacting to these self-antigens result in autoimmune diseases (Kyewski & Derbinski, 2004). So that immature T-cells can gauge the self-reactivity of their antigen receptors, they go through a selection in the thymus, where T-cells reacting to TRAs undergo apoptosis (Klein _et al_., 2014). TRA genes are mostly upregulated in cancer cells for undiscovered reasons, making them good potential drug targets for therapy (Rosenberg, 1999). Current treatments for melanomas include chemotherapy, radiation, immunotherapy, and surgical excision (Gruber & Zito, 2020). Developing a new therapy, where the upregulated skin specific TRA genes are attacked, therefore other tissues don’t get as damaged, would be a significant discovery in the medical field.
+The focus in this microarray analysis is a mechanism cancer cells have been shown to use; the upregulation of tissue restricted antigen (TRA) genes. TRAs are highly expressed selectively in their tissues, and T-cells reacting to these self-antigens result in autoimmune diseases (Kyewski & Derbinski, 2004). In order for immature T-cells to gauge the self-reactivity of their antigen receptors, they go through a selection in the thymus, where T-cells reacting to TRAs undergo apoptosis (Klein _et al_., 2014). TRA genes are mostly upregulated in cancer cells for undiscovered reasons, making them good potential drug targets for therapy (Rosenberg, 1999). Current treatments for melanomas include chemotherapy, radiation, immunotherapy, and surgical excision (Gruber & Zito, 2020). Developing a new therapy, where the upregulated skin specific TRA genes are attacked, therefore other tissues don’t get as damaged, would be a significant discovery in the medical field.
 
 Therefore, the main aim of this project is to find upregulated skin specific genes in skin cancer. By looking into the gene expression data of TRA genes in a melanoma cell line, and comparing the variety of the expression levels between different treatments and treatment times, it is possible to gain insight into how the genes affect the survival of the cancer cells. The genes which present significant changes in their expression would be potential drug targets to further investigate, as they would be helping the cancer cell survive under the treatment.
 
@@ -34,9 +34,9 @@ Therefore, the main aim of this project is to find upregulated skin specific gen
 
 # METHODS AND RESULTS
 
-*Quality Control and Normalization of the Data*
+**Quality Control and Normalization of the Data**
 
-The programming language R Studio Version 1.4.1106 (R Core Team, 2021) is used throughout this entire project. First, all of the data to be analyzed is downloaded; the numerical microarray data with gene expression intensities of the melanoma cell line and the nominal TRA data (Dinkelacker, 2007;2019) with names of genes originating from different tissues. The TRA data has other information such as chromosome numbers of the given genes which will be put to use later.
+The programming language R Studio Version 1.4.1106 (R Core Team, 2021) is used throughout this entire project. First, all of the data to be analyzed is downloaded; these are the numerical microarray data with gene expression intensities of the melanoma cell line from the GEO website series GSE57721 and the nominal TRA data (Dinkelacker, 2007;2019) with names of genes originating from different tissues. The TRA data has other information such as chromosome numbers of the given genes which will be put to use later.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide', include=FALSE}
 
@@ -55,7 +55,7 @@ TRA_Mouse_Novartis = read.csv(file = "tra.2014.mouse.5x.table.tsv", sep = "\t")
 TRA_Human_protien_atlas = read.csv(file = "Human_protein_atlas_TRA_5median_genes_annotated.tsv", sep = ",")
 ```
 
-TRA data is made up of genes from different tissues, different cell lines of humans and mice. All skin genes are extracted and combined in a vector, all NA values are erased. As the skin data available on mice is very little, only the expression of human genes is analyzed. One set of TRA data has the information of sun exposure, as this information might be valuable further into the analysis, these genes are separated into two vectors; exposed to the sun and not exposed to the sun. A pie chart is finalized to visualize how much of the TRA data comes from skin. It is found out that skin specific genes make up only 2.98% of all TRA data.
+TRA data is made up of genes from different tissues, different cell lines of humans and mice. All skin-specific genes are extracted and combined in a cleaned vector with all NA values erased. As the skin data available on mice is very little, only the expression of human genes is analyzed. One set of TRA data has the information of sun exposure, as this information might be valuable further into the analysis, these genes are separated into two vectors; exposed to the sun and not exposed to the sun. A pie chart is finalized to visualize how much of the TRA data comes from skin. It is found out that skin specific genes make up only 2.98% of all TRA data.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -172,7 +172,7 @@ dev.copy2eps(file="Piechart_skin_TRA.eps") # eps file
 dev.copy2pdf(file="Piechart_skin_TRA.pdf") # pdf file
 ```
 
-Before the analysis, the data must be investigated to see if there are any problems within, for instance a broken microarray chip, that would alter the results. Single chips are controlled by visualizing raw microarray data, there aren’t any abnormalities visible in all of the fifteen chips.
+Before the analysis, the data must be investigated to see if there are any problems that would alter the results, such as broken microarray chips. Single chips are controlled by visualizing raw microarray data, and apparently there are no abnormalities visible in all of the fifteen chips. Thus, all of the chips are usable.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -213,7 +213,7 @@ par(mfrow = c(3,5))
 image(data.skin.cancer,col=rainbow(100,start = 0, end = 0.75) [100:1]) #All of the chips seem to have a very good quality, so we can use all of them
 ```
 
-Gene expression profiling results are highly influenced by RNA quality and degradation (Opitz _et al_., 2010), therefore RNA degradation plots are made to investigate. All of the lines, each representing a chip, showed similar slope values, and there is not any deviation visible. For this reason, all chips are to be included in the analysis as they are all qualitative.
+Gene expression profiling results are highly influenced by RNA quality and degradation (Opitz _et al_., 2010), therefore RNA degradation plots are made to investigate. All of the lines, each representing a chip, showed similar slope values, and there is not any deviation visible. For this reason, all chips are to be included in the analysis as they are all of quality.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -240,7 +240,7 @@ dev.copy2eps(file= "RNA_deg_data_skin_cancer_raw.eps")
 summaryAffyRNAdeg(rna_degradation)
 ```
 
-The microarray data is normalized using the package vsn (v3.58.0; Hüber, NA) to remove any systematic variation that can affect the analysis. The pre-normalization and normalized data, which is glog2 transformed, are compared in the forms of boxplots and histograms, in order to see how much systematic variation existed. The boxplots didn’t show a significant difference, even before normalization the median lines are almost in a linear line, indicating that the chips did not have much variation to begin with. In both pre- and after normalization histograms, the chip lines follow the same path, and none of the chips stand out. After the normalization, a meanSdPlot is made, and from this plot, it is seen that the mean values of the chips are almost linear, once again proving that they are high quality chips.
+The microarray data is normalized using the package vsn (v3.58.0; Hüber, NA) to remove any systematic variation that can affect the analysis. The pre-normalization and normalized data, which is glog2 transformed, are compared with boxplots and histograms, in order to see how much systematic variation existed. The boxplots didn’t show a significant difference, even before normalization the median lines are almost in a linear line, indicating that the chips did not have much variation to begin with. In both pre- and after normalization histograms, the chip lines follow the same path, and none of the chips stand out. After the normalization, a meanSdPlot is made, and from this plot, it is seen that the mean values of the chips are almost linear, once again proving that they are high quality chips.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -305,9 +305,9 @@ dev.copy2eps(file = "meanSdPlot_data_skin_cancer_normalized.eps")
 ```
 
 
-*Cleaning Data and Creating a Data Frame*
+**Cleaning Data and Creating a Data Frame**
 
-In the data from microarray chips genes are saved as numbers; to be able to view and analyse the data easier, these numbers are switched with their names using the ensembl IDs that were downloaded from https://www.ensembl.org/biomart . Later, all expression values are extracted from the microarray data, and put into a data frame with chip IDs as columns and gene symbols as rows.
+In the data from microarray chips the genes are saved as digits; to be able to view and analyse the data easier, these digits are replaced with their gene names using the ensembl IDs that were downloaded from https://www.ensembl.org/biomart . Later, all expression values are extracted from the microarray data and put into a data frame with chip IDs as column names and gene symbols as row names.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -353,7 +353,7 @@ Expression = Expression[-which(all.spaces.exp>0),]
 rm(all.spaces.exp)
 ```
 
-After empty spaces and NA values are removed from the data, skin specific antigens are extracted to create the main data frame of skin TRA expression levels in skin cancer to analyze. The column names are changed so that the treatment and time point of every chip is easily viewed.
+After empty spaces and NA values are removed from the data, skin specific antigens are extracted to create the main data frame of skin TRA expression levels in skin cancer to analyze. 
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -385,7 +385,7 @@ colnames(data.skin.cancer.human_skin_TRA)[15] = "Trametinib_24hc"
 head(data.skin.cancer.human_skin_TRA)
 ```
 
-Before getting to the gene expression analysis a bar plot is created to find out which chromosome the skin specific TRAs are mostly located at. Most skin related genes are usually located on chromosome 1 (Volz _et al_., 1993), which also seems to be the case in this data.
+Before getting to the gene expression analysis, a bar plot is created to find out which chromosome the skin-specific TRAs are mostly located at. According to the literature, most skin related genes are located on chromosome 1 (Volz _et al_., 1993), which is also the case in this data.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -427,9 +427,9 @@ dev.copy2pdf(file = 'Distribution of skin-specific TRAs over chromosomes.pdf') #
 ```
 
 
-*Gene Expression Analysis*
+**Gene Expression Analysis**
 
-To begin the analysis a heat map is created, showing the expression levels of skin specific TRA genes in all chips. This heat map is useful in recognizing expression patterns to focus on, and it gives a starting point for the further analysis. It is observed that the expression levels of some genes increase as the treatment lasts longer. These are the genes that the cancer cells upregulate against the different treatments. 
+To begin the analysis a heat map is created, showing the expression levels of skin specific TRA genes in all chips. This heat map is useful in recognizing expression patterns to focus on, and it gives a starting point for further analysis. It is observed that the expression levels of some genes increase as the treatments goes longer. These are the genes that the cancer cells need to upregulate to survive against the different treatments. 
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -444,7 +444,7 @@ dev.copy2eps(file = 'Heatmap for skin specific TRAs in skin cancer_1.eps') #eps 
 dev.copy2pdf(file = 'Heatmap for skin specific TRAs in skin cancer_1.pdf') #pdf file
 ```
 
-To begin the analysis the gene expression is visualized with box plots. There are too many genes overall, therefore the boxes look like overlapping lines, which does not give much information. Instead, only the highly expressed genes are chosen to be visualized. A highly expressed gene does not have to be an upregulated gene, and an upregulated gene has the possibility of not being a highly expressed gene. A threshold of twelve is set according to the overall expression levels to define the high expression margin. Aside from the two highest expressed genes GPNMB and ANXA2, the genes NDRG1, RPL18, DCT, CD44, and MLANA show varying expression levels between chips with levels above the threshold in some chips and below in others.
+To begin the analysis, the gene expression is visualized with box plots. There are too many genes overall, therefore the boxes look like overlapping lines, which does not give much information. Instead, only the highly expressed genes are chosen to be visualized. A highly expressed gene does not have to be an upregulated gene, and an upregulated gene has the possibility of not being a highly expressed gene. A threshold of twelve is set according to the overall expression levels to define the high expression margin. Aside from the two constantly highest expressed genes GPNMB and ANXA2, while the genes NDRG1 and DCT show varying expression levels between chips, with values above the threshold in some chips and below in others.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -453,7 +453,7 @@ par(las=2)
 boxplot(t(data.skin.cancer.human_skin_TRA), col = rainbow(length(rownames(data.skin.cancer.human_skin_TRA))), main = "Expression of all skin genes in melanoma", cex.axis = 0.8)
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='80%', out.height='60%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='65%', out.height='45%', fig.align='center'}
 
 # Putting the highly expressed genes in a vector
 highgenes = c()
@@ -472,9 +472,9 @@ dev.copy2pdf(file = 'Highly expressed skin genes in melanoma.pdf') #pdf file
 ```
 
 
-*Upregulated Genes*
+**Upregulated Genes**
 
-In order to determine the mostly upregulated genes, the expression data has to be transformed by using a log fold change. There is not any data available from cells without any treatment, therefore for chips that have been treated with ERK1/2-inhibitor or Trametinib, the gene expression between the three hour and twenty four hour time points is compared to see which genes showed a higher expression after twenty one hours of treatment. The zero point for dox-shERK1 chips is taken as three days, as there is not any earlier data available.
+In order to determine the mostly upregulated genes, the expression data has to be transformed by using a log fold change. There is no data available from cells without any treatment, therefore for chips that have been treated with ERK1/2-inhibitor or Trametinib, the gene expression between the three hour and twenty four hour time points is compared to see which genes showed a higher expression after twenty one hours of treatment. The zero point for dox-shERK1 chips is taken as three days, as there are no earlier data available.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -534,9 +534,9 @@ upreg_trametinib_significant = names(logFC_trametinib_top)[names(logFC_trametini
 upreg_trametinib_significant
 ```
 
-Another heatmap is used to visualize the upregulation of certain skin TRAs. It is clearly visible that the skin-specific genes have a considerable increase in expression on chips from a later time period after treatment, especially on those treated with ERK1/2 inhibitor or Trametinib. Box plots were built to visualize the expressions of the significantly upregulated genes.
+Another heatmap is used to visualize the upregulation of certain skin TRAs. It is clearly visible that the skin-specific genes have a considerable increase in expression on chips from a later time period after treatment, especially on those treated with ERK1/2 inhibitor or Trametinib. 
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='60%', out.height='40%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='55%', out.height='30%', fig.align='center'}
 
 # Heatmap
 library(gplots)
@@ -558,6 +558,8 @@ heatmap.2(exp.all.upregulated.tra, key = T, col = my_colors, symkey = F, symm = 
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Heatmap expression of upregulated genes.pdf') #pdf file
 ```
+
+Box plots were made to visualize the expressions of the significantly upregulated genes for each treatment..
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -590,7 +592,7 @@ abline(h = c(6:14), col = "grey", lty = 3)
 legend("topleft",c("ERK1/2 inhibitor after 3h", "ERK1/2 inhibitor after 24h"), col = c("blue", "pink"), pch = 15, bg = "white")
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='80%', out.height='60%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='65%', out.height='35%', fig.align='center'}
 
 # Trametinib
 
@@ -681,7 +683,7 @@ lola3 = lola3[1:10,]
 intersect(upreg_trametinib_significant, rownames(lola3))
 ```
 
-Genes that are upregulated in skin cancer and are at the same time TRAs are especially interesting, as they pose as potential drug targets. To visualize these upregulated TRAs, a venn diagram was made.There are not any non-skin specific TRAs that are upregulated in skin cancer.
+Genes that are upregulated in skin cancer and are at the same time TRAs are especially interesting, as they pose as potential drug targets. To visualize these upregulated TRAs, a venn diagram was made. Apparently there are no non-skin specific TRAs that are upregulated in skin cancer.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -747,9 +749,9 @@ upreg_tra_nonskin = upreg_tra[!upreg_tra%in%rownames(data.skin.cancer.human_skin
 length(upreg_tra_nonskin)
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='40%', out.height='40%', fig.align='center'}
-venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), cex = 100)
-text(500, 900, "Potential drug targets", cex = 2)
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='30%', out.height='30%', fig.align='center'}
+venn(list_venn, box = F, ilab = T, zcolor = c("#0073C2FF", "#EFC000FF"), sncs = 1, ilcs = 1.2)
+text(500, 900, "Potential drug targets", cex = 1.4)
 ```
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -761,7 +763,9 @@ text(500, 900, "Potential drug targets", cex = 2)
 dev.off()
 ```
 
-The existence of significantly downregulated genes indicates that the treatment has been successful, and that these genes were inducing tumors before the treatment. That is why, ten genes from different treatments with the lowest log-ratio are filtered out and evaluated under t-tests, and visualized via box plots. The genes MMP2, TYRP1 from dox-shERK1 chips, CMSS1, KRT27, MPP4, CHTF18, POLA1, WEE1, REEP4, MFSD2A, CA12, C3of52 from ERK1/2 inhibitor chips, and RHNO1, MPP4, IRX3, MFSD2A, WEE1, CA12, C3orf52, POLA1 from Trametinib chips proved to be significantly downregulated.
+**Downregulated Genes**
+
+The existence of significantly downregulated genes indicates that the treatment has been successful, and that these genes were inducing tumors before the treatment. Therefore, ten genes from different treatments with the lowest log-ratio are filtered out, evaluated with t-tests and visualized via box plots. The genes MMP2, TYRP1 from dox-shERK1 chips, CMSS1, KRT27, MPP4, CHTF18, POLA1, WEE1, REEP4, MFSD2A, CA12, C3of52 from ERK1/2 inhibitor chips, and RHNO1, MPP4, IRX3, MFSD2A, WEE1, CA12, C3orf52, POLA1 from Trametinib chips proved to be significantly downregulated.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -811,7 +815,7 @@ data.new_sherk_downreg[c(3:4), c(1:3)] = NA
 order.vector = sort(colnames(t(data.new_sherk_downreg)),index.return=T)$ix
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='50%', out.height='40%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='53%', out.height='36%', fig.align='center'}
 boxplot(t(data.new_sherk_downreg)[,order.vector], cex.axis = 0.6, col = c("blue", "pink"), main = "Downregulated genes in treatment with Dox-shERK", ylab = "log2(gene expression)", xlab = "Downregulated genes", las = 2)
 abline(h = c(6:12), col = "grey", lty = 3)
 legend("topleft", c("Dox-shERK after 3 days", "Dox-shERK after 7 days"), col = c("blue", "pink"), pch = 15, bg = "white")
@@ -850,7 +854,7 @@ legend("topleft",c("Trametinib after 3h", "Trametinib after 24h"),col=c("blue", 
 
 It should be noted that TYRP1 is significantly upregulated under Trametinib treatment, but significantly downregulated under dox-shERK1.
 
-A Wilcoxon signed rank test was run for each chip and a significant difference between the expression levels of the two gene groups was observed. Genes expressed both under the sun and without the sun are removed from the data, and the genes that were only expressed under sun exposure are acquired. Four of these sun exposure related genes are also upregulated genes: ETV7, TGFBI, DAPL1, and ARHGEF5.
+After finding the significantly upregulated and downregulated TRAs, a further category of gene expression is analysed; expression of genes with or without sun exposure. A Welsh t-test was run for each chip and a significant difference between the expression levels of the two gene groups was observed. Genes that are expressed both with and without sun exposure are removed from the data in order to acquire the genes that were only expressed under sun exposure. Four of these sun exposure related genes are also upregulated genes: ETV7, TGFBI, DAPL1 and ARHGEF5.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -894,6 +898,8 @@ significant_nosun_3 = upreg_trametinib_significant[upreg_trametinib_significant%
 upregulated_nosun = unique(c(significant_nosun_1, significant_nosun_2, significant_nosun_3))
 ```
 
+**Clustering**
+
 The expression difference of genes exposed to sun and genes that were not exposed to sun is visualized by k-means. After running the elbow, silhouette, and one other method provided by the package NbClust (v3.0; Charrad, 2015), it is decided that two clusters are the optimal amount for this data. After clustering and plotting with the package factoextra (v1.0.3; Kassambara, 2020), two clusters are defined with an average silhouette width of 0.65, indicating that there is indeed a clusterable difference between the expressions of these two gene groups.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
@@ -934,16 +940,16 @@ fviz_silhouette(km.both, palette = "jco",
 ggtheme = theme_classic())
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='60%', out.height='40%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='50%', out.height='35%', fig.align='center'}
 
 # Visualize k-means clusters
-fviz_cluster(km.both, data = both, main = "Clustering of Gene Expression With and Without Sun", palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw())
+fviz_cluster(km.both, data = both, main = "Clustering of Gene Expression With and Without Sun", palette = c("orange", "blue"), geom = "point", ellipse.type = "convex", ggtheme = theme_bw()) + theme(plot.title = element_text(hjust = 0.5))
 
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Clustering of Gene Expression With and Without sun.pdf') 
 ```
 
-Same process is repeated for upregulated genes to see if there are any certain sub-groups of genes inbetween them.Three distant clusters are viewed in k-means, with an average silhouette of 0.61.
+Same process is repeated for upregulated genes to see if there are any certain sub-groups of genes inbetween them. Three distant clusters are viewed in k-means, with an average silhouette of 0.61.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -966,11 +972,11 @@ hopkins(upregulated_all_exp, n = nrow(upregulated_all_exp)-1)
 # The H value is also lower than 0.5 here and is relatively close to 0.
 ```
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='86%', out.height='40%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='50%', out.height='30%', fig.align='center'}
 
 # Visualize k-means clusters
 km.upreg = eclust(upregulated_all_exp, "kmeans", k = 3, nstart = 25, graph = FALSE)
-fviz_cluster(km.upreg, data = upregulated_all_exp, main = "Clustering of Upregulated TRAs in Skin Cancer") + theme(plot.title = element_text(hjust = 0.5))
+fviz_cluster(km.upreg, data = upregulated_all_exp, main = "Clustering of Upregulated TRAs in Skin Cancer", labelsize = 8) + theme(plot.title = element_text(hjust = 0.5))
 
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Clustering of Upregulated TRAs in Skin Cancer.pdf') 
@@ -981,6 +987,8 @@ dev.copy2pdf(file = 'Clustering of Upregulated TRAs in Skin Cancer.pdf')
 # Cluster validation: silhouette plot
 fviz_silhouette(km.upreg, palette = "jco", ggtheme = theme_classic())
 ```
+
+**PCA and Linear Regression**
 
 Principal component analysis (PCA) is carried out on the 24h and 7d chips to find the genes that explain most of the variance in the data and to reduce the amount of dimensions. PC1 and PC2 represent 99.7% of all the variance of the melanoma dataset. Five genes with the top variance from each of these components are chosen to continue the analysis with: ANXA2, DCT, NDRG1, TYRP1, PTPRZ1 from PC1, and DSP, GJA1, PPP1R14C, TGFBI, UCN2 from PC2.
 
@@ -1032,7 +1040,7 @@ plot(skin_pca_topVar$x[,1], skin_pca_topVar$x[,2],
 legend("topright",c("Sherk", "ERK1/2 inhibitor", "Trametinib"),col=c("red", "green", "blue"), pch = 15, bg = "yellow")
 ```
 
-Linear regression models are used to see if there are any significant dependencies between the PC genes and the upregulated genes that would justify making a prediction of the expressions. The ability to modulate the upregulation genes by targeting the genes from PCA would open up good opportunities in developing treatments with new drug targets. Before the modeling, Pearson correlation is used to see if the upregulated genes and the PC genes have any correlations within their group. The package corrplot (v0.90; Wei, Levy & Simko, 2021) is used to visualize and calculate the correlations. All of the upregulated genes turn out to be highly correlated with each other except for MPZL3. Since the rest are highly correlated, a representative gene, ARHGEF5 is chosen to do the modeling with. Even though not as much as the upregulated genes, PC genes are found to be somewhat correlated, representatives are chosen. The upregulated genes MPZL3 and ARGHGEF5 are going to be predicted by DSP, GJA1, ANXA2.
+Linear regression models are used to see if there are any significant dependencies between the PC genes and the upregulated genes that would justify making a prediction of the expressions. The ability to modulate the upregulation genes by targeting the genes from PCA would open up good opportunities in developing treatments with new drug targets. Before the modeling, Pearson correlation is used to see if the upregulated genes and the PC genes have any correlations within their group. The package corrplot (v0.90; Wei, Levy & Simko, 2021) is used to visualize and calculate the correlations. All of the upregulated genes turn out to be highly correlated with each other except for MPZL3. Since the rest are highly correlated, a representative gene, ARHGEF5 is chosen to do the modeling with. Even though not as much as the upregulated genes, PC genes are found to be somewhat correlated and 3 genes as representatives are chosen. The upregulated genes MPZL3 and ARHGEF5 are going to be predicted by DSP, GJA1 and ANXA2 in the linear models.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -1071,7 +1079,7 @@ cor_pca = cor(df_pca, method='pearson')
 corrplot(cor_pca, type="upper", order="alphabet", title = "Correlation within the PCA genes (Pearson)")
 ```
 
-Next, the distribution of the residuals of the upregulated genes are investigated with a histogram, they are almost normally distributed. The residuals have to meet some conditions in order to be able to form a linear relationship with the PC genes and the upregulated genes. Their means have to be zero and the residuals must not correlate with the PC genes. It is confirmed that the residuals have a mean of approximately zero, and that they do not correlate with the PC genes.
+Next, the normality of the distribution of the residuals of the upregulated genes are confirmed with a histogram and a Shapiro-Wilk test. Furthermore, the residuals of the linear models will have to be analysed in order to veerify the correctness of the linear models.  It is confirmed that the residuals have a mean of approximately zero, and that they do not correlate with any of the explanatory PC genes.
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -1104,7 +1112,7 @@ mean(mpzl3_lr$residuals)
 # Mean is approximately 0.
 ```
 
-Multiple linear regression is carried out between MPZL3 and the aforementioned three PC genes, and a highly significant result is observed. With an adjusted R squared value of 0.9557 and a low p-value, it is right to say that MPZL3 expression can definitely be predicted  by these three genes’ expression levels. DSP appears to be able to predict the expression of MPZL3 the best out of all. This has been decided with help from the package QuantPsyc (v1.5; Fletcher, 2012).
+Multiple linear regression is carried out between MPZL3 and the aforementioned three PC genes, and a highly significant result is observed. With an adjusted R squared value of 0.9557 and a low p-value, it is right to say that MPZL3 expression can definitely be predicted  by these three genes’ expression levels. DSP appears to be able to predict the expression of MPZL3 the best out of all. This has been decided with the help from the package QuantPsyc (v1.5; Fletcher, 2012).
 
 ```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.show='hide',include=FALSE}
 
@@ -1156,13 +1164,15 @@ lm.beta(arhgef5_lr)
 
 To confirm the accuracy of the predictions made by the PC genes on the expression of the two representative upregulated genes ARHGEF5 and MPZL3, the predicted values are plotted against the real values of expression. They seem to be nearly identical. Since the gene ARHGEF5 is highly correlated with the rest of the upregulated genes, it can be concluded that the expression of almost all of the upregulated genes can be predicted by the expression profiles of the PC genes.
 
-```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, out.width='30%', out.height='30%', fig.align='center'}
+```{r, echo = FALSE, results='hide', message=FALSE, warning=FALSE, fig.width = 10, fig.align='center'}
 
 ### 6.4 Plots of Linear Regression
 
 # Predicting the MPZL3 expression with a multiple linear regression
-par(mfrow = c(1,2))
+par(cex = 0.5, mai=c(0.5,0.45,0.2,0.1), cex.axis = 1.5, cex.lab = 2, cex.main = 2.3)
+par(fig = c(0,0.5,0,1))
 plot(data.skin.cancer.human_skin_TRA["MPZL3",], mpzl3_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of MPZL3"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
+
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Multiple linear regression of MPZL3.pdf') 
 
@@ -1171,6 +1181,7 @@ mpzl3_dsp = lm(MPZL3 ~ DSP, data = data.frame(t(data.skin.cancer.human_skin_TRA)
 summary(mpzl3_dsp)
 df_mpzl3_dsp = data.frame(y= data.skin.cancer.human_skin_TRA["MPZL3",], x= data.skin.cancer.human_skin_TRA["DSP",])
 
+par(fig = c(0.5,1,0,1), new = TRUE)
 plot(df_mpzl3_dsp$x, df_mpzl3_dsp$y, xlab="Predictor(DSP)", ylab="Outcome(MPZL3)", main="Simple linear regression of MPZL3 by DSP", col="darkorange",pch=16)
 abline(mpzl3_dsp, col="red")
 for (i in 1:length(mpzl3_dsp$fitted.values))
@@ -1180,7 +1191,8 @@ setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Simple linear regression of MPZL3 by DSP.pdf') 
 
 # Predicting the ARHGEF5 expression with a multiple linear regression
-par(mfrow = c(1,2))
+par(cex = 0.5, mai=c(0.5,0.45,0.2,0.1), cex.axis = 1.5, cex.lab = 2, cex.main = 2.3)
+par(fig = c(0,0.5,0,1))
 plot(data.skin.cancer.human_skin_TRA["ARHGEF5",], arhgef5_lr$fitted.values,pch=20,col='blue', title("Multiple linear regression of ARHGEF5"), xlab='Real values',ylab='Predicted values');abline(0,1,col='red')
 setwd(paste(projectPath, 'plots', sep = '/'))
 dev.copy2pdf(file = 'Multiple linear regression of ARHGEF5.pdf') 
@@ -1190,6 +1202,7 @@ arhgef5_anxa2 = lm(ARHGEF5 ~ ANXA2, data = data.frame(t(data.skin.cancer.human_s
 summary(arhgef5_anxa2)
 df_arhgef5_anxa2 = data.frame(y= data.skin.cancer.human_skin_TRA["ARHGEF5",], x= data.skin.cancer.human_skin_TRA["ANXA2",])
 
+par(fig = c(0.5,1,0,1), new = TRUE)
 plot(df_arhgef5_anxa2$x, df_arhgef5_anxa2$y, xlab="Predictor(ANXA2)", ylab="Outcome(ARHGEF5)", main="Simple linear regression of ARHGEF5 by ANXA2", col="darkorange",pch=16)
 abline(arhgef5_anxa2, col="red")
 for (i in 1:length(arhgef5_anxa2$fitted.values))
@@ -1199,36 +1212,34 @@ dev.copy2pdf(file = 'Simple linear regression of ARHGEF5 by ANXA2.pdf')
 
 ```
 
-In conclusion, in both multiple regression models the p-value is low enough to overthrow the H0 hypothesis. The linear model refers to significance and the dependency between the genes is significant enough to predict upregulated genes.
+In conclusion, in both multiple regression models the p-value is low enough to overthrow the H0 hypothesis. The linear models show that the dependency between genes is significant enough to predict upregulated genes.
 
 
 # DISCUSSION
 
-Regardless of treatment type and time variation between different chips, GPNMB and ANXA2 proved to be highest expressed in all of them. ANXA2 is known as a biomarker in cancers, it is already seen as an ideal target for cancer therapy because of its crucial functions in cancer cell proliferation, migration, invasion, metastasis (Wang _et al_., 2019). GPNMB has been formerly identified as an aggressive pro-metastatic protein that is highly expressed in many tumor types, including melanoma (Taya & Hammes, 2018). The fact that brings these two together is that they are both responsible for the genesis of melanosomes (Setaluri & Jayanthy, 2013; Delevoye _et al_., 2015).
+Regardless of treatment type and time variation between different chips, GPNMB and ANXA2 proved to be highest expressed in all of them. ANXA2 is known as a biomarker in cancers, it is already seen as an ideal target for cancer therapy because of its crucial functions in cancer cell proliferation, invasion and metastasis (Wang _et al_., 2019). GPNMB has been formerly identified as an aggressive pro-metastatic protein that is highly expressed in many tumor types, including melanoma (Taya & Hammes, 2018). The fact that brings these two together is that they are both responsible for the genesis of melanosomes (Setaluri & Jayanthy, 2013; Delevoye _et al_., 2015). Melanoma develops from melanocytes, which normally assemble melanosomes, organelles in mammals responsible for melanin production (Setaluri & Jayanthy, 2013). It makes sense that these two genes related to the assembly and maturation of melanosomes are found to be highly expressed in melanoma. 
 
-Melanoma develops from melanocytes, which normally assemble melanosomes; organelles in mammals responsible for melanin production (Setaluri & Jayanthy, 2013). It makes sense that these two genes related to the assembly and maturation of melanosomes are found to be highly expressed in melanoma. The two other important genes TYRP1 and DCT found in this analysis, which are also involved in the development of melanosomes (Setaluri & Jayanthy, 2013), are both upregulated and principal component genes at the same time. DCT also known as TYRP2 encodes proteins that play roles in the melanin synthesis, just as TYRP1 (Setaluri & Jayanthy, 2013). The upregulation and high expression of these melanosome related genes indicates that a therapy focusing to direct melanosome functions would be effective against melanoma.
+The two other important genes TYRP1 and DCT found in this analysis, which are also involved in the development of melanosomes (Setaluri & Jayanthy, 2013), are both upregulated and principal component genes at the same time. DCT, also known as TYRP2, encodes proteins that play roles in the melanin synthesis, just as TYRP1 (Setaluri & Jayanthy, 2013). The upregulation and high expression of these melanosome related genes indicates that a therapy focusing to direct melanosome functions would be effective against melanoma.
 
-Microphthalmia-associated transcription factor (MITF) is a key signal regulator with the subset target genes GPNMB and TYRP1 (Rose _et al_., 2016). MITF plays important roles in melanosomal function, pigmentation, but it is also required for sustaining the BRAF-mutant melanoma, and supporting the melanoma cell proliferation (Rose _et al_., 2016). It has been observed before that MITF related genes are upregulated under certain BRAF and MEK inhibitors, such as Trametinib (Rose _et al_., 2016). This would explain the expression results of TYRP1 in this project. It is upregulated as it is needed for the maintenance of the melanoma cell, plus the Trametinib treatment, which is a MEK1/2 inhibitor further accelerates its expression. The other two treatments are inhibitors of ERK, which partially successfully seem to have worked, because one of the genes supporting the cancer cell, TYRP1, is downregulated under them.
+Microphthalmia-associated transcription factor (MITF) is a key signal regulator with the subset target genes GPNMB and TYRP1 (Rose _et al_., 2016). MITF plays important roles in melanosomal function and pigmentation, but it is also required for sustaining the BRAF-mutant melanoma and supporting the melanoma cell proliferation (Rose _et al_., 2016). It has been observed before that MITF related genes are upregulated under certain BRAF and MEK inhibitors, such as Trametinib (Rose _et al_., 2016). This would explain the higher expression results of TYRP1 after treatment. It is upregulated not only because it is needed for the maintenance of the melanoma cells, but also due to the Trametinib treatment, which is a MEK1/2 inhibitor. The other two treatments are inhibitors of ERK, which partially successfully seem to have worked, because treatment with Doxycyclin-shERK managed to downregulate TYRP1.
 
-When the upregulated genes are clustered, three groups are to be seen. The genes in the first cluster seem to be mostly prognostic markers (Zheng _et al_., 2021; Zhou _et al_., 2020; Neumann _et al_.,). MPZL3 is the most important one between them, as it did not correlate with any of the other upregulated genes in this data. An overexpression of this gene is usually associated with increased CD8+ immune infiltration and microsatellite instability, leading to better prognosis (Zheng _et al_., 2021). The second cluster (green) is made up of two genes which are closely related each other; TYRP1 and DCT (TYRP2) code for the same family of proteins and take part in the melanosome biosynthesis as mentioned before (Kobayashi _et al_., 1998). 
+When the upregulated genes are clustered, three groups are to be seen. The genes in the first cluster seem to be mostly prognostic markers (Zheng _et al_., 2021; Zhou _et al_., 2020; Neumann _et al_.,). MPZL3 is the most important one between them, as it did not correlate with any of the other upregulated genes in this data. An overexpression of this gene is usually associated with increased CD8+ immune infiltration and microsatellite instability, leading to better prognosis (Zheng _et al_., 2021). The second cluster (green) is made up of two genes that are closely related each other; TYRP1 and DCT (TYRP2) code for the same family of proteins and take part in the melanosome biosynthesis as mentioned before (Kobayashi _et al_., 1998). 
 
-In the third cluster (blue) a couple of genes are found to be related to each other. TGFBI is a pro-inflammatory factor induced by TGFß, proven to be playing a role in the epithelial-mesenchymal transition (EMT) of cells (Pérez _et al_., 2017). EMT is how epithelial tumor cells usually obtain malignant properties (Komiya _et al_., 2016). ARHGEF5 is also activated by TGFß and helps execute malignancy through EMT (Komiya _et al_., 2016). However, a melanoma cell does not go through EMT as it is not derived from epithelial cells (Noguchi _et al_., 2017). The proliferative cells go into their invasive stage by a phenotype switching when the MITF is lowly expressed, meaning that an EMT-like process happens when the high levels of MITF in the cell drop (Noguchi _et al_., 2017).
+In the third cluster (blue) a couple of genes are found to be related to each other. The TGFBI protein regulates cyclin-dependent kinases in melanomas, which are known to be in charge of the cell cycle, and allows a high metastatic potential to the melanoma (Lauden _et al_, 2014). It is induced by TGFß, proven to be playing a role in the epithelial-mesenchymal transition (EMT) of cells (Pérez _et al_., 2017). EMT is how epithelial tumor cells usually obtain malignant properties (Komiya _et al_., 2016). ARHGEF5 is also activated by TGFß and helps execute malignancy through EMT (Komiya _et al_., 2016). However, a melanoma cell does not go through EMT as it is not derived from epithelial cells (Noguchi _et al_., 2017). The proliferative cells go into their invasive stage by a phenotype switching when the MITF is lowly expressed, meaning that an EMT-like process happens when the high levels of MITF in the cell drop (Noguchi _et al_., 2017).
 
-Data in this project on the other hand shows that MITF related genes and EMT related genes have been both upregulated and are even under the third cluster, contradicting the former information. Two other genes, TRPM1 and PPFIBP2, from the same cluster also show a relation to the already known melanoma marker MITF (Mohammadi _et al_., 2018). Former studies have revealed that TRPM1 is an indicator of melanocytic differentiation and is regulated by MITF (Miller _et al_., 2004), and that PPFIBP2 is a part of the MITF sub-network (Mohammadi _et al_., 2018). This makes the reason they are clustered together more a wonder.
+Data in this project on the other hand shows that MITF related genes and EMT related genes have been both upregulated and are even under the third cluster, contradicting the former information. Two other genes, TRPM1 and PPFIBP2, from the same cluster also show a relation to the already known melanoma marker MITF (Mohammadi _et al_., 2018). Former studies have revealed that TRPM1 is an indicator of melanocytic differentiation and is regulated by MITF (Miller _et al_., 2004), and that PPFIBP2 is a part of the MITF sub-network (Mohammadi _et al_., 2018). This makes the fact that they are clustered together more of a wonder.
 
-They are all related because MITF has been found to specially induce the expression of TGFBI (Lavelle _et al_., 2020). TGFBI protein regulates cyclin-dependent kinases in melanomas, which are known to be in charge of the cell cycle, and allows a high metastatic potential to the melanoma (Lauden _et al_, 2014). The upregulation of ARHGEF5 is also explained this way, as it seems to be closely related to TGFBI from former results. Therefore, it is even further proven that MITF genes have a really important role in melanoma development, and survival. They are highly related to each other over MITF, which makes MITF a great drug target for melanoma.
-
-Another observation to mention here is that all four of these genes are upregulated under the ERK1/2 inhibitor. It is known that high ERK activity lowers the MITF protein levels (Wellbrock & Arozarena, 2015), meaning an inhibitor of ERK has an enhancing effect on the upregulation of the MITF related genes. This gives this cluster of genes another meaning and questions the usage of ERK inhibitors on melanoma.
+They are all related because MITF has been found to indirectly induce the expression of TGFBI in melanocytes (Lavelle _et al_., 2020). It has been shown in a former study that the forced high expression of MITF in melanocytes resulted in some defects in the TGFß signaling pathway, making it upregulated (Lavelle _et al_., 2020). This causes the upregulation of the EMT related gene  TGFBI (Lavelle _et al_., 2020), and naturally ARHGEF5. All four of the upregulated genes in the third cluster (TRPM1, PPFIBP2, TGFBI, ARHGEF5) are upregulated under the ERK1/2 inhibitor and Trametinib, which has inducing effects on the expression of MITF related genes as mentioned before (Rose _et al_., 2016). High ERK activity lowers the MITF protein levels (Wellbrock & Arozarena, 2015), meaning an inhibitor of ERK also has an enhancing effect on the upregulation of the MITF related genes. The existence of ERK1/2-inhibitor and Trametinib push on the already high expression of MITF in melanoma cells, resulting in activation of EMT genes by TGFß, TGFBI and ARHGEF5, are upregulated. As a concluding hypothesis it can be stated that the high expression of MITF not only gives the melanoma cells proliferative, but also invasive characteristics, which makes it an even more interesting target for melanoma to research on. 
 
 There is not enough related information found on the other two genes AACS and VANGL2 from the same cluster to build up any theories about their relationship. However, they both seem to be related to breast cancer (Smith _et al_., 2019; Chou _et al_., 2013).
 
 Another significant result is the discovery of the four upregulated genes that are only expressed under the sun. DAPL1, TGFBI are genes upregulated by the aforementioned MITF (Ma _et al_., 2018; Lavelle _et al_., 2020) and ARHGEF5 aids in the invasive potential of cancer cells (Kuroiwa _et al_., 2011). The knowledge that such genes, supporting the development of melanoma, have only been upregulated under sun exposure confirms the already commonly known fact that the exposure to sun is a trigger for skin cancer.
 
-The fourth upregulated gene under sun exposure, ETV7, codes for a transcription factor, which is usually seen to be downregulated in melanoma patients and correlates with a poor prognosis (Qu _et al_., 2020). However, ETV7 is seen to be upregulated in our data under Trametinib, suggesting that it might have a role in attacking the tumor microenvironment, leading to a better prognosis. The fact that this gene is expressed under the sun suggests that it might be a natural response to the tumorigenic genes, upregulated under sun exposure. Trametinib helps upregulate it further to fight tumor proliferation. The relationship between ETV7 and the three genes mentioned above should be looked into with more detail, as a treatment upregulating its expression seems to be possibly effective against melanoma.
+The fourth upregulated gene under sun exposure, ETV7, codes for a transcription factor, which is usually seen to be downregulated in melanoma patients and correlates with a poor prognosis (Qu _et al_., 2020). However, ETV7 is seen to be upregulated in our data under Trametinib and ERK1/2 inhibitor, suggesting that it might have a role in attacking the tumor microenvironment, leading to a better prognosis. The fact that this gene is expressed under the sun suggests that it might be a natural response to the tumorigenic genes, upregulated under sun exposure. The treatments help upregulate it further to fight tumor proliferation. The relationship between ETV7 and the three genes mentioned above should be looked into with more detail, as a treatment upregulating its expression seems to be possibly effective against melanoma.
 
 It is important to pay attention to the outcome that almost all of the upregulated genes are either regulated by MITF or are from the data that was exposed to the sun. This indicates that the high expression of the genes that are related to MITF are as effective as exposure to sun when it comes to helping create or supporting the melanoma. This means that MITF related genes make extremely good drug targets for melanoma. Since all of the upregulated genes analysed on are human skin specific TRA genes, a new treatment where the expression of the genes mentioned above are targeted, would not harm healthy tissues. This opens countless opportunities for future research and treatment of melanomas, especially because melanoma is highly metastatic.
 
-Through the opposite expression of TYRP1, and varying up- and downregulated genes between chips of different treatments, the different effects of MEK and ERK inhibitors on melanoma have been shown. Even though these treatments in this project have shown to downregulate some known tumor inducing genes such as WEE1, an important regulator in the cell cycle (Tashnizi _et al_., 2016), it should be further researched and discussed on if these inhibitors should be used on melanoma, as they also showed to upregulate many genes inducing melanoma. If yes, a combination of other drugs are needed as treatment to inhibit the accelerating effects of MAPK inhibitors on melanosome related genes.
+Through the opposite expression of TYRP1, and varying up- and downregulated genes between chips of different treatments, the different effects of MEK and ERK inhibitors on melanoma have been shown. As it is observed that MITF related genes are upregulated under treatment with MAPK pathway inhibitors, the usage of ERK/MEK inhibitors on melanoma should be questioned. Furthermore, WEE1, an important G2-M checkpoint regulator in the cell cycle, is downregulated under these treatments, which results in an increase in tumor aggressiveness (Bhattacharya _et al_., 2012). Therefore, it should be further researched and discussed on if these inhibitors should be used on melanoma. If yes, a combination of other drugs are needed as treatment to inhibit the accelerating effects of MAPK inhibitors on tumoregenic or melanosome related genes.
 
 The strong linear dependency found between the expression of the gene DSP and MPZL3 also raises new questions requiring additional research. To be able to predict MPZL3 is important for characterizing the cancer; identifying it would help to see if the patient has a good prognosis or not. DSP seems to be fit for this prediction. It codes for a desmosomal protein, which helps human melanoma metastases to escape the immune system (Salerno _et al_., 2016). Some desmosomal proteins are used to identify melanomas, even when there are not any immune signatures seen (Salerno _et al_., 2016). 
 
@@ -1244,6 +1255,8 @@ Not all of the upregulated genes found in this dataset were informative, as ther
 Alqathama A. (2020). BRAF in malignant melanoma progression and metastasis: potentials and challenges. 
 
 American journal of cancer research, 10(4), 1103–1114.
+
+Bhattacharya, A., Schmitz, U., Wolkenhauer, O. _et al_., (2013). Regulation of cell cycle checkpoint kinase WEE1 by miR-195 in malignant melanoma. Oncogene 32, 3175-3183. https://doi.org/10.1038/onc.2012.324
 
 Chou, HL., Yao, CT., Su, SL. _et al_. (2013).Gene expression profiling of breast cancer survivability by pooled cDNA microarray analysis using logistic regression, artificial neural networks and decision trees. BMC Bioinformatics 14, 100. https://doi.org/10.1186/1471-2105-14-100
 
@@ -1304,8 +1317,6 @@ Setaluri, V., Jayanthy, A. (2013). Coat Color Mutations, Animals, Brenner's Ency
 Smith, P., Godde, N., Rubio, S. _et al_. (2019). VANGL2 regulates luminal epithelial organization and cell turnover in the mammary gland. Sci Rep 9, 7079.  https://doi.org/10.1038/s41598-019-43444-8
 
 Smith, R. A., Mettlin, C. J., Eyre, H. (2003). Melanoma and Nonmelanoma Skin Cancer, Holland-Frei Cancer Medicine. 6th edition. Hamilton (ON): BC Decker;  https://www.ncbi.nlm.nih.gov/books/NBK13764/
-
-Tashnizi, A. H., Jaberipour, M., Razmkhah, M., Rahnama, S., & Habibagahi, M. (2016). Tumour suppressive effects of WEE1 gene silencing in neuroblastomas. Journal of cancer research and therapeutics, 12(1), 221–227. https://doi.org/10.4103/0973-1482.165861
 
 Taya, M., Hammes, S. R. (2018). Glycoprotein Non-Metastatic Melanoma Protein B (GPNMB) and Cancer: A Novel 
 Potential Therapeutic Target. Steroids, 133, 102–107. https://doi.org/10.1016/j.steroids.2017.10.013
